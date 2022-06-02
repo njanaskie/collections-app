@@ -1,0 +1,15 @@
+mutation CreateCollection(
+  $input: CollectionInput!
+  $entries: [CollectionEntryInput!]!
+) {
+  createCollection(input: $input, entries: $entries) {
+    collection {
+      id
+      createdAt
+      updatedAt
+      title
+      points
+      creatorId
+    }
+  }
+}

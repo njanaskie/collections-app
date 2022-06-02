@@ -1,0 +1,13 @@
+mutation UpdateCollection(
+  $title: String!
+  $entries: [CollectionEntryInput!]!
+  $id: Int!
+) {
+  updateCollection(title: $title, entries: $entries, id: $id) {
+    collection {
+      id
+      title
+      titleSnippet
+    }
+  }
+}

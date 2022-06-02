@@ -1,0 +1,21 @@
+query Collection($id: Int!) {
+  collection(id: $id) {
+    id
+    createdAt
+    updatedAt
+    title
+    points
+    voteStatus
+    creator {
+      id
+      username
+    }
+    collectionEntries {
+      id
+      externalId
+      externalTitle
+      externalImagePath
+      externalReleaseDate
+    }
+  }
+}

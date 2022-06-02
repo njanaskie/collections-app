@@ -1,0 +1,8 @@
+query Collections($limit: Int!, $cursor: String) {
+  collections(limit: $limit, cursor: $cursor) {
+    hasMore
+    collections {
+      ...CollectionSnippet
+    }
+  }
+}

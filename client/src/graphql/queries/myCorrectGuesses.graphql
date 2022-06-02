@@ -1,0 +1,11 @@
+query MyCorrectGuesses($collectionId: Int!) {
+  myCorrectGuesses(collectionId: $collectionId) {
+    collectionId
+    collectionEntryId
+    guesserId
+    pending
+    collectionEntry {
+      externalId
+    }
+  }
+}

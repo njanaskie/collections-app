@@ -1,0 +1,12 @@
+fragment CollectionSnippet on Collection {
+  id
+  createdAt
+  updatedAt
+  titleSnippet
+  points
+  voteStatus
+  creator {
+    id
+    username
+  }
+}

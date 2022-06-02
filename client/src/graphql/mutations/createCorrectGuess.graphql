@@ -1,0 +1,14 @@
+mutation CreateCorrectGuess($guess: CorrectGuessInput!) {
+  createCorrectGuess(guess: $guess) {
+    errors {
+      field
+      message
+    }
+    correctGuess {
+      collectionEntryId
+      collectionId
+      guesserId
+      pending
+    }
+  }
+}
