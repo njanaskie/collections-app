@@ -5,8 +5,10 @@ export const apiFetch = (url: string) => {
   return fetch(url);
 };
 
-export const getSearch = (query: string) => {
-  return fetch(`${API_BASE_URL}search/movie?api_key=${API_KEY}&query=${query}`);
+export const getSearch = (query: string, page: number) => {
+  return fetch(
+    `${API_BASE_URL}search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
+  );
 };
 
 export const getConfiguration = () => {

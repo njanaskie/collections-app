@@ -66,8 +66,8 @@ export class CorrectGuessResolver {
       return {
         errors: [
           {
-            field: "collectionEntry",
-            message: "Collection entry does not exist.",
+            field: "correctGuess",
+            message: "Collection entry not found.",
           },
         ],
       };
@@ -82,8 +82,6 @@ export class CorrectGuessResolver {
     }).save();
 
     correctGuess = result;
-
-    console.log("backend correctgues", correctGuess);
 
     return { correctGuess };
   }

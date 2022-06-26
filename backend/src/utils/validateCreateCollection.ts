@@ -1,4 +1,5 @@
-import { CollectionInput } from "src/resolvers/CollectionInput";
+import { CollectionEntryInput } from "../resolvers/CollectionEntryInput";
+import { CollectionInput } from "../resolvers/CollectionInput";
 
 function isArrayOfNums(value: any): boolean {
   return (
@@ -6,33 +7,54 @@ function isArrayOfNums(value: any): boolean {
   );
 }
 
-export const validateCreateCollection = (input: CollectionInput) => {
-  if (!isArrayOfNums(input.items)) {
+export const validateCreateCollection = (
+  input: CollectionInput,
+  entries: CollectionEntryInput[]
+) => {
+  if (!input.title || input.title === "") {
     return [
       {
-        field: "items",
-        message: "Invalid input",
+        field: "title",
+        message: "Must have a title",
       },
     ];
   }
 
-  if (typeof input.items === "string") {
+  if (typeof input.title !== "string") {
     return [
       {
-        field: "items",
-        message: "Cannot be a string",
+        field: "title",
+        message: "Must be a string",
       },
     ];
   }
 
-  if (input.items.length < 1) {
+  if (entries.length < 1) {
     return [
       {
-        field: "items",
-        message: "Must have at least one item",
+        field: "entries",
+        message: "Must have at least one entry",
       },
     ];
   }
+
+  // entries.map((entry) => {
+  //   if (
+  //     typeof entry.externalId !== "number" ||
+  //     typeof entry.externalImagePath !== "string" ||
+  //     typeof entry.externalReleaseDate !== "string" ||
+  //     typeof entry.externalTitle !== "string"
+  //   ) {
+  //     return [
+  //       {
+  //         field: "entries",
+  //         message: "There was an issue with the entry data",
+  //       },
+  //     ];
+  //   }
+
+  //   return null;
+  // });
 
   return null;
 };

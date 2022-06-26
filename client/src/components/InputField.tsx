@@ -36,6 +36,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         id={field.name}
         placeholder={props.placeholder}
         bgColor="gray.200"
+        color="black"
       />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>

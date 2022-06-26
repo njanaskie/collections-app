@@ -1,0 +1,6 @@
+fragment UserPaginatedCollections on PaginatedCollections {
+  hasMore
+  collections {
+    ...UserCollectionSnippet
+  }
+}

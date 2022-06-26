@@ -5,6 +5,7 @@ import {
   CollectionSnippetFragment,
   useVoteMutation,
 } from "../generated/graphql";
+import NextLink from "next/link";
 
 interface CardBottomProps {
   collection: CollectionSnippetFragment;
@@ -27,12 +28,21 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
           variant="ghost"
           aria-label="like collection"
           isLoading={fetching}
+          color="gray.600"
         >
           {collection.voteStatus === 1 ? <IoMdHeart /> : <IoMdHeartEmpty />}
         </Button>
-        {collection.points}
+        <Text color="gray.600">{collection.points}</Text>
       </Flex>
-      <Text>{collection.creator.username}</Text>
+      <NextLink
+        href={{
+          pathname: "/user/[username]",
+          query: { id: collection.creator.id },
+        }}
+        as={`/user/${collection.creator.username}`}
+      >
+        <Button color="gray.600">{collection.creator.username}</Button>
+      </NextLink>
     </Flex>
   );
 };

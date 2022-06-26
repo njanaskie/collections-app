@@ -24,9 +24,17 @@ import {
   CorrectGuessInput,
   CorrectGuess,
   CreateCorrectGuessDocument,
+  UpdateCollectionMutation,
+  CollectionDocument,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { Cache, cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import {
+  Cache,
+  cacheExchange,
+  NullArray,
+  Resolver,
+  Variables,
+} from "@urql/exchange-graphcache";
 import { pipe, tap } from "wonka";
 import Router from "next/router";
 import gql from "graphql-tag";
@@ -45,7 +53,7 @@ export const errorExchange: Exchange =
     );
   };
 
-const cursorPagination = (): Resolver => {
+const simplePagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
 
@@ -68,6 +76,20 @@ const cursorPagination = (): Resolver => {
       const key = cache.resolve(entityKey, fi.fieldKey) as string;
       const data = cache.resolve(key, "collections") as string[];
       const _hasMore = cache.resolve(key, "hasMore");
+      const orderBy = fi.arguments!.orderBy;
+      // console.log("fieldinfos", data, key);
+      // TODO: Decide if this is the best way to do this
+      if (orderBy !== fieldArgs.orderBy) {
+        // console.log("deleting fi.arguments", fieldArgs.orderBy, fi.arguments);
+        cache.invalidate("Query", "collections", fi.arguments);
+      } else {
+        // console.log(
+        //   "not deleteing fi.arguments",
+        //   fieldArgs.orderBy,
+        //   fi.arguments
+        // );
+      }
+
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
@@ -121,10 +143,18 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           CollectionEntry: () => null,
           CorrectGuessResponse: () => null,
           CorrectGuess: () => null,
+          UserResponse: () => null,
+          RegularUserResponse: () => null,
         },
         resolvers: {
           Query: {
-            collections: cursorPagination(),
+            collections: simplePagination(),
+            // userCompletedCollections: simplePagination(),
+            // userCreatedCollections: simplePagination(),
+            // userStartedCollections: simplePagination(),
+            user: (data, args) => {
+              return { __typename: "UserResponse", id: args.id };
+            },
             // collection: (data, args) => {
             //   console.log("query collection :", data, args);
             //   return {
@@ -155,15 +185,16 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   },
                 },
                 (data) => {
-                  const correctGuesses = data!.myCorrectGuesses as any;
-                  correctGuesses.push({
-                    ...result.createCorrectGuess.correctGuess,
-                    collectionEntry: {
-                      externalId: guess.externalId,
-                      __typename: "CollectionEntry",
-                    },
-                  });
-                  console.log("update cahce query", result, data);
+                  if (!result.createCorrectGuess.errors) {
+                    const correctGuesses = data!.myCorrectGuesses as any;
+                    correctGuesses.push({
+                      ...result.createCorrectGuess.correctGuess,
+                      collectionEntry: {
+                        externalId: guess.externalId,
+                        __typename: "CollectionEntry",
+                      },
+                    });
+                  }
 
                   return data;
                 }
@@ -210,17 +241,6 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               const entriesWithTypename = entriesArray.map((e) => {
                 return { ...e, __typename: "CollectionEntry" };
               });
-              // const fragment = cache.readFragment(
-              //   gql`
-              //     fragment _ on Collection {
-              //       id
-              //       collectionEntries {
-              //         externalId
-              //       }
-              //     }
-              //   `,
-              //   { id } as any
-              // );
 
               cache.writeFragment(
                 gql`
@@ -228,6 +248,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                     id
                     collectionEntries {
                       externalId
+                      externalTitle
+                      externalReleaseDate
+                      externalImagePath
                     }
                   }
                 `,
@@ -237,19 +260,37 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 }
               );
 
-              // cache.updateQuery({ query }, data => {
-              //   data.collectionEntries.push(result.)
-              // })
+              // const CollectionQuery = `
+              //   query ($id: ID!) {
+              //     collection(id: $id) { id, collectionEntries }
+              //   }
+              // `;
 
-              // betterUpdateQuery<
-              //   UpdateCollectionMutationVariables,
-              //   CollectionQuery
-              // >(
+              // cache.updateQuery(
+              //   { query: CollectionQuery, variables: { id, entries } },
+              //   (data) => {
+              //     if (!data) return null;
+              //     console.log("updatequery data", data, entriesWithTypename);
+              //     data.collectionEntries = entriesWithTypename;
+              //     return data;
+              //   }
+              // );
+
+              // betterUpdateQuery<UpdateCollectionMutation, CollectionQuery>(
               //   cache,
-              //   { query: UpdateCollectionDocument },
+              //   { query: CollectionDocument },
               //   _result,
               //   (result, query) => ({
-              //     collection: { collectionEntries: result.entries } as any,
+              //     collection: {
+              //       ...result.updateCollection?.collection,
+              //       collectionEntries:
+              //         result.updateCollection?.collection?.collectionEntries?.map(
+              //           (e) => {
+              //             return { ...e, __typename: "CollectionEntry" };
+              //           }
+              //         ),
+              //       __typename: "Collection",
+              //     } as any,
               //   })
               // );
             },
@@ -271,7 +312,6 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 { id: collectionId } as any
               );
-              console.log("data ", data);
               if (data) {
                 // if (data.voteStatus === 1) {
                 //   return;

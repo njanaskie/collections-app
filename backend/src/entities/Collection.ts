@@ -31,10 +31,13 @@ export class Collection extends BaseEntity {
   // @Column("int", { array: true })
   // items!: number[];
 
-  @Field(() => [CollectionEntry], { nullable: true })
+  @Field(() => [CollectionEntry], { nullable: false })
   @OneToMany(
     () => CollectionEntry,
     (collectionEntry) => collectionEntry.collection
+    // {
+    //   eager: true,
+    // }
   )
   collectionEntries: CollectionEntry[];
 
@@ -50,6 +53,9 @@ export class Collection extends BaseEntity {
 
   @Field(() => Int, { defaultValue: 0 })
   voteStatus: number;
+
+  @Field(() => Number, { defaultValue: 0 })
+  guesserCompleteness: number;
 
   @Field()
   @Column()

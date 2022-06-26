@@ -1,5 +1,18 @@
-query Collections($limit: Int!, $cursor: String) {
-  collections(limit: $limit, cursor: $cursor) {
+query Collections(
+  $limit: Int!
+  $cursor: String
+  $orderBy: String
+  $modulus: Int
+  $page: Int!
+) {
+  collections(
+    limit: $limit
+    cursor: $cursor
+    orderBy: $orderBy
+    modulus: $modulus
+    page: $page
+  ) {
+    modulus
     hasMore
     collections {
       ...CollectionSnippet

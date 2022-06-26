@@ -12,8 +12,10 @@ import cors from "cors";
 import AppDataSource from "./database/dataSource";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createLikeLoader } from "./utils/createLikeLoader";
+import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader";
 import { CorrectGuessResolver } from "./resolvers/correctGuess";
 import { CorrectGuess } from "./entities/CorrectGuess";
+import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 // import { Collection } from "./entities/Collection";
 
 const main = async () => {
@@ -68,6 +70,8 @@ const main = async () => {
       redis,
       userLoader: createUserLoader(),
       likeLoader: createLikeLoader(),
+      collectionEntryLoader: createCollectionEntryLoader(),
+      correctGuessLoader: createCorrectGuessLoader(),
     }),
   });
 

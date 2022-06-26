@@ -3,14 +3,14 @@ import theme from "../theme";
 
 function MyApp({ Component, pageProps }: any) {
   return (
-    <ChakraProvider resetCSS={true} theme={theme}>
-      <ColorModeProvider
+    <ChakraProvider resetCSS theme={theme}>
+      {/* <ColorModeProvider
         options={{
           useSystemColorMode: false,
         }}
-      >
-        <Component {...pageProps} />
-      </ColorModeProvider>
+      > */}
+      <Component {...pageProps} />
+      {/* </ColorModeProvider> */}
     </ChakraProvider>
   );
 }

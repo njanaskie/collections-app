@@ -8,6 +8,13 @@ mutation UpdateCollection(
       id
       title
       titleSnippet
+      collectionEntries {
+        id
+        externalId
+        externalTitle
+        externalImagePath
+        externalReleaseDate
+      }
     }
   }
 }

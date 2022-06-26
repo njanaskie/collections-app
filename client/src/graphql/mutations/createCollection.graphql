@@ -3,6 +3,10 @@ mutation CreateCollection(
   $entries: [CollectionEntryInput!]!
 ) {
   createCollection(input: $input, entries: $entries) {
+    errors {
+      field
+      message
+    }
     collection {
       id
       createdAt

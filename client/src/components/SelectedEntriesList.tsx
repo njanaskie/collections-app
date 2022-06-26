@@ -47,19 +47,14 @@ import theme from "../theme";
 import { randomSelector } from "../utils/randomSelector";
 import { correctGuessMessages, incorrectGuessMessages } from "../constants";
 import { GuessMessageAlert } from "./GuessMessageAlert";
+import { EntryProps } from "../utils/EntryProps";
 
 interface SelectedEntriesListProps {
-  items: EntryProps[];
+  items: WithoutId[];
   handleRemoveSelectedEntry(id: number): any;
 }
 
-interface EntryProps {
-  // __typename?: any;
-  externalId: number;
-  externalTitle: string;
-  externalImagePath: string;
-  externalReleaseDate: string;
-}
+type WithoutId = Omit<EntryProps, "id">;
 
 export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
   items,
@@ -67,11 +62,12 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
 }) => {
   return (
     <Box
+      mt="28"
       paddingY={8}
       paddingX={4}
-      mt={10}
       borderColor="whiteAlpha.200"
       borderWidth={4}
+      pos="inherit"
     >
       {items.length > 0 ? (
         items.map((i) =>

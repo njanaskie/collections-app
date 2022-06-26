@@ -3,19 +3,27 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useCollectionsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Flex,
   Heading,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Select,
   Stack,
   Text,
+  Radio,
+  RadioGroup,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import { Navigation, Pagination } from "swiper";
+import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -26,19 +34,44 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { CardBottom } from "../components/CardBottom";
 import { SelectAutoComplete } from "../components/SelectAutoComplete";
 import theme from "../theme";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import { usePrevious } from "../utils/usePrevious";
+import { Card } from "../components/Card";
 const handleDragStart = (e: any) => e.preventDefault();
 
 const Index = () => {
-  const swiper = useSwiper();
+  const [swiper, setSwiper] = useState<null | SwiperType>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [orderBy, setOrderBy] = useState<string>("new");
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [variables, setVariables] = useState({
-    limit: 15,
+    limit: 4,
     cursor: null as null | string,
+    orderBy: "new" as string,
+    modulus: null as null | number,
+    page: 1,
   });
-  const [{ data, error, fetching }] = useCollectionsQuery({
+  const prevPage = usePrevious(variables.page);
+  const [{ data, error, fetching }, executeQuery] = useCollectionsQuery({
     variables,
+    // requestPolicy: "network-only",
   });
+
+  useEffect(() => {
+    setIsRefreshing(true);
+    // console.log("fetch new order", initialVariablesState);
+    setVariables({ ...variables, orderBy, page: 1, modulus: null });
+    if (swiper && !swiper.destroyed) {
+      swiper.slideTo(0);
+    }
+    // const req = executeQuery({
+    //   requestPolicy: "network-only",
+    //   //   // variables: { orderBy: "popular" },
+    // });
+    // console.log("request", req);
+    setIsRefreshing(false);
+  }, [orderBy]);
 
   if (!fetching && !data) {
     return (
@@ -49,23 +82,36 @@ const Index = () => {
     );
   }
 
-  // console.log("collections, ", data?.collections.collections);
-
   return (
     <Layout>
+      <Flex justify="flex-start">
+        <RadioGroup
+          onChange={setOrderBy}
+          size="lg"
+          value={orderBy}
+          marginBlock={4}
+          colorScheme="messenger"
+        >
+          <Stack direction="row">
+            <Radio value="new">New</Radio>
+            <Radio value="popular">Popular</Radio>
+            <Radio value="random">Random</Radio>
+          </Stack>
+        </RadioGroup>
+      </Flex>
       {!data && fetching ? (
         <div>loading...</div>
+      ) : !fetching && data?.collections.collections?.length === 0 ? (
+        <Box>Ain't no collections to be found :(</Box>
       ) : (
         <>
-          {/* <Box mb={10}>
-            <SelectAutoComplete />
-          </Box> */}
           <Box>
             <Swiper
+              onReset={() => console.log("on reset")}
               spaceBetween={20}
               slidesPerView={3}
               onSlideChange={() => {}}
-              // onSwiper={() => {}}
+              onSwiper={setSwiper}
               navigation={{
                 prevEl: prevRef.current!, // Assert non-null
                 nextEl: nextRef.current!, // Assert non-null
@@ -77,46 +123,37 @@ const Index = () => {
                   console.log("no data");
                   return;
                 }
-                setVariables({
-                  limit: variables.limit,
-                  cursor:
-                    data.collections.collections[
-                      data.collections.collections.length - 1
-                    ].createdAt,
-                });
+
+                if (data.collections.modulus) {
+                  setVariables({
+                    ...variables,
+                    modulus: data.collections.modulus,
+                    page: prevPage + 1,
+                  });
+                } else {
+                  setVariables({
+                    ...variables,
+                    page: prevPage + 1,
+                  });
+                }
+
+                // setVariables({
+                //   limit: variables.limit,
+                //   cursor: data.collections.collections
+                //     ? data.collections.collections[
+                //         data.collections.collections.length - 1
+                //       ]?.createdAt
+                //     : null,
+                //   orderBy,
+                //   modulus: data.collections.modulus,
+                //   page: variables.page
+                // });
               }}
             >
               {data!.collections.collections.map((c) =>
                 !c ? null : (
                   <SwiperSlide key={c.id}>
-                    <Flex
-                      direction="column"
-                      p={5}
-                      shadow="md"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      h={300}
-                      justifyContent="space-between"
-                      backgroundColor="gray.200"
-                      borderRadius={4}
-                    >
-                      <Box>
-                        <NextLink
-                          href="/collection/[id]"
-                          as={`/collection/${c.id}`}
-                        >
-                          <Link>
-                            <Heading
-                              fontSize="lg"
-                              color={theme.colors.darkBlue}
-                            >
-                              {c.titleSnippet}
-                            </Heading>
-                          </Link>
-                        </NextLink>
-                      </Box>
-                      <CardBottom collection={c} />
-                    </Flex>
+                    {({ isActive }) => <Card c={c} />}
                   </SwiperSlide>
                 )
               )}
@@ -140,93 +177,10 @@ const Index = () => {
               </Button>
             </Flex>
           </Box>
-
-          {/* <AliceCarousel
-            mouseTracking
-            infinite={false}
-            ssrSilentMode={false}
-            responsive={{
-              0: {
-                items: 1,
-              },
-              1024: {
-                items: 3,
-              },
-            }}
-            items={data!.collections.collections.map((c) => (
-              <Box
-                key={c.id}
-                p={5}
-                shadow="md"
-                borderWidth="1px"
-                h={200}
-                onDragStart={handleDragStart}
-              >
-                <Heading fontSize="md">{c.titleSnippet}</Heading>
-              </Box>
-            ))}
-          />
-          {data && data.collections.hasMore ? (
-            <Button
-              onClick={() => {
-                setVariables({
-                  limit: variables.limit,
-                  cursor:
-                    data.collections.collections[
-                      data.collections.collections.length - 1
-                    ].createdAt,
-                });
-              }}
-            >
-              Load more
-            </Button>
-          ) : null} */}
         </>
       )}
     </Layout>
   );
-
-  // return (
-  //   <Layout>
-  //     {!data && fetching ? (
-  //       <div>loading...</div>
-  //     ) : (
-  //       <Stack spacing={8}>
-  //         {data!.collections.collections.map((p) =>
-  //           !p ? null : (
-  //             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-  //               <Box flex={1}>
-  //                 <Flex align="center">
-  //                   <Heading>{p.titleSnippet}</Heading>
-  //                 </Flex>
-  //               </Box>
-  //             </Flex>
-  //           )
-  //         )}
-  //       </Stack>
-  //     )}
-  //     {data && data.collections.hasMore ? (
-  //       <Flex>
-  //         <Button
-  //           onClick={() => {
-  //             setVariables({
-  //               limit: variables.limit,
-  //               cursor:
-  //                 data.collections.collections[
-  //                   data.collections.collections.length - 1
-  //                 ].createdAt,
-  //             });
-  //           }}
-  //           isLoading={fetching}
-  //           m="auto"
-  //           my={8}
-  //         >
-  //           load more
-  //         </Button>
-  //       </Flex>
-  //     ) : null}
-  //   </Layout>
-  // );
 };
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

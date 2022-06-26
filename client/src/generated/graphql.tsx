@@ -17,10 +17,11 @@ export type Scalars = {
 
 export type Collection = {
   __typename?: 'Collection';
-  collectionEntries?: Maybe<Array<CollectionEntry>>;
+  collectionEntries: Array<CollectionEntry>;
   createdAt: Scalars['String'];
   creator: User;
   creatorId: Scalars['Float'];
+  guesserCompleteness?: Maybe<Scalars['Float']>;
   id: Scalars['Float'];
   points: Scalars['Float'];
   title: Scalars['String'];
@@ -54,6 +55,7 @@ export type CollectionInput = {
 export type CollectionResponse = {
   __typename?: 'CollectionResponse';
   collection?: Maybe<Collection>;
+  errors?: Maybe<Array<FieldError>>;
 };
 
 export type CorrectGuess = {
@@ -153,6 +155,7 @@ export type PaginatedCollections = {
   __typename?: 'PaginatedCollections';
   collections: Array<Collection>;
   hasMore: Scalars['Boolean'];
+  modulus?: Maybe<Scalars['Float']>;
 };
 
 export type Query = {
@@ -161,6 +164,10 @@ export type Query = {
   collections: PaginatedCollections;
   me?: Maybe<User>;
   myCorrectGuesses?: Maybe<Array<CorrectGuess>>;
+  user?: Maybe<UserResponse>;
+  userCompletedCollections: PaginatedCollections;
+  userCreatedCollections: PaginatedCollections;
+  userStartedCollections: PaginatedCollections;
 };
 
 
@@ -172,11 +179,40 @@ export type QueryCollectionArgs = {
 export type QueryCollectionsArgs = {
   cursor?: InputMaybe<Scalars['String']>;
   limit: Scalars['Int'];
+  modulus?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Scalars['String']>;
+  page: Scalars['Int'];
 };
 
 
 export type QueryMyCorrectGuessesArgs = {
   collectionId: Scalars['Int'];
+};
+
+
+export type QueryUserArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserCompletedCollectionsArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+export type QueryUserCreatedCollectionsArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+export type QueryUserStartedCollectionsArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
 };
 
 export type User = {
@@ -204,9 +240,13 @@ export type CollectionSnippetFragment = { __typename?: 'Collection', id: number,
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, username: string };
+export type RegularUserFragment = { __typename?: 'User', id: number, username: string, createdAt: string };
 
-export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null };
+export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null };
+
+export type UserCollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } };
+
+export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> };
 
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
@@ -214,7 +254,7 @@ export type ChangePasswordMutationVariables = Exact<{
 }>;
 
 
-export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
 
 export type CreateCollectionMutationVariables = Exact<{
   input: CollectionInput;
@@ -222,7 +262,7 @@ export type CreateCollectionMutationVariables = Exact<{
 }>;
 
 
-export type CreateCollectionMutation = { __typename?: 'Mutation', createCollection: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, creatorId: number } | null } };
+export type CreateCollectionMutation = { __typename?: 'Mutation', createCollection: { __typename?: 'CollectionResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, creatorId: number } | null } };
 
 export type CreateCorrectGuessMutationVariables = Exact<{
   guess: CorrectGuessInput;
@@ -251,7 +291,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -263,7 +303,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
 
 export type UpdateCollectionMutationVariables = Exact<{
   title: Scalars['String'];
@@ -272,7 +312,7 @@ export type UpdateCollectionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet: string } | null } | null };
+export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet: string, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null } | null };
 
 export type VoteMutationVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -286,20 +326,23 @@ export type CollectionQueryVariables = Exact<{
 }>;
 
 
-export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries?: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> | null } | null };
+export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null };
 
 export type CollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: InputMaybe<Scalars['String']>;
+  orderBy?: InputMaybe<Scalars['String']>;
+  modulus?: InputMaybe<Scalars['Int']>;
+  page: Scalars['Int'];
 }>;
 
 
-export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, createdAt: string } | null };
 
 export type MyCorrectGuessesQueryVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -307,6 +350,40 @@ export type MyCorrectGuessesQueryVariables = Exact<{
 
 
 export type MyCorrectGuessesQuery = { __typename?: 'Query', myCorrectGuesses?: Array<{ __typename?: 'CorrectGuess', collectionId: number, collectionEntryId: number, guesserId: number, pending: boolean, collectionEntry: { __typename?: 'CollectionEntry', externalId: number } }> | null };
+
+export type UserQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } | null };
+
+export type UserCompletedCollectionsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
+}>;
+
+
+export type UserCompletedCollectionsQuery = { __typename?: 'Query', userCompletedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+
+export type UserCreatedCollectionsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
+}>;
+
+
+export type UserCreatedCollectionsQuery = { __typename?: 'Query', userCreatedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+
+export type UserStartedCollectionsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  userId: Scalars['Int'];
+}>;
+
+
+export type UserStartedCollectionsQuery = { __typename?: 'Query', userStartedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export const CollectionSnippetFragmentDoc = gql`
     fragment CollectionSnippet on Collection {
@@ -332,6 +409,7 @@ export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
   username
+  createdAt
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -345,6 +423,27 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const UserCollectionSnippetFragmentDoc = gql`
+    fragment UserCollectionSnippet on Collection {
+  id
+  createdAt
+  updatedAt
+  titleSnippet
+  points
+  creator {
+    id
+    username
+  }
+}
+    `;
+export const UserPaginatedCollectionsFragmentDoc = gql`
+    fragment UserPaginatedCollections on PaginatedCollections {
+  hasMore
+  collections {
+    ...UserCollectionSnippet
+  }
+}
+    ${UserCollectionSnippetFragmentDoc}`;
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -359,6 +458,10 @@ export function useChangePasswordMutation() {
 export const CreateCollectionDocument = gql`
     mutation CreateCollection($input: CollectionInput!, $entries: [CollectionEntryInput!]!) {
   createCollection(input: $input, entries: $entries) {
+    errors {
+      field
+      message
+    }
     collection {
       id
       createdAt
@@ -450,6 +553,13 @@ export const UpdateCollectionDocument = gql`
       id
       title
       titleSnippet
+      collectionEntries {
+        id
+        externalId
+        externalTitle
+        externalImagePath
+        externalReleaseDate
+      }
     }
   }
 }
@@ -495,8 +605,15 @@ export function useCollectionQuery(options: Omit<Urql.UseQueryArgs<CollectionQue
   return Urql.useQuery<CollectionQuery>({ query: CollectionDocument, ...options });
 };
 export const CollectionsDocument = gql`
-    query Collections($limit: Int!, $cursor: String) {
-  collections(limit: $limit, cursor: $cursor) {
+    query Collections($limit: Int!, $cursor: String, $orderBy: String, $modulus: Int, $page: Int!) {
+  collections(
+    limit: $limit
+    cursor: $cursor
+    orderBy: $orderBy
+    modulus: $modulus
+    page: $page
+  ) {
+    modulus
     hasMore
     collections {
       ...CollectionSnippet
@@ -535,4 +652,57 @@ export const MyCorrectGuessesDocument = gql`
 
 export function useMyCorrectGuessesQuery(options: Omit<Urql.UseQueryArgs<MyCorrectGuessesQueryVariables>, 'query'>) {
   return Urql.useQuery<MyCorrectGuessesQuery>({ query: MyCorrectGuessesDocument, ...options });
+};
+export const UserDocument = gql`
+    query User($id: Int!) {
+  user(id: $id) {
+    ...RegularUserResponse
+  }
+}
+    ${RegularUserResponseFragmentDoc}`;
+
+export function useUserQuery(options: Omit<Urql.UseQueryArgs<UserQueryVariables>, 'query'>) {
+  return Urql.useQuery<UserQuery>({ query: UserDocument, ...options });
+};
+export const UserCompletedCollectionsDocument = gql`
+    query UserCompletedCollections($limit: Int!, $page: Int!, $userId: Int!) {
+  userCompletedCollections(limit: $limit, page: $page, userId: $userId) {
+    hasMore
+    collections {
+      ...UserCollectionSnippet
+    }
+  }
+}
+    ${UserCollectionSnippetFragmentDoc}`;
+
+export function useUserCompletedCollectionsQuery(options: Omit<Urql.UseQueryArgs<UserCompletedCollectionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<UserCompletedCollectionsQuery>({ query: UserCompletedCollectionsDocument, ...options });
+};
+export const UserCreatedCollectionsDocument = gql`
+    query UserCreatedCollections($limit: Int!, $page: Int!, $userId: Int!) {
+  userCreatedCollections(limit: $limit, page: $page, userId: $userId) {
+    hasMore
+    collections {
+      ...UserCollectionSnippet
+    }
+  }
+}
+    ${UserCollectionSnippetFragmentDoc}`;
+
+export function useUserCreatedCollectionsQuery(options: Omit<Urql.UseQueryArgs<UserCreatedCollectionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<UserCreatedCollectionsQuery>({ query: UserCreatedCollectionsDocument, ...options });
+};
+export const UserStartedCollectionsDocument = gql`
+    query UserStartedCollections($limit: Int!, $page: Int!, $userId: Int!) {
+  userStartedCollections(limit: $limit, page: $page, userId: $userId) {
+    hasMore
+    collections {
+      ...UserCollectionSnippet
+    }
+  }
+}
+    ${UserCollectionSnippetFragmentDoc}`;
+
+export function useUserStartedCollectionsQuery(options: Omit<Urql.UseQueryArgs<UserStartedCollectionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<UserStartedCollectionsQuery>({ query: UserStartedCollectionsDocument, ...options });
 };

@@ -17,19 +17,21 @@ import {
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { CollectionInput } from "./CollectionInput";
-// import { validateCreateCollection } from "../utils/validateCreateCollection";
+import { validateCreateCollection } from "../utils/validateCreateCollection";
 // import { FieldError } from "./FieldError";
 import AppDataSource from "../database/dataSource";
 import { Like } from "../entities/Like";
 import { User } from "../entities/User";
 import { CollectionEntry } from "../entities/CollectionEntry";
 import { CollectionEntryInput } from "./CollectionEntryInput";
-import { In } from "typeorm";
+import { CorrectGuess } from "../entities/CorrectGuess";
+import { PRIME_NUMBERS } from "../constants";
+import { FieldError } from "./FieldError";
 
 @ObjectType()
 class CollectionResponse {
-  // @Field(() => [FieldError], { nullable: true })
-  // errors?: FieldError[];
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
 
   @Field(() => Collection, { nullable: true })
   collection?: Collection;
@@ -41,6 +43,8 @@ class PaginatedCollections {
   collections: Collection[];
   @Field()
   hasMore: boolean;
+  @Field({ nullable: true })
+  modulus?: number;
 }
 
 @Resolver(Collection)
@@ -50,6 +54,150 @@ export class CollectionResolver {
   //   CollectionEntry.find({ where: { collectionId, userId } });
   //   return await this.userRepository.findOne(recipe.authorId, { cache: 1000 }))!;
   // }
+
+  @Query(() => PaginatedCollections)
+  async userCompletedCollections(
+    @Arg("userId", () => Int) userId: number,
+    @Arg("limit", () => Int) limit: number,
+    @Arg("page", () => Int) page: number,
+    @Ctx()
+    { req }: MyContext
+  ): Promise<PaginatedCollections> {
+    const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
+    const offset = page === 1 ? 0 : page * realLimit - realLimit;
+
+    const collections = await AppDataSource.query(
+      `
+      Select * From (
+        Select 
+        c.*,
+        (Select count(ce.*) from collection_entry ce
+        where ce."collectionId" = c.id
+        group by c.id) as ce_count,
+        (Select count(cg.*) from correct_guess cg
+        where cg."collectionId" = c.id and cg."guesserId" = ${userId}
+        group by c.id) as cg_count
+        From collection c
+      ) as counts
+      where counts.ce_count = counts.cg_count
+      order by counts."createdAt" DESC
+      limit ${realLimitPlusOne}
+      offset ${offset}
+      `
+    );
+
+    return {
+      collections: collections.slice(0, realLimit),
+      hasMore: collections.length === realLimitPlusOne,
+    };
+  }
+
+  @Query(() => PaginatedCollections)
+  async userStartedCollections(
+    @Arg("userId", () => Int) userId: number,
+    @Arg("limit", () => Int) limit: number,
+    @Arg("page", () => Int) page: number,
+    @Ctx()
+    { req }: MyContext
+  ): Promise<PaginatedCollections> {
+    const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
+    const offset = page === 1 ? 0 : page * realLimit - realLimit;
+
+    const collections = await AppDataSource.query(
+      `
+      Select * From (
+        Select 
+        c.*,
+        (Select count(ce.*) from collection_entry ce
+        where ce."collectionId" = c.id
+        group by c.id) as ce_count,
+        (Select count(cg.*) from correct_guess cg
+        where cg."collectionId" = c.id and cg."guesserId" = ${userId}
+        group by c.id) as cg_count
+        From collection c
+      ) as counts
+      where counts.ce_count != counts.cg_count and cg_count > 0
+      order by counts."createdAt" DESC
+      limit ${realLimitPlusOne}
+      offset ${offset}
+      `
+    );
+
+    return {
+      collections: collections.slice(0, realLimit),
+      hasMore: collections.length === realLimitPlusOne,
+    };
+  }
+
+  @Query(() => PaginatedCollections)
+  async userCreatedCollections(
+    @Arg("userId", () => Int) userId: number,
+    @Arg("limit", () => Int) limit: number,
+    @Arg("page", () => Int) page: number,
+    @Ctx()
+    { req }: MyContext
+  ): Promise<PaginatedCollections> {
+    const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
+    const offset = page === 1 ? 0 : page * realLimit - realLimit;
+
+    // const collections = await AppDataSource.query(
+    //   `
+    //   select c.*
+    //   from collection c
+    //   where c."creatorId" = ${userId}
+    //   order by c."createdAt" DESC
+    //   limit ${realLimitPlusOne}
+    //   offset ${offset}
+    //   `
+    // );
+
+    const collections = await AppDataSource.getRepository(Collection)
+      .createQueryBuilder("c")
+      .where('c."creatorId" = :userId', { userId })
+      .orderBy('c."createdAt"', "DESC")
+      .skip(offset)
+      .take(realLimitPlusOne)
+      .getMany();
+
+    return {
+      collections: collections.slice(0, realLimit),
+      hasMore: collections.length === realLimitPlusOne,
+    };
+  }
+
+  @FieldResolver(() => Number)
+  async guesserCompleteness(
+    @Root() collection: Collection,
+    @Ctx() { correctGuessLoader, collectionEntryLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return 0;
+    }
+
+    const loadedCorrectGuesses = await correctGuessLoader.load({
+      collectionId: collection.id,
+      guesserId: req.session.userId,
+    });
+
+    const loadedCollectionEntries = await collectionEntryLoader.load({
+      collectionId: collection.id,
+    });
+
+    if (!loadedCollectionEntries) {
+      return 0;
+    }
+
+    const correctGuessesLength = loadedCorrectGuesses
+      ? loadedCorrectGuesses.length
+      : 0;
+
+    return parseFloat(
+      (correctGuessesLength / loadedCollectionEntries.length).toFixed(2)
+    );
+  }
 
   @FieldResolver(() => String)
   titleSnippet(@Root() collection: Collection) {
@@ -134,11 +282,30 @@ export class CollectionResolver {
 
   @Query(() => PaginatedCollections)
   async collections(
+    @Arg("modulus", () => Int, { nullable: true }) modulus: number | null,
+    @Arg("orderBy", () => String, { nullable: true }) orderBy: string | null,
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Arg("page", () => Int) page: number,
+    @Ctx()
+    { req }: MyContext
   ): Promise<PaginatedCollections> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
+    const realModulus = modulus
+      ? modulus
+      : PRIME_NUMBERS[Math.floor(Math.random() * PRIME_NUMBERS.length)];
+    const offset = page === 1 ? 0 : page * realLimit - realLimit;
+
+    let orderParam = 'c."createdAt" DESC';
+    if (orderBy === "new") {
+      orderParam;
+    } else if (orderBy === "popular") {
+      // orderParam = 'c.points DESC, c."createdAt" DESC';
+      orderParam = "c.points DESC";
+    } else if (orderBy === "random") {
+      orderParam = `CAST(extract(epoch from c."createdAt") as integer) % ${realModulus}, id DESC`;
+    }
 
     const replacements: any[] = [realLimitPlusOne];
 
@@ -146,13 +313,27 @@ export class CollectionResolver {
       replacements.push(new Date(parseInt(cursor)));
     }
 
+    // const collections = await AppDataSource.query(
+    //   `
+    //   select c.*
+    //   from collection c
+    //   ${cursor ? `where c."createdAt" < $2` : ""}
+    //   order by ${orderParam}
+    //   limit $1
+    //   `,
+    //   replacements
+    // );
+
     const collections = await AppDataSource.query(
       `
       select c.*
       from collection c
-      ${cursor ? `where c."createdAt" < $2` : ""}
-      order by c."createdAt" DESC
+      ${
+        req.session.userId ? `where c."creatorId" != ${req.session.userId}` : ""
+      }
+      order by ${orderParam}
       limit $1
+      offset ${offset}
       `,
       replacements
     );
@@ -175,6 +356,7 @@ export class CollectionResolver {
     return {
       collections: collections.slice(0, realLimit),
       hasMore: collections.length === realLimitPlusOne,
+      modulus: realModulus,
     };
   }
 
@@ -188,7 +370,6 @@ export class CollectionResolver {
       relations: ["collectionEntries"],
     });
 
-    console.log("findone collection, ", collection);
     return collection;
   }
 
@@ -205,10 +386,10 @@ export class CollectionResolver {
     //   creatorId: req.session.userId,
     // }).save();
 
-    // const errors = validateCreateCollection(input);
-    // if (errors) {
-    //   return { errors };
-    // }
+    const errors = validateCreateCollection(input, entries);
+    if (errors) {
+      return { errors };
+    }
     let collection;
     try {
       await AppDataSource.transaction(async (tm) => {
@@ -270,12 +451,12 @@ export class CollectionResolver {
     @Ctx()
     { req }: MyContext
   ): Promise<CollectionResponse> {
-    // const existingEntries = await CollectionEntry.find({
-    //   where: {
-    //     collectionId: id,
-    //     // externalId: In(entries.map((e) => e.externalId)),
-    //   },
-    // });
+    const existingEntries = await CollectionEntry.find({
+      where: {
+        collectionId: id,
+        // externalId: In(entries.map((e) => e.externalId)),
+      },
+    });
     let collection;
     try {
       await AppDataSource.transaction(async (tm) => {
@@ -298,20 +479,22 @@ export class CollectionResolver {
             collectionId: id,
           };
         });
-        await tm.save(CollectionEntry, entriesWithCollectionId);
+        console.log("entriesWithCollectionId", entriesWithCollectionId);
+        // await tm.save(CollectionEntry, entriesWithCollectionId);
 
-        // entries.forEach(async (entry) => {
-        //   if (
-        //     !existingEntries.map((e) => e.externalId).includes(entry.externalId)
-        //   ) {
-        //     await tm
-        //       .create(CollectionEntry, {
-        //         ...entry,
-        //         collectionId: id,
-        //       })
-        //       .save(); // I think just using save() works if no ID pk
-        //   }
-        // });
+        entriesWithCollectionId.forEach(async (entry) => {
+          if (
+            !existingEntries.map((e) => e.externalId).includes(entry.externalId)
+          ) {
+            // await tm
+            //   .create(CollectionEntry, {
+            //     ...entry,
+            //     collectionId: id,
+            //   })
+            //   .save(); // I think just using save() works if no ID pk
+            await tm.save(CollectionEntry, entry);
+          }
+        });
 
         await tm
           .createQueryBuilder()

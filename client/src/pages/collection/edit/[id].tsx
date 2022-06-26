@@ -1,5 +1,5 @@
 import { EditIcon } from "@chakra-ui/icons";
-import { Box, Button, IconButton } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import router, { useRouter } from "next/router";
@@ -7,25 +7,24 @@ import React from "react";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import { SelectAutoComplete } from "../../../components/SelectAutoComplete";
+import { SelectedEntriesList } from "../../../components/SelectedEntriesList";
 import {
   useCollectionQuery,
   useCollectionsQuery,
   useUpdateCollectionMutation,
 } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
+import { EntryProps } from "../../../utils/EntryProps";
 import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
 import { useGetIntId } from "../../../utils/useGetIntId";
+import { useIsAuth } from "../../../utils/useIsAuth";
 import createCollection from "../../create-collection";
 
 export const EditCollection = ({}) => {
   const router = useRouter();
+  useIsAuth();
   const intId = useGetIntId();
-  const [{ data, error, fetching }] = useCollectionQuery({
-    pause: intId === -1,
-    variables: {
-      id: intId,
-    },
-  });
+  const [{ data, error, fetching }] = useGetCollectionFromUrl();
   const [, updateCollection] = useUpdateCollectionMutation();
 
   if (fetching) {
@@ -52,13 +51,14 @@ export const EditCollection = ({}) => {
     );
   }
   return (
-    <Layout variant="small">
+    <Layout variant="regular">
       <Formik
         initialValues={{
           title: data.collection.title,
           entries: data.collection.collectionEntries
             ? data.collection.collectionEntries.map((entry) => {
                 return {
+                  // id: entry.id,
                   externalId: entry.externalId,
                   externalTitle: entry.externalTitle,
                   externalImagePath: entry.externalImagePath,
@@ -68,28 +68,47 @@ export const EditCollection = ({}) => {
             : [],
         }}
         onSubmit={async (values, { setErrors }) => {
-          console.log("edit values: ", { ...values });
+          // console.log("edit values: ", { ...values });
 
           // values.entries.forEach((e) => delete e.__typename);
           const response = await updateCollection({
             id: intId,
-            ...values,
+            entries: values.entries,
+            title: values.title,
           });
+          // console.log("response", response);
           if (!response.error) {
             router.back();
           }
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values, setValues }) => (
           <Form>
             <InputField name="title" placeholder="title" label="Title" />
-            <Box mt={4}>
+            <Flex mt={4} position="absolute" w={800}>
               <SelectAutoComplete
                 name="entries"
                 label="Movies"
                 placeholder="Movies or TV Shows"
+                isGuessing={false}
+                handleChange={(r: EntryProps) =>
+                  setValues({ ...values, entries: [...values.entries, r] })
+                }
               />
-            </Box>
+            </Flex>
+            {/* <Box mt={20}> */}
+            <SelectedEntriesList
+              items={values.entries}
+              handleRemoveSelectedEntry={(id: number) => {
+                setValues({
+                  ...values,
+                  entries: values.entries.filter(
+                    ({ externalId }) => externalId !== id
+                  ),
+                });
+              }}
+            />
+            {/* </Box> */}
             <Button
               mt={4}
               type="submit"

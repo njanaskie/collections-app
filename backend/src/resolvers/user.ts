@@ -10,6 +10,7 @@ import {
   Query,
   Root,
   FieldResolver,
+  Int,
 } from "type-graphql";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
@@ -31,6 +32,25 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @Query(() => UserResponse, { nullable: true })
+  async user(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { userLoader }: MyContext
+  ): Promise<UserResponse | null> {
+    const user = await userLoader.load(id);
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "user",
+            message: "User doesn't exist",
+          },
+        ],
+      };
+    }
+    return { user };
+  }
+
   @FieldResolver(() => String)
   email(@Root() user: User, @Ctx() { req }: MyContext) {
     // this is the current user and its ok to show them their own email

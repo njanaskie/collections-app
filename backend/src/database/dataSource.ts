@@ -8,7 +8,7 @@ import { CorrectGuess } from "../entities/CorrectGuess";
 
 const AppDataSource = new DataSource({
   type: "postgres",
-  database: "collections-app2",
+  database: "collections",
   username: "postgres",
   password: "postgres",
   logging: true,

@@ -1,4 +1,8 @@
-import { QuestionIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import {
+  QuestionIcon,
+  QuestionOutlineIcon,
+  WarningTwoIcon,
+} from "@chakra-ui/icons";
 import { Box, Heading, SimpleGrid } from "@chakra-ui/layout";
 import {
   Image,
@@ -10,6 +14,7 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  Alert,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -25,28 +30,27 @@ import {
 } from "../../generated/graphql";
 import theme from "../../theme";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { EntryProps } from "../../utils/EntryProps";
+import { isServer } from "../../utils/isServer";
+import { toErrorMap } from "../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../utils/useGetCollectionFromUrl";
 import { useGetIntId } from "../../utils/useGetIntId";
 
-interface EntryProps {
-  // __typename?: any;
-  externalId: number;
-  externalTitle: string;
-  externalImagePath: string;
-  externalReleaseDate: string;
-}
-
 export const Collection = ({}) => {
+  const [createGuessError, setCreateGuessError] = useState<
+    Record<string, string>
+  >({});
   const [guessMessageState, setGuessMessageState] =
     useState<"correct" | "incorrect" | "no-guess">("no-guess");
   const [, createCorrectGuess] = useCreateCorrectGuessMutation();
   const intId = useGetIntId();
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
-  const [{ data: meData }] = useMeQuery();
+  const [{ data: meData }] = useMeQuery({ pause: isServer() });
   const [{ data, error, fetching }] = useGetCollectionFromUrl();
   const isMe = meData?.me?.id === data?.collection?.creator.id;
   const [{ data: correctGuesses }] = useMyCorrectGuessesQuery({
     variables: { collectionId: intId },
+    pause: isServer(),
   });
 
   const measuredRef = useCallback((node) => {
@@ -58,9 +62,6 @@ export const Collection = ({}) => {
     }
   }, []);
 
-  // console.log("dimensions", dimensions);
-
-  // console.log("correctguesses, ", correctGuesses);
   // useEffect(() => {
 
   // },[])
@@ -80,16 +81,24 @@ export const Collection = ({}) => {
         },
       });
 
-      if (!response.error) {
+      if (response.data?.createCorrectGuess.errors) {
+        setCreateGuessError(
+          toErrorMap(response.data.createCorrectGuess.errors)
+        );
+      }
+
+      if (!response.data?.createCorrectGuess.errors && !response.error) {
         console.log("guessed correctly");
         setGuessMessageState("correct");
       }
     } else {
+      console.log("incorrect guess");
       setGuessMessageState("incorrect");
     }
 
     setTimeout(() => {
       setGuessMessageState("no-guess");
+      setCreateGuessError({});
     }, 5000);
   };
 
@@ -150,6 +159,11 @@ export const Collection = ({}) => {
       ) : null}
       <Box h={8} mt={12} ml={158}>
         <GuessMessageAlert guessMessageState={guessMessageState} />
+        {createGuessError.correctGuess ? (
+          <Alert h="8" status="error">
+            {createGuessError.correctGuess}
+          </Alert>
+        ) : null}
       </Box>
       <Flex
         backgroundColor={theme.colors.darkBlue}
@@ -177,11 +191,27 @@ export const Collection = ({}) => {
                       borderWidth={!isMe ? 4 : 0}
                       borderColor={!isMe ? theme.colors.green : "gray.200"}
                     >
-                      <Image
-                        borderRadius="lg"
-                        src={`https://image.tmdb.org/t/p/w92${entry.externalImagePath}`}
-                        ref={measuredRef}
-                      />
+                      {entry.externalImagePath ? (
+                        <Image
+                          borderRadius="lg"
+                          src={`https://image.tmdb.org/t/p/w92${entry.externalImagePath}`}
+                          ref={measuredRef}
+                        />
+                      ) : (
+                        <Flex
+                          width="97px"
+                          height="145px"
+                          borderRadius="lg"
+                          // flex={1}
+                          // alignContent="center"
+                          borderWidth="4px"
+                          borderColor="gray.400"
+                          align="center"
+                          justify="center"
+                        >
+                          <WarningTwoIcon w={10} h={10} color="gray.400" />
+                        </Flex>
+                      )}
                     </Flex>
 
                     <Heading mt={2} size="sm" color="white">
