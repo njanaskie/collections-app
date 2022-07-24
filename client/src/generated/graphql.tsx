@@ -25,7 +25,7 @@ export type Collection = {
   id: Scalars['Float'];
   points: Scalars['Float'];
   title: Scalars['String'];
-  titleSnippet: Scalars['String'];
+  titleSnippet?: Maybe<Scalars['String']>;
   updatedAt: Scalars['String'];
   voteStatus?: Maybe<Scalars['Int']>;
 };
@@ -98,6 +98,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   register: UserResponse;
   updateCollection?: Maybe<CollectionResponse>;
+  updateUser?: Maybe<UserResponse>;
   vote: Scalars['Boolean'];
 };
 
@@ -144,6 +145,12 @@ export type MutationUpdateCollectionArgs = {
   entries: Array<CollectionEntryInput>;
   id: Scalars['Int'];
   title: Scalars['String'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  attributes: UserAttributesInput;
+  id: Scalars['Int'];
 };
 
 
@@ -217,11 +224,25 @@ export type QueryUserStartedCollectionsArgs = {
 
 export type User = {
   __typename?: 'User';
+  avatar?: Maybe<Scalars['String']>;
+  bio?: Maybe<Scalars['String']>;
   createdAt: Scalars['String'];
   email: Scalars['String'];
   id: Scalars['Float'];
+  letterboxd_url?: Maybe<Scalars['String']>;
+  twitter_url?: Maybe<Scalars['String']>;
   updatedAt: Scalars['String'];
   username: Scalars['String'];
+  website_url?: Maybe<Scalars['String']>;
+};
+
+export type UserAttributesInput = {
+  avatar?: InputMaybe<Scalars['String']>;
+  bio?: InputMaybe<Scalars['String']>;
+  email: Scalars['String'];
+  letterboxd_url?: InputMaybe<Scalars['String']>;
+  twitter_url?: InputMaybe<Scalars['String']>;
+  website_url?: InputMaybe<Scalars['String']>;
 };
 
 export type UserResponse = {
@@ -236,17 +257,23 @@ export type UsernamePasswordInput = {
   username: Scalars['String'];
 };
 
-export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } };
+export type CollectionEntrySnippetFragment = { __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string };
+
+export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } };
+
+export type RegularCollectionFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, guesserCompleteness?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, username: string, createdAt: string };
+export type RegularUserFragment = { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null };
 
-export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null };
+export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
 
-export type UserCollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } };
+export type UserCollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } };
 
-export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> };
+export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> };
+
+export type UserSnippetFragment = { __typename?: 'User', id: number, username: string };
 
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
@@ -254,7 +281,7 @@ export type ChangePasswordMutationVariables = Exact<{
 }>;
 
 
-export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type CreateCollectionMutationVariables = Exact<{
   input: CollectionInput;
@@ -291,7 +318,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -303,7 +330,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type UpdateCollectionMutationVariables = Exact<{
   title: Scalars['String'];
@@ -312,7 +339,15 @@ export type UpdateCollectionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet: string, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null } | null };
+export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet?: string | null, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null } | null };
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['Int'];
+  attributes: UserAttributesInput;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
 
 export type VoteMutationVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -326,7 +361,7 @@ export type CollectionQueryVariables = Exact<{
 }>;
 
 
-export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null };
+export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, creatorId: number, guesserCompleteness?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null };
 
 export type CollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -337,12 +372,12 @@ export type CollectionsQueryVariables = Exact<{
 }>;
 
 
-export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, createdAt: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
 
 export type MyCorrectGuessesQueryVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -356,7 +391,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, createdAt: string } | null } | null };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
 
 export type UserCompletedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -365,7 +400,7 @@ export type UserCompletedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserCompletedCollectionsQuery = { __typename?: 'Query', userCompletedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserCompletedCollectionsQuery = { __typename?: 'Query', userCompletedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type UserCreatedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -374,7 +409,7 @@ export type UserCreatedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserCreatedCollectionsQuery = { __typename?: 'Query', userCreatedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserCreatedCollectionsQuery = { __typename?: 'Query', userCreatedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type UserStartedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -383,7 +418,7 @@ export type UserStartedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserStartedCollectionsQuery = { __typename?: 'Query', userStartedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet: string, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserStartedCollectionsQuery = { __typename?: 'Query', userStartedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export const CollectionSnippetFragmentDoc = gql`
     fragment CollectionSnippet on Collection {
@@ -399,6 +434,33 @@ export const CollectionSnippetFragmentDoc = gql`
   }
 }
     `;
+export const CollectionEntrySnippetFragmentDoc = gql`
+    fragment CollectionEntrySnippet on CollectionEntry {
+  id
+  externalId
+  externalTitle
+  externalImagePath
+  externalReleaseDate
+}
+    `;
+export const RegularCollectionFragmentDoc = gql`
+    fragment RegularCollection on Collection {
+  id
+  createdAt
+  updatedAt
+  title
+  points
+  voteStatus
+  creator {
+    id
+    username
+  }
+  guesserCompleteness
+  collectionEntries {
+    ...CollectionEntrySnippet
+  }
+}
+    ${CollectionEntrySnippetFragmentDoc}`;
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
   field
@@ -409,7 +471,12 @@ export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
   username
+  email
   createdAt
+  bio
+  letterboxd_url
+  twitter_url
+  website_url
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -444,6 +511,12 @@ export const UserPaginatedCollectionsFragmentDoc = gql`
   }
 }
     ${UserCollectionSnippetFragmentDoc}`;
+export const UserSnippetFragmentDoc = gql`
+    fragment UserSnippet on User {
+  id
+  username
+}
+    `;
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -568,6 +641,23 @@ export const UpdateCollectionDocument = gql`
 export function useUpdateCollectionMutation() {
   return Urql.useMutation<UpdateCollectionMutation, UpdateCollectionMutationVariables>(UpdateCollectionDocument);
 };
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($id: Int!, $attributes: UserAttributesInput!) {
+  updateUser(id: $id, attributes: $attributes) {
+    errors {
+      ...RegularError
+    }
+    user {
+      ...RegularUser
+    }
+  }
+}
+    ${RegularErrorFragmentDoc}
+${RegularUserFragmentDoc}`;
+
+export function useUpdateUserMutation() {
+  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
+};
 export const VoteDocument = gql`
     mutation Vote($collectionId: Int!) {
   vote(collectionId: $collectionId)
@@ -586,20 +676,18 @@ export const CollectionDocument = gql`
     title
     points
     voteStatus
+    creatorId
     creator {
-      id
-      username
+      ...UserSnippet
     }
     collectionEntries {
-      id
-      externalId
-      externalTitle
-      externalImagePath
-      externalReleaseDate
+      ...CollectionEntrySnippet
     }
+    guesserCompleteness
   }
 }
-    `;
+    ${UserSnippetFragmentDoc}
+${CollectionEntrySnippetFragmentDoc}`;
 
 export function useCollectionQuery(options: Omit<Urql.UseQueryArgs<CollectionQueryVariables>, 'query'>) {
   return Urql.useQuery<CollectionQuery>({ query: CollectionDocument, ...options });

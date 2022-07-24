@@ -37,6 +37,7 @@ import theme from "../theme";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { usePrevious } from "../utils/usePrevious";
 import { Card } from "../components/Card";
+import { itemLimit } from "../constants";
 const handleDragStart = (e: any) => e.preventDefault();
 
 const Index = () => {
@@ -46,7 +47,7 @@ const Index = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [variables, setVariables] = useState({
-    limit: 4,
+    limit: itemLimit,
     cursor: null as null | string,
     orderBy: "new" as string,
     modulus: null as null | number,
@@ -119,7 +120,7 @@ const Index = () => {
               modules={[Navigation]}
               onReachEnd={() => {
                 console.log("onReachEnd");
-                if (!data) {
+                if (!data || !data.collections.hasMore) {
                   console.log("no data");
                   return;
                 }
@@ -164,6 +165,9 @@ const Index = () => {
                 m={2}
                 size="lg"
                 color={theme.colors.darkBlue}
+                bgColor={theme.colors.gold}
+                _hover={{ bg: theme.colors.darkGold }}
+                _active={{ bg: theme.colors.gold }}
               >
                 Previous
               </Button>
@@ -172,6 +176,9 @@ const Index = () => {
                 m={2}
                 size="lg"
                 color={theme.colors.darkBlue}
+                bgColor={theme.colors.gold}
+                _hover={{ bg: theme.colors.darkGold }}
+                _active={{ bg: theme.colors.gold }}
               >
                 Next
               </Button>

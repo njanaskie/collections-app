@@ -1,0 +1,16 @@
+fragment RegularCollection on Collection {
+  id
+  createdAt
+  updatedAt
+  title
+  points
+  voteStatus
+  creator {
+    id
+    username
+  }
+  guesserCompleteness
+  collectionEntries {
+    ...CollectionEntrySnippet
+  }
+}

@@ -113,10 +113,10 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
   return (
     <Flex zIndex={1} bg="blackAlpha.700" p={4} align="center">
-      <Flex flex={1} m="auto" align="center" maxW={800}>
+      <Flex flex={1} m="auto" align="center" maxW={850}>
         <NextLink href="/">
-          <Link>
-            <Heading color="gray.200">Collections</Heading>
+          <Link _hover={{ textDecoration: "none" }}>
+            <Heading color={theme.colors.superLightBlue}>Collections</Heading>
           </Link>
         </NextLink>
         <Box ml={"auto"} color="gray.200">

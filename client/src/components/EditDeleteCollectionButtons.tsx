@@ -1,5 +1,5 @@
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, IconButton } from "@chakra-ui/react";
+import { Box, Flex, IconButton } from "@chakra-ui/react";
 import router from "next/router";
 import React from "react";
 import NextLink from "next/link";
@@ -14,15 +14,17 @@ export const EditDeleteCollectionButtons: React.FC<EditDeleteCollectionButtonsPr
     const [, deleteCollection] = useDeleteCollectionMutation();
 
     return (
-      <Box>
+      <Flex>
         <NextLink href="/collection/edit/[id]" as={`/collection/edit/${id}`}>
           <IconButton
+            variant="ghost"
             icon={<EditIcon />}
             aria-label="Edit Collection"
             onClick={() => {}}
           />
         </NextLink>
         <IconButton
+          variant="ghost"
           icon={<DeleteIcon />}
           aria-label="Delete Collection"
           onClick={() => {
@@ -34,6 +36,6 @@ export const EditDeleteCollectionButtons: React.FC<EditDeleteCollectionButtonsPr
             router.push("/");
           }}
         />
-      </Box>
+      </Flex>
     );
   };

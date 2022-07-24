@@ -1,11 +1,11 @@
-import { Flex, Button, Text } from "@chakra-ui/react";
+import { Flex, Button, Text, Divider } from "@chakra-ui/react";
 import React from "react";
-import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import {
   CollectionSnippetFragment,
   useVoteMutation,
 } from "../generated/graphql";
 import NextLink from "next/link";
+import { Points } from "./Points";
 
 interface CardBottomProps {
   collection: CollectionSnippetFragment;
@@ -19,21 +19,7 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
       justifyContent="space-between"
       alignItems="center"
     >
-      <Flex alignItems="center">
-        <Button
-          onClick={async () => {
-            await vote({ collectionId: collection.id });
-          }}
-          size="sm"
-          variant="ghost"
-          aria-label="like collection"
-          isLoading={fetching}
-          color="gray.600"
-        >
-          {collection.voteStatus === 1 ? <IoMdHeart /> : <IoMdHeartEmpty />}
-        </Button>
-        <Text color="gray.600">{collection.points}</Text>
-      </Flex>
+      <Points collection={collection} />
       <NextLink
         href={{
           pathname: "/user/[username]",
@@ -41,7 +27,9 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
         }}
         as={`/user/${collection.creator.username}`}
       >
-        <Button color="gray.600">{collection.creator.username}</Button>
+        <Button color="gray.600" variant="ghost">
+          {collection.creator.username}
+        </Button>
       </NextLink>
     </Flex>
   );

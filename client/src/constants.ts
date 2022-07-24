@@ -20,3 +20,5 @@ export const incorrectGuessMessages = [
   "That ain't it chief",
   "U bad",
 ];
+
+export const itemLimit = 4;

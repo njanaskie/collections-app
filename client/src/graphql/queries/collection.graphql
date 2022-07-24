@@ -6,16 +6,13 @@ query Collection($id: Int!) {
     title
     points
     voteStatus
+    creatorId
     creator {
-      id
-      username
+      ...UserSnippet
     }
     collectionEntries {
-      id
-      externalId
-      externalTitle
-      externalImagePath
-      externalReleaseDate
+      ...CollectionEntrySnippet
     }
+    guesserCompleteness
   }
 }

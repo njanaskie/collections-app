@@ -1,0 +1,7 @@
+fragment CollectionEntrySnippet on CollectionEntry {
+  id
+  externalId
+  externalTitle
+  externalImagePath
+  externalReleaseDate
+}

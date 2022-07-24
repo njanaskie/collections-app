@@ -222,6 +222,7 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                 onFocus={() => setDropdownOpen(true)}
                 onBlur={() => {}}
                 roundedLeft="0"
+                _placeholder={{ color: "gray.400" }}
                 // w="100%"
               />
 
@@ -230,7 +231,6 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                 <Box
                   bgColor={theme.colors.lightPurple}
                   borderRadius={4}
-                  // pos="relative"
                   // w={675}
                   // left={225}
                   h={searchState.searchResults.length >= 3 ? 120 : "auto"}

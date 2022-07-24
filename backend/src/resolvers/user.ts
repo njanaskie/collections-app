@@ -11,6 +11,7 @@ import {
   Root,
   FieldResolver,
   Int,
+  UseMiddleware,
 } from "type-graphql";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
@@ -20,6 +21,9 @@ import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
 import AppDataSource from "../database/dataSource";
 import { FieldError } from "./FieldError";
+import { isAuth } from "../middleware/isAuth";
+import { UserAttributesInput } from "./UserAttributesInput";
+import { validateUpdateUser } from "../utils/validateUpdateUser";
 
 @ObjectType()
 class UserResponse {
@@ -32,6 +36,48 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @Mutation(() => UserResponse, { nullable: true })
+  @UseMiddleware(isAuth)
+  async updateUser(
+    @Arg("id", () => Int) id: number,
+    @Arg("attributes") attributes: UserAttributesInput,
+    @Ctx() { req }: MyContext
+  ): Promise<UserResponse | null> {
+    const errors = validateUpdateUser(attributes);
+    if (errors) {
+      return { errors };
+    }
+
+    let user;
+    try {
+      const result = await AppDataSource.createQueryBuilder()
+        .update(User)
+        .set({ ...attributes })
+        .where("id = :id", {
+          id: req.session.userId,
+        })
+        .returning("*")
+        .execute();
+
+      user = result.raw[0];
+    } catch (error) {
+      // || error.detail.includes("already exists")) {
+      // duplicate username error
+      if (error.code === "23505") {
+        return {
+          errors: [
+            {
+              field: "email",
+              message: "Email already exists",
+            },
+          ],
+        };
+      }
+    }
+
+    return { user };
+  }
+
   @Query(() => UserResponse, { nullable: true })
   async user(
     @Arg("id", () => Int) id: number,

@@ -85,7 +85,7 @@ export const EditCollection = ({}) => {
         {({ isSubmitting, values, setValues }) => (
           <Form>
             <InputField name="title" placeholder="title" label="Title" />
-            <Flex mt={4} position="absolute" w={800}>
+            <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
               <SelectAutoComplete
                 name="entries"
                 label="Movies"

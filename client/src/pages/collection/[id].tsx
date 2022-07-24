@@ -3,7 +3,7 @@ import {
   QuestionOutlineIcon,
   WarningTwoIcon,
 } from "@chakra-ui/icons";
-import { Box, Heading, SimpleGrid } from "@chakra-ui/layout";
+import { Box, Divider, Heading, SimpleGrid } from "@chakra-ui/layout";
 import {
   Image,
   Flex,
@@ -15,6 +15,8 @@ import {
   InputGroup,
   InputLeftAddon,
   Alert,
+  Button,
+  Link,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -35,6 +37,9 @@ import { isServer } from "../../utils/isServer";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../utils/useGetCollectionFromUrl";
 import { useGetIntId } from "../../utils/useGetIntId";
+import { Entry } from "../../components/Entry/Entry";
+import { InfoBox } from "../../components/InfoBox";
+import NextLink from "next/link";
 
 export const Collection = ({}) => {
   const [createGuessError, setCreateGuessError] = useState<
@@ -62,10 +67,6 @@ export const Collection = ({}) => {
     }
   }, []);
 
-  // useEffect(() => {
-
-  // },[])
-
   const handleChange = async (r: any) => {
     if (
       data?.collection?.collectionEntries &&
@@ -90,6 +91,7 @@ export const Collection = ({}) => {
       if (!response.data?.createCorrectGuess.errors && !response.error) {
         console.log("guessed correctly");
         setGuessMessageState("correct");
+        // setFlipped((state) => !state);
       }
     } else {
       console.log("incorrect guess");
@@ -129,10 +131,35 @@ export const Collection = ({}) => {
   return (
     <Layout>
       <Flex>
-        <Heading size="lg" mb={4} color={theme.colors.lightBlue}>
-          {data.collection.title}
-        </Heading>
-        {isMe ? <EditDeleteCollectionButtons id={data.collection.id} /> : null}
+        <Box w="100%">
+          {data.collection.creator ? (
+            <Heading size="xs" mb={2} color={theme.colors.lightOrange}>
+              Created by{" "}
+              <NextLink
+                href={{
+                  pathname: "/user/[username]",
+                  query: { id: data.collection.creator.id },
+                }}
+                as={`/user/${data.collection.creator.username}`}
+              >
+                <Link _hover={{ color: theme.colors.orange }}>
+                  {/* <Text _hover={{ color: theme.colors.gold }}> */}
+                  {data.collection.creator.username}
+                  {/* </Text> */}
+                </Link>
+              </NextLink>
+            </Heading>
+          ) : null}
+          <Divider />
+          <Heading size="md" mb={4} color={theme.colors.superLightBlue}>
+            {data.collection.title}
+          </Heading>
+        </Box>
+        <InfoBox
+          collection={data.collection}
+          isMe={isMe}
+          correctGuesses={correctGuesses}
+        />
       </Flex>
       {!isMe ? (
         <Formik
@@ -143,7 +170,7 @@ export const Collection = ({}) => {
         >
           {({ isSubmitting }) => (
             <Form>
-              <Flex position="absolute" w={800}>
+              <Flex position="absolute" w={850} zIndex="dropdown">
                 <SelectAutoComplete
                   name="guesses"
                   label="Make Your Guess"
@@ -157,88 +184,47 @@ export const Collection = ({}) => {
           )}
         </Formik>
       ) : null}
-      <Box h={8} mt={12} ml={158}>
-        <GuessMessageAlert guessMessageState={guessMessageState} />
-        {createGuessError.correctGuess ? (
-          <Alert h="8" status="error">
-            {createGuessError.correctGuess}
-          </Alert>
-        ) : null}
-      </Box>
+      {!isMe ? (
+        <Box h={8} mt={12} ml={158}>
+          <GuessMessageAlert guessMessageState={guessMessageState} />
+          {createGuessError.correctGuess ? (
+            <Alert h="8" status="error">
+              {createGuessError.correctGuess}
+            </Alert>
+          ) : null}
+        </Box>
+      ) : null}
       <Flex
         backgroundColor={theme.colors.darkBlue}
         borderRadius={6}
-        p={4}
-        minH={450}
+        // paddingY={4}
+        h={450}
+        // minH={250}
+        // maxH={450}
         borderWidth={2}
         borderColor={theme.colors.lightBlue}
         // zIndex={-1}
         // position="relative"
         mt={2}
       >
-        {data.collection.collectionEntries &&
-        data.collection.collectionEntries.length > 0 ? (
-          data.collection.collectionEntries.map((entry) => (
-            <Flex key={entry.id}>
-              <Box overflow="hidden" mr={6}>
-                {isMe ||
-                correctGuesses?.myCorrectGuesses
-                  ?.map((g) => g.collectionEntry.externalId)
-                  .includes(entry.externalId) ? (
-                  <Flex align="center" flexDirection="column" borderRadius="lg">
-                    <Flex
-                      borderRadius="lg"
-                      borderWidth={!isMe ? 4 : 0}
-                      borderColor={!isMe ? theme.colors.green : "gray.200"}
-                    >
-                      {entry.externalImagePath ? (
-                        <Image
-                          borderRadius="lg"
-                          src={`https://image.tmdb.org/t/p/w92${entry.externalImagePath}`}
-                          ref={measuredRef}
-                        />
-                      ) : (
-                        <Flex
-                          width="97px"
-                          height="145px"
-                          borderRadius="lg"
-                          // flex={1}
-                          // alignContent="center"
-                          borderWidth="4px"
-                          borderColor="gray.400"
-                          align="center"
-                          justify="center"
-                        >
-                          <WarningTwoIcon w={10} h={10} color="gray.400" />
-                        </Flex>
-                      )}
-                    </Flex>
-
-                    <Heading mt={2} size="sm" color="white">
-                      {entry.externalTitle}
-                    </Heading>
-                  </Flex>
-                ) : (
-                  <Flex
-                    width="97px"
-                    height="145px"
-                    borderRadius="lg"
-                    // flex={1}
-                    // alignContent="center"
-                    borderWidth="4px"
-                    borderColor="gray.400"
-                    align="center"
-                    justify="center"
-                  >
-                    <QuestionOutlineIcon w={10} h={10} color="gray.400" />
-                  </Flex>
-                )}
-              </Box>
-            </Flex>
-          ))
-        ) : (
-          <Box>Could not find collection entries</Box>
-        )}
+        <Flex paddingLeft={6} paddingTop={6} wrap="wrap" overflow="scroll">
+          {data.collection.collectionEntries &&
+          data.collection.collectionEntries.length > 0 ? (
+            data.collection.collectionEntries.map((entry) =>
+              correctGuesses?.myCorrectGuesses ? (
+                <Entry
+                  key={entry.id}
+                  entry={entry}
+                  isMe={isMe}
+                  measuredRef={measuredRef}
+                  correctGuesses={correctGuesses}
+                />
+              ) : null
+            )
+          ) : (
+            <Box>Could not find collection entries</Box>
+          )}
+        </Flex>
       </Flex>
     </Layout>
   );

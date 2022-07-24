@@ -41,6 +41,26 @@ export class User extends BaseEntity {
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  avatar: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  bio: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  letterboxd_url: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  twitter_url: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  website_url: string;
+
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;

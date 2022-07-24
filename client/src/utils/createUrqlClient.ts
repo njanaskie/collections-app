@@ -39,6 +39,7 @@ import { pipe, tap } from "wonka";
 import Router from "next/router";
 import gql from "graphql-tag";
 import { isServer } from "./isServer";
+import { simplePagination } from "./simplePagination";
 
 export const errorExchange: Exchange =
   ({ forward }) =>
@@ -53,56 +54,54 @@ export const errorExchange: Exchange =
     );
   };
 
-const simplePagination = (): Resolver => {
-  return (_parent, fieldArgs, cache, info) => {
-    const { parentKey: entityKey, fieldName } = info;
+// const simplePagination = (): Resolver => {
+//   return (_parent, fieldArgs, cache, info) => {
+//     const { parentKey: entityKey, fieldName } = info;
 
-    const allFields = cache.inspectFields(entityKey);
-    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
-    const size = fieldInfos.length;
-    if (size === 0) {
-      return undefined;
-    }
+//     const allFields = cache.inspectFields(entityKey);
+//     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+//     const size = fieldInfos.length;
+//     if (size === 0) {
+//       return undefined;
+//     }
 
-    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const isInCache = cache.resolve(
-      cache.resolve(entityKey, fieldKey) as string,
-      "collections"
-    );
-    info.partial = !isInCache;
-    let hasMore = true;
-    const results: string[] = [];
-    fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, "collections") as string[];
-      const _hasMore = cache.resolve(key, "hasMore");
-      const orderBy = fi.arguments!.orderBy;
-      // console.log("fieldinfos", data, key);
-      // TODO: Decide if this is the best way to do this
-      if (orderBy !== fieldArgs.orderBy) {
-        // console.log("deleting fi.arguments", fieldArgs.orderBy, fi.arguments);
-        cache.invalidate("Query", "collections", fi.arguments);
-      } else {
-        // console.log(
-        //   "not deleteing fi.arguments",
-        //   fieldArgs.orderBy,
-        //   fi.arguments
-        // );
-      }
+//     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+//     const isInCache = cache.resolve(
+//       cache.resolve(entityKey, fieldKey) as string,
+//       "collections"
+//     );
+//     info.partial = !isInCache;
+//     let hasMore = true;
+//     const results: string[] = [];
+//     fieldInfos.forEach((fi) => {
+//       const key = cache.resolve(entityKey, fi.fieldKey) as string;
+//       const data = cache.resolve(key, "collections") as string[];
+//       const _hasMore = cache.resolve(key, "hasMore");
+//       const orderBy = fi.arguments!.orderBy;
+//       // TODO: Decide if this is the best way to do this
+//       if (orderBy && orderBy !== fieldArgs.orderBy) {
+//         cache.invalidate("Query", "collections", fi.arguments);
+//       }
 
-      if (!_hasMore) {
-        hasMore = _hasMore as boolean;
-      }
-      results.push(...data);
-    });
+//       // if (orderBy && orderBy !== fieldArgs.orderBy) {
+//       //   cache.invalidate("Query", "collections", fi.arguments);
+//       // }
 
-    return {
-      __typename: "PaginatedCollections",
-      hasMore,
-      collections: results,
-    };
-  };
-};
+//       if (!_hasMore) {
+//         hasMore = _hasMore as boolean;
+//       }
+//       results.push(...data);
+//     });
+
+//     console.log("pagination cache", fieldInfos, fieldArgs);
+
+//     return {
+//       __typename: "PaginatedCollections",
+//       hasMore,
+//       collections: results,
+//     };
+//   };
+// };
 
 const invalidateAllCollections = (cache: Cache) => {
   const allFields = cache.inspectFields("Query");
@@ -148,13 +147,16 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         resolvers: {
           Query: {
-            collections: simplePagination(),
-            // userCompletedCollections: simplePagination(),
-            // userCreatedCollections: simplePagination(),
-            // userStartedCollections: simplePagination(),
+            collections: simplePagination("collections"),
             user: (data, args) => {
               return { __typename: "UserResponse", id: args.id };
+              // return data;
             },
+            userCompletedCollections: simplePagination(
+              "userCompletedCollections"
+            ),
+            userCreatedCollections: simplePagination("userCreatedCollections"),
+            userStartedCollections: simplePagination("userStartedCollections"),
             // collection: (data, args) => {
             //   console.log("query collection :", data, args);
             //   return {

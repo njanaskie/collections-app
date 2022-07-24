@@ -1,0 +1,10 @@
+mutation UpdateUser($id: Int!, $attributes: UserAttributesInput!) {
+  updateUser(id: $id, attributes: $attributes) {
+    errors {
+      ...RegularError
+    }
+    user {
+      ...RegularUser
+    }
+  }
+}

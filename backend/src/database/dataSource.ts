@@ -12,7 +12,7 @@ const AppDataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   logging: true,
-  synchronize: true,
+  synchronize: true, // TODO: turn off in production
   entities: [User, Collection, Like, CollectionEntry, CorrectGuess],
   // migrations: [path.join(__dirname, "./migrations/*")],
   migrations: ["dist/database/migrations/*.js"],

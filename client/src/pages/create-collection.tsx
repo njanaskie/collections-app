@@ -71,19 +71,21 @@ const CreateCollection: React.FC<{}> = ({}) => {
             </Stack>
             <InputField
               name="title"
-              placeholder="title"
+              placeholder="The title of your collection"
               label="Title"
               textarea={true}
             />
-            <Flex mt={4} position="absolute" w={800}>
+            <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
               <SelectAutoComplete
                 name="entries"
                 label="Add an entry"
-                placeholder="Movies or TV Shows"
+                placeholder="Type a film title"
                 isGuessing={false}
-                handleChange={(r: EntryProps) =>
-                  setValues({ ...values, entries: [...values.entries, r] })
-                }
+                handleChange={(r: EntryProps) => {
+                  if (!values.entries.includes(r)) {
+                    setValues({ ...values, entries: [...values.entries, r] });
+                  }
+                }}
               />
               <Button
                 // mt={4}
