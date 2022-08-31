@@ -113,6 +113,14 @@ const invalidateAllCollections = (cache: Cache) => {
   });
 };
 
+const invalidateAllAppeals = (cache: Cache) => {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "appeals");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "appeals", fi.arguments);
+  });
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -144,19 +152,31 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           CorrectGuess: () => null,
           UserResponse: () => null,
           RegularUserResponse: () => null,
+          Appeal: () => null,
+          PaginatedAppeals: () => null,
+          // PaginatedAppealsReviewable: () => null,
         },
         resolvers: {
           Query: {
-            collections: simplePagination("collections"),
+            collections: simplePagination("collections", "collections"),
             user: (data, args) => {
               return { __typename: "UserResponse", id: args.id };
               // return data;
             },
             userCompletedCollections: simplePagination(
-              "userCompletedCollections"
+              "userCompletedCollections",
+              "collections"
             ),
-            userCreatedCollections: simplePagination("userCreatedCollections"),
-            userStartedCollections: simplePagination("userStartedCollections"),
+            userCreatedCollections: simplePagination(
+              "userCreatedCollections",
+              "collections"
+            ),
+            userStartedCollections: simplePagination(
+              "userStartedCollections",
+              "collections"
+            ),
+            appealsReviewable: simplePagination("appealsReviewable", "appeals"),
+            appealsSubmitted: simplePagination("appealsSubmitted", "appeals"),
             // collection: (data, args) => {
             //   console.log("query collection :", data, args);
             //   return {
@@ -171,6 +191,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            createAppeal: (_result, args, cache, info) => {
+              invalidateAllAppeals(cache);
+            },
             // createCorrectGuess: (_result, args, cache, info) => {
             createCorrectGuess: (
               result: CreateCorrectGuessMutation,

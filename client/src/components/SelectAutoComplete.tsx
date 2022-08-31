@@ -55,8 +55,8 @@ import { usePrevious } from "../utils/usePrevious";
 type SelectAutoCompleteProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
-  isGuessing: boolean;
-  collection?: any;
+  // isGuessing: boolean;
+  // collection?: any;
   handleChange(r: EntryProps): any;
   // entries: EntryProps[];
 };
@@ -71,8 +71,8 @@ type SearchStateProps = {
 export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
   size: _,
   label,
-  isGuessing,
-  collection,
+  // isGuessing,
+  // collection,
   handleChange,
   ...props
 }) => {

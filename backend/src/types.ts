@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Session } from "express-session";
 import { Redis } from "ioredis";
 import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader";
+import { createCollectionLoader } from "./utils/createCollectionLoader";
 import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 import { createLikeLoader } from "./utils/createLikeLoader";
 import { createUserLoader } from "./utils/createUserLoader";
@@ -14,4 +15,5 @@ export type MyContext = {
   likeLoader: ReturnType<typeof createLikeLoader>;
   collectionEntryLoader: ReturnType<typeof createCollectionEntryLoader>;
   correctGuessLoader: ReturnType<typeof createCorrectGuessLoader>;
+  collectionLoader: ReturnType<typeof createCollectionLoader>;
 };

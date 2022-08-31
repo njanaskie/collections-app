@@ -9,13 +9,15 @@ import {
 import { CorrectGuess } from "./CorrectGuess";
 import { NotGuessed } from "./NotGuessed";
 import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
+import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
 // import { useSpring, animated } from "@react-spring/web"; // uninstall?
 
 type EntryProps = {
   entry: Omit<CollectionEntry, "collection" | "collectionId">;
   isMe: boolean;
   measuredRef: any;
-  correctGuesses: MyCorrectGuessesQuery;
+  correctGuesses: CorrectGuessItem[];
+  // correctGuessesLocal: CorrectGuessLocal[];
 };
 
 export const Entry: React.FC<EntryProps> = ({
@@ -27,24 +29,21 @@ export const Entry: React.FC<EntryProps> = ({
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
-    if (
-      correctGuesses?.myCorrectGuesses
-        ?.map((g) => g.collectionEntry.externalId)
-        .includes(entry.externalId)
-    ) {
+    if (correctGuesses.map((g) => g.externalId).includes(entry.externalId)) {
       setRevealed(true);
     }
   }, [correctGuesses]);
 
-  let clickHandler = () => setRevealed((prevRevealed) => !prevRevealed);
+  // let clickHandler = () => setRevealed((prevRevealed) => !prevRevealed);
 
   return (
+    // <Flex id={entry.id.toString()}>
     <AnimateSharedLayout type="crossfade">
       <AnimatePresence exitBeforeEnter>
-        <Card
+        <EntryCard
           key={`${entry.id}-${revealed}`}
           cardId={entry.id.toString()}
-          clickHandler={clickHandler}
+          // clickHandler={clickHandler}
           revealed={revealed}
           entry={entry}
           isMe={isMe}
@@ -53,18 +52,19 @@ export const Entry: React.FC<EntryProps> = ({
         />
       </AnimatePresence>
     </AnimateSharedLayout>
+    // </Flex>
   );
 };
 
-type CardProps = EntryProps & {
+type EntryCardProps = EntryProps & {
   cardId: string;
-  clickHandler: any;
+  // clickHandler: any;
   revealed: boolean;
 };
 
-const Card: React.FC<CardProps> = ({
+const EntryCard: React.FC<EntryCardProps> = ({
   cardId,
-  clickHandler,
+  // clickHandler,
   revealed,
   entry,
   isMe,
@@ -75,7 +75,7 @@ const Card: React.FC<CardProps> = ({
     layoutId: cardId,
     id: cardId,
     // className: "card",
-    onClick: clickHandler,
+    // onClick: clickHandler,
   };
   let animationProps = {
     // // initial: { rotateY: 180 },

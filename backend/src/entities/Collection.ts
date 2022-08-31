@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Appeal } from "./Appeal";
 import { CollectionEntry } from "./CollectionEntry";
 import { CorrectGuess } from "./CorrectGuess";
 import { Like } from "./Like";
@@ -43,6 +44,10 @@ export class Collection extends BaseEntity {
 
   @OneToMany(() => CorrectGuess, (correctGuess) => correctGuess.collection)
   correctGuesses: CorrectGuess[];
+
+  @Field(() => [Appeal])
+  @OneToMany(() => Appeal, (appeal) => appeal.collection)
+  appeals: Appeal[];
 
   @Field()
   @Column({ type: "int", default: 0 })

@@ -16,6 +16,8 @@ import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader
 import { CorrectGuessResolver } from "./resolvers/correctGuess";
 import { CorrectGuess } from "./entities/CorrectGuess";
 import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
+import { AppealResolver } from "./resolvers/appeal";
+import { createCollectionLoader } from "./utils/createCollectionLoader";
 // import { Collection } from "./entities/Collection";
 
 const main = async () => {
@@ -61,7 +63,12 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [CollectionResolver, UserResolver, CorrectGuessResolver],
+      resolvers: [
+        CollectionResolver,
+        UserResolver,
+        CorrectGuessResolver,
+        AppealResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({
@@ -72,6 +79,7 @@ const main = async () => {
       likeLoader: createLikeLoader(),
       collectionEntryLoader: createCollectionEntryLoader(),
       correctGuessLoader: createCorrectGuessLoader(),
+      collectionLoader: createCollectionLoader(),
     }),
   });
 

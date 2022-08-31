@@ -8,6 +8,9 @@ import {
   IconButton,
   Image,
   Link,
+  Radio,
+  RadioGroup,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -18,15 +21,19 @@ import {
 import { withUrqlClient } from "next-urql";
 import React, { useEffect, useState } from "react";
 import { IoLogoTwitter } from "react-icons/io";
-import { CardStack } from "../../components/CardStack";
+import { ItemStack } from "../../components/ItemStack";
 import { Layout } from "../../components/Layout";
 import { itemLimit } from "../../constants";
 import {
   useMeQuery,
+  useAppealsSubmittedQuery,
   useUserCompletedCollectionsQuery,
   useUserCreatedCollectionsQuery,
   useUserQuery,
   useUserStartedCollectionsQuery,
+  useAppealsReviewableQuery,
+  UserPaginatedCollectionsFragment,
+  Appeal,
 } from "../../generated/graphql";
 import theme from "../../theme";
 import { createUrqlClient } from "../../utils/createUrqlClient";
@@ -34,17 +41,25 @@ import { isServer } from "../../utils/isServer";
 import { useGetIntId } from "../../utils/useGetIntId";
 import { useGetUserFromUrl } from "../../utils/useGetUserFromUrl";
 import NextLink from "next/link";
+import { SelectedEntriesList } from "../../components/SelectedEntriesList";
+import { Card } from "../../components/Card";
+import { AppealItem } from "../../components/AppealItem";
 
 export const User = ({}) => {
+  const [appealState, setAppealState] = useState<string>("pending");
+  const intId = useGetIntId();
+  const [{ data: meData }] = useMeQuery({ pause: isServer() });
+  const isMe = meData?.me?.id === intId;
   // TODO: fix browser error: 'Warning: Text content did not match. Server: "Could not find user" Client: "loading..."'
   const [{ data: userData, error: userError, fetching: userFetching }] =
     useGetUserFromUrl();
-  const intId = useGetIntId();
   const [variables, setVariables] = useState({
     limit: itemLimit,
     createdPage: 1,
     completedPage: 1,
     startedPage: 1,
+    appealsSubmittedPage: 1,
+    appealsReviewablePage: 1,
     userId: intId,
   });
   const [
@@ -55,7 +70,7 @@ export const User = ({}) => {
     },
   ] = useUserCreatedCollectionsQuery({
     // pause: !variables.userId || variables.userId === 0 || isServer(),
-    pause: !variables.userId,
+    pause: !variables.userId || variables.userId === -1,
     variables: {
       limit: variables.limit,
       page: variables.createdPage,
@@ -69,7 +84,7 @@ export const User = ({}) => {
       fetching: fetchingCompleted,
     },
   ] = useUserCompletedCollectionsQuery({
-    pause: !variables.userId,
+    pause: !variables.userId || variables.userId === -1 || !isMe,
     variables: {
       limit: variables.limit,
       page: variables.completedPage,
@@ -83,35 +98,72 @@ export const User = ({}) => {
       fetching: fetchingStarted,
     },
   ] = useUserStartedCollectionsQuery({
-    pause: !variables.userId,
+    pause: !variables.userId || variables.userId === -1 || !isMe,
     variables: {
       limit: variables.limit,
       page: variables.startedPage,
       userId: variables.userId,
     },
   });
-  const [{ data: meData }] = useMeQuery({ pause: isServer() });
-  const isMe = meData?.me?.id === intId;
+  const [
+    {
+      data: appealsSubmitted,
+      error: appealsSubmittedError,
+      fetching: fetchingAppealsSubmitted,
+    },
+  ] = useAppealsSubmittedQuery({
+    pause: !variables.userId || variables.userId === -1 || !isMe,
+    variables: {
+      state: appealState,
+      limit: variables.limit,
+      page: variables.appealsSubmittedPage,
+    },
+  });
+  const [
+    {
+      data: appealsReviewable,
+      error: appealsReviewableError,
+      fetching: fetchingAppealsReviewable,
+    },
+  ] = useAppealsReviewableQuery({
+    pause: !variables.userId || variables.userId === -1 || !isMe,
+    variables: {
+      limit: variables.limit,
+      page: variables.appealsReviewablePage,
+    },
+  });
 
-  const handleFetchMore = (collectionType: string, nextPage: number) => {
-    switch (collectionType) {
+  const handleFetchMore = (queryType: string, nextPage: number) => {
+    switch (queryType) {
       case "userCreatedCollections":
-        console.log("next page created", collectionType, nextPage);
+        console.log("next page created", queryType, nextPage);
         return setVariables({
           ...variables,
           createdPage: nextPage,
         });
       case "userCompletedCollections":
-        console.log("next page completed", collectionType, nextPage);
+        console.log("next page completed", queryType, nextPage);
         return setVariables({
           ...variables,
           completedPage: nextPage,
         });
       case "userStartedCollections":
-        console.log("next page started", collectionType, nextPage);
+        console.log("next page started", queryType, nextPage);
         return setVariables({
           ...variables,
           startedPage: nextPage,
+        });
+      case "appealsSubmitted":
+        console.log("next page appealsSubmitted", queryType, nextPage);
+        return setVariables({
+          ...variables,
+          appealsSubmittedPage: nextPage,
+        });
+      case "appealsReviewable":
+        console.log("next page appealsReviewable", queryType, nextPage);
+        return setVariables({
+          ...variables,
+          appealsReviewablePage: nextPage,
         });
       default:
         return null;
@@ -125,6 +177,8 @@ export const User = ({}) => {
         createdPage: 1,
         completedPage: 1,
         startedPage: 1,
+        appealsSubmittedPage: 1,
+        appealsReviewablePage: 1,
         userId: intId,
       });
     }
@@ -219,54 +273,124 @@ export const User = ({}) => {
         </Box>
         <Tabs isFitted>
           <TabList>
-            <Tab>My Collections</Tab>
-            <Tab>Completed</Tab>
-            <Tab>Started</Tab>
-            <Tab>Appeals</Tab>
+            <Tab>Collections</Tab>
+            {isMe ? (
+              <>
+                <Tab>Completed</Tab>
+                <Tab>Started</Tab>
+                <Tab>Appeals</Tab>
+              </>
+            ) : null}
           </TabList>
 
           <TabPanels>
             <TabPanel>
               {createdCollections?.userCreatedCollections ? (
-                <CardStack
-                  data={createdCollections.userCreatedCollections}
+                <ItemStack
+                  data={createdCollections.userCreatedCollections.collections}
+                  hasMore={createdCollections.userCreatedCollections.hasMore}
                   fetching={fetchingCreated}
                   handleFetchMore={handleFetchMore}
                   page={variables.createdPage}
-                  collectionType={"userCreatedCollections"}
+                  queryType={"userCreatedCollections"}
+                  item={(i: any) => <Card c={i} size="small" />}
                 />
               ) : (
-                <div>someting went wrong</div>
+                <div>Nothing here</div>
               )}
             </TabPanel>
             <TabPanel>
               {completedCollections?.userCompletedCollections ? (
-                <CardStack
-                  data={completedCollections.userCompletedCollections}
+                <ItemStack
+                  data={
+                    completedCollections.userCompletedCollections.collections
+                  }
+                  hasMore={
+                    completedCollections.userCompletedCollections.hasMore
+                  }
                   fetching={fetchingCompleted}
                   handleFetchMore={handleFetchMore}
                   page={variables.completedPage}
-                  collectionType={"userCompletedCollections"}
+                  queryType={"userCompletedCollections"}
+                  item={(i: any) => <Card c={i} size="small" />}
                 />
               ) : (
-                <div>someting went wrong</div>
+                <div>Nothing here</div>
               )}
             </TabPanel>
             <TabPanel>
               {startedCollections?.userStartedCollections ? (
-                <CardStack
-                  data={startedCollections.userStartedCollections}
+                <ItemStack
+                  data={startedCollections.userStartedCollections.collections}
+                  hasMore={startedCollections.userStartedCollections.hasMore}
                   fetching={fetchingStarted}
                   handleFetchMore={handleFetchMore}
                   page={variables.startedPage}
-                  collectionType={"userStartedCollections"}
+                  queryType={"userStartedCollections"}
+                  item={(i: any) => <Card c={i} size="small" />}
                 />
               ) : (
-                <div>someting went wrong</div>
+                <div>Nothing here</div>
               )}
             </TabPanel>
             <TabPanel>
-              <p>Appeals!</p>
+              <Tabs>
+                <TabList>
+                  <Tab>Appeals To Review</Tab>
+                  <Tab>My Appeals</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    {appealsReviewable?.appealsReviewable ? (
+                      <ItemStack
+                        data={appealsReviewable?.appealsReviewable.appeals}
+                        hasMore={appealsReviewable?.appealsReviewable.hasMore}
+                        fetching={fetchingAppealsReviewable}
+                        handleFetchMore={handleFetchMore}
+                        page={variables.appealsReviewablePage}
+                        queryType={"appealsReviewable"}
+                        item={(i: any) => (
+                          <AppealItem appeal={i} mode="reviewable" />
+                        )}
+                      />
+                    ) : (
+                      <div>Nothing here</div>
+                    )}
+                  </TabPanel>
+                  <TabPanel>
+                    <Flex justify="flex-start">
+                      <RadioGroup
+                        onChange={setAppealState}
+                        size="lg"
+                        value={appealState}
+                        marginBlock={4}
+                        colorScheme="messenger"
+                      >
+                        <Stack direction="row">
+                          <Radio value="pending">Pending</Radio>
+                          <Radio value="approved">Approved</Radio>
+                          <Radio value="rejected">Rejected</Radio>
+                        </Stack>
+                      </RadioGroup>
+                    </Flex>
+                    {appealsSubmitted?.appealsSubmitted ? (
+                      <ItemStack
+                        data={appealsSubmitted?.appealsSubmitted.appeals}
+                        hasMore={appealsSubmitted?.appealsSubmitted.hasMore}
+                        fetching={fetchingAppealsSubmitted}
+                        handleFetchMore={handleFetchMore}
+                        page={variables.appealsSubmittedPage}
+                        queryType={"appealsSubmitted"}
+                        item={(i: any) => (
+                          <AppealItem appeal={i} mode="submitted" />
+                        )}
+                      />
+                    ) : (
+                      <div>Nothing here</div>
+                    )}
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
             </TabPanel>
           </TabPanels>
         </Tabs>

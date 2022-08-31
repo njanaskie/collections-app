@@ -80,7 +80,7 @@ const CreateCollection: React.FC<{}> = ({}) => {
                 name="entries"
                 label="Add an entry"
                 placeholder="Type a film title"
-                isGuessing={false}
+                // isGuessing={false}
                 handleChange={(r: EntryProps) => {
                   if (!values.entries.includes(r)) {
                     setValues({ ...values, entries: [...values.entries, r] });

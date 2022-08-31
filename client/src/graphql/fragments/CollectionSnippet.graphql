@@ -9,4 +9,5 @@ fragment CollectionSnippet on Collection {
     id
     username
   }
+  collectionEntriesLength
 }

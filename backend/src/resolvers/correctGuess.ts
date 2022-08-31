@@ -78,7 +78,6 @@ export class CorrectGuessResolver {
       collectionId: guess.collectionId,
       collectionEntryId: collectionEntry.id,
       guesserId: req.session.userId,
-      pending: guess.pending,
     }).save();
 
     correctGuess = result;

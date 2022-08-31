@@ -54,6 +54,17 @@ export class CollectionResolver {
   //   CollectionEntry.find({ where: { collectionId, userId } });
   //   return await this.userRepository.findOne(recipe.authorId, { cache: 1000 }))!;
   // }
+  @FieldResolver(() => Number)
+  async collectionEntriesLength(
+    @Root() collection: Collection,
+    @Ctx() { collectionEntryLoader, req }: MyContext
+  ) {
+    const loadedCollectionEntries =
+      (await collectionEntryLoader.load({
+        collectionId: collection.id,
+      })) || [];
+    return loadedCollectionEntries.length;
+  }
 
   @Query(() => PaginatedCollections)
   async userCompletedCollections(
@@ -451,6 +462,7 @@ export class CollectionResolver {
     @Ctx()
     { req }: MyContext
   ): Promise<CollectionResponse> {
+    // TODO: decide if want to keep primary ID column, if not then do not need existing entries check
     const existingEntries = await CollectionEntry.find({
       where: {
         collectionId: id,

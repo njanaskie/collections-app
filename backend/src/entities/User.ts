@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Appeal } from "./Appeal";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
 import { Like } from "./Like";
@@ -37,6 +38,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => CorrectGuess, (correctGuess) => correctGuess.guesser)
   correctGuesses: CorrectGuess[];
+
+  @OneToMany(() => Appeal, (appeal) => appeal.appealBy)
+  appeals: Appeal[];
 
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];

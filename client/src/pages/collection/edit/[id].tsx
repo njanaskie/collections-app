@@ -90,7 +90,6 @@ export const EditCollection = ({}) => {
                 name="entries"
                 label="Movies"
                 placeholder="Movies or TV Shows"
-                isGuessing={false}
                 handleChange={(r: EntryProps) =>
                   setValues({ ...values, entries: [...values.entries, r] })
                 }

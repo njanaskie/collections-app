@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -12,6 +13,7 @@ import {
 import { User } from "./User";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
+import { Appeal } from "./Appeal";
 
 @ObjectType()
 @Entity()
@@ -30,7 +32,7 @@ export class CollectionEntry extends BaseEntity {
   })
   collection: Collection;
 
-  @OneToOne(() => CorrectGuess, (correctGuess) => correctGuess.collectionEntry)
+  @OneToMany(() => CorrectGuess, (correctGuess) => correctGuess.collectionEntry)
   correctGuess: CorrectGuess;
 
   @Field()
@@ -48,4 +50,9 @@ export class CollectionEntry extends BaseEntity {
   @Field()
   @Column()
   externalReleaseDate!: string;
+
+  // @Field(() => Appeal, { nullable: true })
+  // @OneToOne(() => Appeal, (appeal) => appeal.collectionEntry)
+  // @JoinColumn()
+  // appeal: Appeal;
 }

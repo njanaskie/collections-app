@@ -1,0 +1,18 @@
+query AppealsSubmitted($state: String, $limit: Int!, $page: Int!) {
+  appealsSubmitted(state: $state, limit: $limit, page: $page) {
+    hasMore
+    appeals {
+      id
+      state
+      collectionId
+      externalId
+      externalTitle
+      externalImagePath
+      externalReleaseDate
+      appealById
+      collection {
+        titleSnippet
+      }
+    }
+  }
+}

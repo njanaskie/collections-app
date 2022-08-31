@@ -20,6 +20,7 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
       alignItems="center"
     >
       <Points collection={collection} />
+      <Text>{collection.collectionEntriesLength}</Text>
       <NextLink
         href={{
           pathname: "/user/[username]",

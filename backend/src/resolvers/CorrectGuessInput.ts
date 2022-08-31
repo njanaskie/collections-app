@@ -6,6 +6,4 @@ export class CorrectGuessInput {
   collectionId: number;
   @Field()
   externalId: number;
-  @Field()
-  pending: boolean;
 }

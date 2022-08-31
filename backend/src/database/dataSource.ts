@@ -4,6 +4,7 @@ import { Collection } from "../entities/Collection";
 import { Like } from "../entities/Like";
 import { CollectionEntry } from "../entities/CollectionEntry";
 import { CorrectGuess } from "../entities/CorrectGuess";
+import { Appeal } from "../entities/Appeal";
 // import path from "path";
 
 const AppDataSource = new DataSource({
@@ -13,7 +14,7 @@ const AppDataSource = new DataSource({
   password: "postgres",
   logging: true,
   synchronize: true, // TODO: turn off in production
-  entities: [User, Collection, Like, CollectionEntry, CorrectGuess],
+  entities: [User, Collection, Like, CollectionEntry, CorrectGuess, Appeal],
   // migrations: [path.join(__dirname, "./migrations/*")],
   migrations: ["dist/database/migrations/*.js"],
   // cli: {

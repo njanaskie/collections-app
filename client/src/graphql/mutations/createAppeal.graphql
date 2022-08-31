@@ -1,0 +1,11 @@
+mutation CreateAppeal($appeal: AppealInput!) {
+  createAppeal(appeal: $appeal) {
+    errors {
+      field
+      message
+    }
+    appeal {
+      id
+    }
+  }
+}

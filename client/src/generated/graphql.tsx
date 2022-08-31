@@ -15,9 +15,39 @@ export type Scalars = {
   Float: number;
 };
 
+export type Appeal = {
+  __typename?: 'Appeal';
+  appealBy: User;
+  appealById: Scalars['Float'];
+  appealCount?: Maybe<Scalars['Float']>;
+  collection: Collection;
+  collectionId: Scalars['Float'];
+  createdAt: Scalars['String'];
+  externalId: Scalars['Float'];
+  externalImagePath: Scalars['String'];
+  externalReleaseDate: Scalars['String'];
+  externalTitle: Scalars['String'];
+  id: Scalars['Float'];
+  state: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
+export type AppealInput = {
+  collectionId: Scalars['Float'];
+  externalEntry: CollectionEntryInput;
+};
+
+export type AppealResponse = {
+  __typename?: 'AppealResponse';
+  appeal?: Maybe<Appeal>;
+  errors?: Maybe<Array<FieldError>>;
+};
+
 export type Collection = {
   __typename?: 'Collection';
+  appeals: Array<Appeal>;
   collectionEntries: Array<CollectionEntry>;
+  collectionEntriesLength: Scalars['Float'];
   createdAt: Scalars['String'];
   creator: User;
   creatorId: Scalars['Float'];
@@ -32,6 +62,7 @@ export type Collection = {
 
 export type CollectionEntry = {
   __typename?: 'CollectionEntry';
+  appeal?: Maybe<Appeal>;
   collection: Collection;
   collectionId: Scalars['Float'];
   externalId: Scalars['Float'];
@@ -66,13 +97,11 @@ export type CorrectGuess = {
   collectionId: Scalars['Float'];
   guesser: User;
   guesserId: Scalars['Float'];
-  pending: Scalars['Boolean'];
 };
 
 export type CorrectGuessInput = {
   collectionId: Scalars['Float'];
   externalId: Scalars['Float'];
-  pending: Scalars['Boolean'];
 };
 
 export type CorrectGuessResponse = {
@@ -89,7 +118,9 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  approveAppeal: Scalars['Boolean'];
   changePassword: UserResponse;
+  createAppeal: AppealResponse;
   createCollection: CollectionResponse;
   createCorrectGuess: CorrectGuessResponse;
   deleteCollection: Scalars['Boolean'];
@@ -97,15 +128,27 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  rejectAppeal: Scalars['Boolean'];
   updateCollection?: Maybe<CollectionResponse>;
   updateUser?: Maybe<UserResponse>;
   vote: Scalars['Boolean'];
 };
 
 
+export type MutationApproveAppealArgs = {
+  collectionId: Scalars['Int'];
+  externalEntry: CollectionEntryInput;
+};
+
+
 export type MutationChangePasswordArgs = {
   newPassword: Scalars['String'];
   token: Scalars['String'];
+};
+
+
+export type MutationCreateAppealArgs = {
+  appeal: AppealInput;
 };
 
 
@@ -141,6 +184,12 @@ export type MutationRegisterArgs = {
 };
 
 
+export type MutationRejectAppealArgs = {
+  collectionId: Scalars['Int'];
+  externalId: Scalars['Int'];
+};
+
+
 export type MutationUpdateCollectionArgs = {
   entries: Array<CollectionEntryInput>;
   id: Scalars['Int'];
@@ -158,6 +207,12 @@ export type MutationVoteArgs = {
   collectionId: Scalars['Int'];
 };
 
+export type PaginatedAppeals = {
+  __typename?: 'PaginatedAppeals';
+  appeals: Array<Appeal>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type PaginatedCollections = {
   __typename?: 'PaginatedCollections';
   collections: Array<Collection>;
@@ -167,6 +222,8 @@ export type PaginatedCollections = {
 
 export type Query = {
   __typename?: 'Query';
+  appealsReviewable: PaginatedAppeals;
+  appealsSubmitted: PaginatedAppeals;
   collection?: Maybe<Collection>;
   collections: PaginatedCollections;
   me?: Maybe<User>;
@@ -175,6 +232,19 @@ export type Query = {
   userCompletedCollections: PaginatedCollections;
   userCreatedCollections: PaginatedCollections;
   userStartedCollections: PaginatedCollections;
+};
+
+
+export type QueryAppealsReviewableArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+};
+
+
+export type QueryAppealsSubmittedArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  state?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -259,7 +329,7 @@ export type UsernamePasswordInput = {
 
 export type CollectionEntrySnippetFragment = { __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string };
 
-export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } };
+export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } };
 
 export type RegularCollectionFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, guesserCompleteness?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> };
 
@@ -275,6 +345,14 @@ export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollecti
 
 export type UserSnippetFragment = { __typename?: 'User', id: number, username: string };
 
+export type ApproveAppealMutationVariables = Exact<{
+  externalEntry: CollectionEntryInput;
+  collectionId: Scalars['Int'];
+}>;
+
+
+export type ApproveAppealMutation = { __typename?: 'Mutation', approveAppeal: boolean };
+
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
   newPassword: Scalars['String'];
@@ -282,6 +360,13 @@ export type ChangePasswordMutationVariables = Exact<{
 
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
+
+export type CreateAppealMutationVariables = Exact<{
+  appeal: AppealInput;
+}>;
+
+
+export type CreateAppealMutation = { __typename?: 'Mutation', createAppeal: { __typename?: 'AppealResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, appeal?: { __typename?: 'Appeal', id: number } | null } };
 
 export type CreateCollectionMutationVariables = Exact<{
   input: CollectionInput;
@@ -296,7 +381,7 @@ export type CreateCorrectGuessMutationVariables = Exact<{
 }>;
 
 
-export type CreateCorrectGuessMutation = { __typename?: 'Mutation', createCorrectGuess: { __typename?: 'CorrectGuessResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, correctGuess?: { __typename?: 'CorrectGuess', collectionEntryId: number, collectionId: number, guesserId: number, pending: boolean } | null } };
+export type CreateCorrectGuessMutation = { __typename?: 'Mutation', createCorrectGuess: { __typename?: 'CorrectGuessResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, correctGuess?: { __typename?: 'CorrectGuess', collectionEntryId: number, collectionId: number, guesserId: number } | null } };
 
 export type DeleteCollectionMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -332,6 +417,14 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
+export type RejectAppealMutationVariables = Exact<{
+  externalId: Scalars['Int'];
+  collectionId: Scalars['Int'];
+}>;
+
+
+export type RejectAppealMutation = { __typename?: 'Mutation', rejectAppeal: boolean };
+
 export type UpdateCollectionMutationVariables = Exact<{
   title: Scalars['String'];
   entries: Array<CollectionEntryInput> | CollectionEntryInput;
@@ -356,6 +449,23 @@ export type VoteMutationVariables = Exact<{
 
 export type VoteMutation = { __typename?: 'Mutation', vote: boolean };
 
+export type AppealsReviewableQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+}>;
+
+
+export type AppealsReviewableQuery = { __typename?: 'Query', appealsReviewable: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealCount?: number | null, collection: { __typename?: 'Collection', titleSnippet?: string | null } }> } };
+
+export type AppealsSubmittedQueryVariables = Exact<{
+  state?: InputMaybe<Scalars['String']>;
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+}>;
+
+
+export type AppealsSubmittedQuery = { __typename?: 'Query', appealsSubmitted: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', id: number, state: string, collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealById: number, collection: { __typename?: 'Collection', titleSnippet?: string | null } }> } };
+
 export type CollectionQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -372,7 +482,7 @@ export type CollectionsQueryVariables = Exact<{
 }>;
 
 
-export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -384,7 +494,7 @@ export type MyCorrectGuessesQueryVariables = Exact<{
 }>;
 
 
-export type MyCorrectGuessesQuery = { __typename?: 'Query', myCorrectGuesses?: Array<{ __typename?: 'CorrectGuess', collectionId: number, collectionEntryId: number, guesserId: number, pending: boolean, collectionEntry: { __typename?: 'CollectionEntry', externalId: number } }> | null };
+export type MyCorrectGuessesQuery = { __typename?: 'Query', myCorrectGuesses?: Array<{ __typename?: 'CorrectGuess', collectionId: number, collectionEntryId: number, guesserId: number, collectionEntry: { __typename?: 'CollectionEntry', externalId: number } }> | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['Int'];
@@ -432,6 +542,7 @@ export const CollectionSnippetFragmentDoc = gql`
     id
     username
   }
+  collectionEntriesLength
 }
     `;
 export const CollectionEntrySnippetFragmentDoc = gql`
@@ -517,6 +628,15 @@ export const UserSnippetFragmentDoc = gql`
   username
 }
     `;
+export const ApproveAppealDocument = gql`
+    mutation ApproveAppeal($externalEntry: CollectionEntryInput!, $collectionId: Int!) {
+  approveAppeal(externalEntry: $externalEntry, collectionId: $collectionId)
+}
+    `;
+
+export function useApproveAppealMutation() {
+  return Urql.useMutation<ApproveAppealMutation, ApproveAppealMutationVariables>(ApproveAppealDocument);
+};
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -527,6 +647,23 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreateAppealDocument = gql`
+    mutation CreateAppeal($appeal: AppealInput!) {
+  createAppeal(appeal: $appeal) {
+    errors {
+      field
+      message
+    }
+    appeal {
+      id
+    }
+  }
+}
+    `;
+
+export function useCreateAppealMutation() {
+  return Urql.useMutation<CreateAppealMutation, CreateAppealMutationVariables>(CreateAppealDocument);
 };
 export const CreateCollectionDocument = gql`
     mutation CreateCollection($input: CollectionInput!, $entries: [CollectionEntryInput!]!) {
@@ -561,7 +698,6 @@ export const CreateCorrectGuessDocument = gql`
       collectionEntryId
       collectionId
       guesserId
-      pending
     }
   }
 }
@@ -619,6 +755,15 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const RejectAppealDocument = gql`
+    mutation RejectAppeal($externalId: Int!, $collectionId: Int!) {
+  rejectAppeal(externalId: $externalId, collectionId: $collectionId)
+}
+    `;
+
+export function useRejectAppealMutation() {
+  return Urql.useMutation<RejectAppealMutation, RejectAppealMutationVariables>(RejectAppealDocument);
+};
 export const UpdateCollectionDocument = gql`
     mutation UpdateCollection($title: String!, $entries: [CollectionEntryInput!]!, $id: Int!) {
   updateCollection(title: $title, entries: $entries, id: $id) {
@@ -666,6 +811,52 @@ export const VoteDocument = gql`
 
 export function useVoteMutation() {
   return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+};
+export const AppealsReviewableDocument = gql`
+    query AppealsReviewable($limit: Int!, $page: Int!) {
+  appealsReviewable(limit: $limit, page: $page) {
+    hasMore
+    appeals {
+      collectionId
+      externalId
+      externalTitle
+      externalImagePath
+      externalReleaseDate
+      appealCount
+      collection {
+        titleSnippet
+      }
+    }
+  }
+}
+    `;
+
+export function useAppealsReviewableQuery(options: Omit<Urql.UseQueryArgs<AppealsReviewableQueryVariables>, 'query'>) {
+  return Urql.useQuery<AppealsReviewableQuery>({ query: AppealsReviewableDocument, ...options });
+};
+export const AppealsSubmittedDocument = gql`
+    query AppealsSubmitted($state: String, $limit: Int!, $page: Int!) {
+  appealsSubmitted(state: $state, limit: $limit, page: $page) {
+    hasMore
+    appeals {
+      id
+      state
+      collectionId
+      externalId
+      externalTitle
+      externalImagePath
+      externalReleaseDate
+      appealById
+      collection {
+        titleSnippet
+      }
+    }
+  }
+}
+    `;
+
+export function useAppealsSubmittedQuery(options: Omit<Urql.UseQueryArgs<AppealsSubmittedQueryVariables>, 'query'>) {
+  return Urql.useQuery<AppealsSubmittedQuery>({ query: AppealsSubmittedDocument, ...options });
 };
 export const CollectionDocument = gql`
     query Collection($id: Int!) {
@@ -730,7 +921,6 @@ export const MyCorrectGuessesDocument = gql`
     collectionId
     collectionEntryId
     guesserId
-    pending
     collectionEntry {
       externalId
     }

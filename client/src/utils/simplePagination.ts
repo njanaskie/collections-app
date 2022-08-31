@@ -1,7 +1,10 @@
 import { Resolver } from "@urql/exchange-graphcache";
 import { stringifyVariables } from "urql";
 
-export const simplePagination = (selectFieldName: string): Resolver => {
+export const simplePagination = (
+  selectFieldName: string,
+  type: string
+): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
 
@@ -15,19 +18,19 @@ export const simplePagination = (selectFieldName: string): Resolver => {
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
     const isInCache = cache.resolve(
       cache.resolve(entityKey, fieldKey) as string,
-      "collections"
+      type
     );
     info.partial = !isInCache;
     let hasMore = true;
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
       const key = cache.resolve(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, "collections") as string[];
+      const data = cache.resolve(key, type) as string[];
 
       // TODO: Decide if this is the best way to do this
       const orderBy = fi.arguments!.orderBy ? fi.arguments!.orderBy : undefined;
       if (orderBy && orderBy !== fieldArgs.orderBy) {
-        cache.invalidate("Query", "collections", fi.arguments);
+        cache.invalidate("Query", type, fi.arguments);
       }
 
       const userId = fi.arguments!.userId ? fi.arguments!.userId : undefined;
@@ -46,9 +49,9 @@ export const simplePagination = (selectFieldName: string): Resolver => {
     });
 
     return {
-      __typename: "PaginatedCollections",
+      __typename: `Paginated${type.charAt(0).toUpperCase() + type.slice(1)}`,
       hasMore,
-      collections: results,
+      type: results,
     };
   };
 };

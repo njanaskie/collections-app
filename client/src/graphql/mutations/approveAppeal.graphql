@@ -1,0 +1,6 @@
+mutation ApproveAppeal(
+  $externalEntry: CollectionEntryInput!
+  $collectionId: Int!
+) {
+  approveAppeal(externalEntry: $externalEntry, collectionId: $collectionId)
+}

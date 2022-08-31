@@ -1,0 +1,16 @@
+query AppealsReviewable($limit: Int!, $page: Int!) {
+  appealsReviewable(limit: $limit, page: $page) {
+    hasMore
+    appeals {
+      collectionId
+      externalId
+      externalTitle
+      externalImagePath
+      externalReleaseDate
+      appealCount
+      collection {
+        titleSnippet
+      }
+    }
+  }
+}

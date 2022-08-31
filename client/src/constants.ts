@@ -13,12 +13,15 @@ export const correctGuessMessages = [
   "Uh-huh, honey",
   "Alright alright alright",
   "Shiver me timbers, you got one",
+  "It's very nice!",
 ];
 
 export const incorrectGuessMessages = [
   "Nah bro",
   "That ain't it chief",
   "U bad",
+  "You gotta be kidding me",
+  "I gotta bad feeling about this",
 ];
 
 export const itemLimit = 4;

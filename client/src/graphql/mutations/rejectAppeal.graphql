@@ -1,0 +1,3 @@
+mutation RejectAppeal($externalId: Int!, $collectionId: Int!) {
+  rejectAppeal(externalId: $externalId, collectionId: $collectionId)
+}

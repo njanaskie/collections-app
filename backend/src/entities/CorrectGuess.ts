@@ -36,14 +36,10 @@ export class CorrectGuess extends BaseEntity {
   collectionEntryId: number;
 
   @Field(() => CollectionEntry)
-  @OneToOne(
+  @ManyToOne(
     () => CollectionEntry,
     (collectionEntry) => collectionEntry.correctGuess
   )
   @JoinColumn()
   collectionEntry: CollectionEntry;
-
-  @Field()
-  @Column()
-  pending: boolean;
 }

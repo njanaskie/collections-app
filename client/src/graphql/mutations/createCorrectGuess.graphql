@@ -8,7 +8,6 @@ mutation CreateCorrectGuess($guess: CorrectGuessInput!) {
       collectionEntryId
       collectionId
       guesserId
-      pending
     }
   }
 }

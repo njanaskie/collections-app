@@ -22,11 +22,12 @@ import { CardBottom } from "./CardBottom";
 import theme from "../theme";
 import { EditDeleteCollectionButtons } from "./EditDeleteCollectionButtons";
 import { Points } from "./Points";
+import { CorrectGuessItem } from "../utils/CorrectGuessItemProps";
 
 interface InfoBoxProps {
   collection: RegularCollectionFragment;
   isMe: boolean;
-  correctGuesses: MyCorrectGuessesQuery | undefined;
+  correctGuesses: CorrectGuessItem[];
 }
 
 export const InfoBox: React.FC<InfoBoxProps> = ({
@@ -38,7 +39,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
     <Flex
       direction="column"
       ml={4}
-      mb={4}
+      // mb={4}
       p={2}
       backgroundColor={theme.colors.lightPurple}
       borderRadius={6}
@@ -63,7 +64,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
 
         {!isMe ? (
           <Text ml={2} alignSelf="center" color="gray.600">
-            <b>{correctGuesses?.myCorrectGuesses?.length}</b> out of{" "}
+            <b>{correctGuesses?.length}</b> out of{" "}
             <b>{collection.collectionEntries.length}</b> films guessed correctly
           </Text>
         ) : null}

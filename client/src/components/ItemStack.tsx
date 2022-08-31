@@ -21,25 +21,29 @@ import { Card } from "./Card";
 import { Layout } from "./Layout";
 import { usePrevious } from "../utils/usePrevious";
 
-interface CardStackProps {
-  data: UserPaginatedCollectionsFragment;
+interface ItemStackProps {
+  data: any;
+  hasMore: boolean;
   fetching: boolean;
   handleFetchMore: Function;
   page: number;
-  collectionType: string;
+  queryType: string;
+  item: any;
 }
 
-export const CardStack: React.FC<CardStackProps> = ({
+export const ItemStack: React.FC<ItemStackProps> = ({
   data,
+  hasMore,
   fetching,
   page,
   handleFetchMore,
-  collectionType,
+  queryType,
+  item,
 }) => {
   const prevPage = usePrevious(page);
 
   const fetchMore = () => {
-    handleFetchMore(collectionType, prevPage + 1);
+    handleFetchMore(queryType, prevPage + 1);
   };
 
   return (
@@ -48,13 +52,13 @@ export const CardStack: React.FC<CardStackProps> = ({
         <Spinner />
       ) : (
         <Flex wrap="wrap">
-          {data.collections.length > 0 ? (
-            data.collections.map((c) =>
-              !c ? (
-                <div>null c</div>
+          {data.length > 0 ? (
+            data.map((i: any) =>
+              !i ? (
+                <div>null i</div>
               ) : (
-                <Flex key={c.id} m={2}>
-                  <Card c={c} size="small" />
+                <Flex key={i.id} m={2}>
+                  {item(i)}
                 </Flex>
               )
             )
@@ -63,7 +67,7 @@ export const CardStack: React.FC<CardStackProps> = ({
           )}
         </Flex>
       )}
-      {data && data.hasMore ? (
+      {data && hasMore ? (
         <Flex>
           <Button
             onClick={fetchMore}
