@@ -9,6 +9,7 @@ query AppealsReviewable($limit: Int!, $page: Int!) {
       externalReleaseDate
       appealCount
       collection {
+        id
         titleSnippet
       }
     }

@@ -27,6 +27,17 @@ import { CollectionEntryInput } from "./CollectionEntryInput";
 import { CorrectGuess } from "../entities/CorrectGuess";
 import { PRIME_NUMBERS } from "../constants";
 import { FieldError } from "./FieldError";
+import { SavedCollection } from "../entities/SavedCollection";
+
+@ObjectType()
+class TopUser {
+  @Field()
+  userId: number;
+  @Field()
+  stat: number;
+  @Field()
+  username: string;
+}
 
 @ObjectType()
 class CollectionResponse {
@@ -54,6 +65,94 @@ export class CollectionResolver {
   //   CollectionEntry.find({ where: { collectionId, userId } });
   //   return await this.userRepository.findOne(recipe.authorId, { cache: 1000 }))!;
   // }
+  @Query(() => [TopUser])
+  async mostGuessesUsers(): Promise<TopUser[]> {
+    const users = await AppDataSource.query(
+      `
+      select pass.*, u."username" from 
+      (select cg."guesserId" as "userId", count(*) as "stat" from correct_guess cg
+      group by cg."guesserId"
+      limit 25) as pass
+      left join "user" u on u.id = pass."userId"
+      order by pass."stat" desc
+      `
+    );
+
+    return users;
+  }
+
+  @Query(() => [TopUser])
+  async mostVotesUsers(): Promise<TopUser[]> {
+    const users = await AppDataSource.query(
+      `
+      select pass2.*, u."username" from 
+      (select pass."creatorId" as "userId", count(*) as "stat" from 
+      (select c."creatorId", c."points" from collection c
+      group by c."creatorId", c."points") as pass
+      group by pass."creatorId"
+      limit 25
+      ) as pass2
+      left join "user" u on u.id = pass2."userId"
+      order by pass2."stat" desc
+      `
+    );
+
+    return users;
+  }
+
+  @FieldResolver(() => Int, { nullable: true })
+  async saveStatus(
+    @Root() collection: Collection,
+    @Ctx() { savedCollectionLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return null;
+    }
+
+    const savedCollection = await savedCollectionLoader.load({
+      collectionId: collection.id,
+      userId: req.session.userId,
+    });
+
+    return savedCollection ? 1 : 0;
+  }
+
+  @Mutation(() => Boolean)
+  async saveCollection(
+    @Arg("collectionId", () => Int) collectionId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const { userId } = req.session;
+    const savedCollection = await SavedCollection.findOne({
+      where: { collectionId, userId },
+    });
+
+    // user has saved the collection before
+    if (savedCollection) {
+      await AppDataSource.transaction(async (tm) => {
+        await tm.query(
+          `
+        delete from public.saved_collection
+        where "collectionId" = $1 and "userId" = $2
+        `,
+          [collectionId, userId]
+        );
+      });
+    } else if (!savedCollection) {
+      // has not saved before
+      await AppDataSource.transaction(async (tm) => {
+        await tm.query(
+          `
+        insert into public.saved_collection ("userId", "collectionId")
+        values ($1,$2);
+        `,
+          [userId, collectionId]
+        );
+      });
+    }
+    return true;
+  }
+
   @FieldResolver(() => Number)
   async collectionEntriesLength(
     @Root() collection: Collection,
@@ -240,6 +339,7 @@ export class CollectionResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async vote(
     @Arg("collectionId", () => Int) collectionId: number,
     @Ctx() { req }: MyContext
@@ -456,7 +556,7 @@ export class CollectionResolver {
   @UseMiddleware(isAuth)
   async updateCollection(
     @Arg("id", () => Int) id: number,
-    @Arg("title") title: string,
+    @Arg("input") input: CollectionInput,
     @Arg("entries", () => [CollectionEntryInput])
     entries: CollectionEntryInput[],
     @Ctx()
@@ -475,7 +575,7 @@ export class CollectionResolver {
         const result = await tm
           .createQueryBuilder()
           .update(Collection)
-          .set({ title })
+          .set(input)
           .where('id = :id and "creatorId" = :creatorId', {
             id,
             creatorId: req.session.userId,

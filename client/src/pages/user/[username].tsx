@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { Box, Heading } from "@chakra-ui/layout";
+import { Box, Divider, Heading } from "@chakra-ui/layout";
 import {
   Button,
   Flex,
@@ -10,6 +10,7 @@ import {
   Link,
   Radio,
   RadioGroup,
+  Spinner,
   Stack,
   Tab,
   TabList,
@@ -17,6 +18,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React, { useEffect, useState } from "react";
@@ -187,7 +189,7 @@ export const User = ({}) => {
   if (userFetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Spinner />
       </Layout>
     );
   }
@@ -214,7 +216,7 @@ export const User = ({}) => {
         <Box>
           <Flex justify="space-between">
             {userData?.user?.user ? (
-              <Heading size="lg" mb={5} color={theme.colors.lightOrange}>
+              <Heading size="lg" mb={2} color={theme.colors.lightOrange}>
                 {userData.user.user.username}
               </Heading>
             ) : null}
@@ -232,6 +234,7 @@ export const User = ({}) => {
                   aria-label="Edit User"
                   onClick={() => {}}
                   variant="ghost"
+                  color={"gray.200"}
                 />
               </NextLink>
             ) : null}
@@ -253,7 +256,7 @@ export const User = ({}) => {
             {userData.user.user.twitter_url ? (
               <Link href={userData.user.user.twitter_url} isExternal>
                 <Flex align="center" p={1}>
-                  <IoLogoTwitter />
+                  <IoLogoTwitter color="lightBlue" />
                   <Text as="i" color={"gray.200"} ml={1}>
                     Twitter
                   </Text>
@@ -271,8 +274,8 @@ export const User = ({}) => {
             ) : null}
           </HStack>
         </Box>
-        <Tabs isFitted>
-          <TabList>
+        <Tabs variant="soft-rounded" isFitted>
+          <TabList bgColor={theme.colors.lightPurple} borderRadius={4}>
             <Tab>Collections</Tab>
             {isMe ? (
               <>
@@ -334,10 +337,38 @@ export const User = ({}) => {
               )}
             </TabPanel>
             <TabPanel>
-              <Tabs>
+              <Tabs variant="soft-rounded">
                 <TabList>
-                  <Tab>Appeals To Review</Tab>
-                  <Tab>My Appeals</Tab>
+                  <Tooltip
+                    label="Appeals that others have submitted"
+                    fontSize="sm"
+                    placement="auto"
+                  >
+                    <Tab color={theme.colors.superLightBlue}>
+                      {appealsReviewable?.appealsReviewable.appeals &&
+                      appealsReviewable?.appealsReviewable.appeals.length >
+                        0 ? (
+                        <Text
+                          color="white"
+                          bgColor={theme.colors.rose}
+                          rounded="full"
+                          w={6}
+                          h={6}
+                          mr={1}
+                        >
+                          {appealsReviewable?.appealsReviewable.appeals.length}
+                        </Text>
+                      ) : null}
+                      Appeals To Review
+                    </Tab>
+                  </Tooltip>
+                  <Tooltip
+                    label="Appeals I have submitted"
+                    fontSize="sm"
+                    placement="auto"
+                  >
+                    <Tab color={theme.colors.superLightBlue}> My Appeals</Tab>
+                  </Tooltip>
                 </TabList>
                 <TabPanels>
                   <TabPanel>
@@ -358,13 +389,15 @@ export const User = ({}) => {
                     )}
                   </TabPanel>
                   <TabPanel>
+                    <Divider />
                     <Flex justify="flex-start">
                       <RadioGroup
                         onChange={setAppealState}
                         size="lg"
                         value={appealState}
                         marginBlock={4}
-                        colorScheme="messenger"
+                        color={"gray.200"}
+                        // colorScheme={"teal"}
                       >
                         <Stack direction="row">
                           <Radio value="pending">Pending</Radio>

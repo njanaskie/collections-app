@@ -1,7 +1,10 @@
 import { NavBar } from "../components/NavBar";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { useCollectionsQuery } from "../generated/graphql";
+import {
+  useCollectionsQuery,
+  useMostVotesUsersQuery,
+} from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -19,6 +22,10 @@ import {
   Text,
   Radio,
   RadioGroup,
+  Slide,
+  SlideFade,
+  Divider,
+  Spinner,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
@@ -27,6 +34,7 @@ import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import "swiper/css/grid";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 
 import AliceCarousel from "react-alice-carousel";
@@ -34,10 +42,11 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { CardBottom } from "../components/CardBottom";
 import { SelectAutoComplete } from "../components/SelectAutoComplete";
 import theme from "../theme";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ArrowRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { usePrevious } from "../utils/usePrevious";
 import { Card } from "../components/Card";
 import { itemLimit } from "../constants";
+import { TopUsersMini } from "../components/TopUsersMini";
 const handleDragStart = (e: any) => e.preventDefault();
 
 const Index = () => {
@@ -85,15 +94,24 @@ const Index = () => {
 
   return (
     <Layout>
+      <Text
+        letterSpacing="tight"
+        fontSize="xl"
+        color={theme.colors.superLightBlue}
+        mb={4}
+      >
+        Welcome, start guessing films or make your own collection!
+      </Text>
+      <Divider />
       <Flex justify="flex-start">
         <RadioGroup
           onChange={setOrderBy}
           size="lg"
           value={orderBy}
           marginBlock={4}
-          colorScheme="messenger"
+          colorScheme={"teal"}
         >
-          <Stack direction="row">
+          <Stack color={theme.colors.superLightBlue} direction="row">
             <Radio value="new">New</Radio>
             <Radio value="popular">Popular</Radio>
             <Radio value="random">Random</Radio>
@@ -101,7 +119,7 @@ const Index = () => {
         </RadioGroup>
       </Flex>
       {!data && fetching ? (
-        <div>loading...</div>
+        <Spinner />
       ) : !fetching && data?.collections.collections?.length === 0 ? (
         <Box>Ain't no collections to be found :(</Box>
       ) : (
@@ -109,8 +127,9 @@ const Index = () => {
           <Box>
             <Swiper
               onReset={() => console.log("on reset")}
-              spaceBetween={20}
+              // spaceBetween={20}
               slidesPerView={3}
+              // grid={{ rows: 2 }}
               onSlideChange={() => {}}
               onSwiper={setSwiper}
               navigation={{
@@ -137,18 +156,6 @@ const Index = () => {
                     page: prevPage + 1,
                   });
                 }
-
-                // setVariables({
-                //   limit: variables.limit,
-                //   cursor: data.collections.collections
-                //     ? data.collections.collections[
-                //         data.collections.collections.length - 1
-                //       ]?.createdAt
-                //     : null,
-                //   orderBy,
-                //   modulus: data.collections.modulus,
-                //   page: variables.page
-                // });
               }}
             >
               {data!.collections.collections.map((c) =>
@@ -186,6 +193,22 @@ const Index = () => {
           </Box>
         </>
       )}
+      <NextLink href="/leaderboard">
+        <Button
+          as={Link}
+          bgColor={theme.colors.lightBlue}
+          color={theme.colors.darkBlue}
+          borderRadius={20}
+          mt={20}
+          _hover={{ bg: theme.colors.lightOrange, textDecoration: "none" }}
+          h={55}
+        >
+          <Flex align="center" justify="space-between" p={4} w={300}>
+            <Heading mr={2}>Top Players</Heading>
+            <ArrowRightIcon />
+          </Flex>
+        </Button>
+      </NextLink>
     </Layout>
   );
 };

@@ -24,4 +24,4 @@ export const incorrectGuessMessages = [
   "I gotta bad feeling about this",
 ];
 
-export const itemLimit = 4;
+export const itemLimit = 15;

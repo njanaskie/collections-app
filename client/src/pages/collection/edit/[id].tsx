@@ -1,5 +1,5 @@
 import { EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import router, { useRouter } from "next/router";
@@ -30,7 +30,7 @@ export const EditCollection = ({}) => {
   if (fetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Spinner />
       </Layout>
     );
   }
@@ -55,6 +55,7 @@ export const EditCollection = ({}) => {
       <Formik
         initialValues={{
           title: data.collection.title,
+          description: data.collection.description,
           entries: data.collection.collectionEntries
             ? data.collection.collectionEntries.map((entry) => {
                 return {
@@ -74,7 +75,10 @@ export const EditCollection = ({}) => {
           const response = await updateCollection({
             id: intId,
             entries: values.entries,
-            title: values.title,
+            input: {
+              title: values.title,
+              description: values.description,
+            },
           });
           // console.log("response", response);
           if (!response.error) {
@@ -84,12 +88,23 @@ export const EditCollection = ({}) => {
       >
         {({ isSubmitting, values, setValues }) => (
           <Form>
-            <InputField name="title" placeholder="title" label="Title" />
+            <InputField
+              name="title"
+              placeholder="The title of your collection"
+              label="Title"
+              textarea={true}
+            />
+            <InputField
+              name="description"
+              placeholder="Enter additional information about your collection"
+              label="Description"
+              textarea={false}
+            />
             <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
               <SelectAutoComplete
                 name="entries"
-                label="Movies"
-                placeholder="Movies or TV Shows"
+                label="Films"
+                placeholder="Enter film title..."
                 handleChange={(r: EntryProps) =>
                   setValues({ ...values, entries: [...values.entries, r] })
                 }

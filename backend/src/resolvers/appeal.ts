@@ -14,13 +14,12 @@ import {
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { CorrectGuess } from "../entities/CorrectGuess";
-import { CorrectGuessInput } from "./CorrectGuessInput";
 import { FieldError } from "./FieldError";
 import { CollectionEntry } from "../entities/CollectionEntry";
 import { Appeal } from "../entities/Appeal";
 import { AppealInput } from "./AppealInput";
 import AppDataSource from "../database/dataSource";
-import { In, Not } from "typeorm";
+import { In } from "typeorm";
 import { Collection } from "../entities/Collection";
 import { CollectionEntryInput } from "./CollectionEntryInput";
 

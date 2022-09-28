@@ -4,6 +4,7 @@ import { CollectionSnippetFragment } from "../generated/graphql";
 import NextLink from "next/link";
 import { CardBottom } from "./CardBottom";
 import theme from "../theme";
+import { motion } from "framer-motion";
 
 interface CardProps {
   c: CollectionSnippetFragment;
@@ -12,24 +13,40 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ c, size }) => {
   return (
+    // <motion.a
+    //   whileHover={{ scale: 1.1 }}
+    //   transition={{ type: "spring", stiffness: 400, damping: 10 }}
+    // >
     <Flex
       direction="column"
-      p={4}
-      shadow="md"
-      borderWidth="1px"
-      borderColor="gray.200"
-      h={size === "small" ? [230, 250] : [280, 300]}
-      w={size === "small" ? [150, 200] : [200, 250]}
+      boxShadow="md"
+      rounded="md"
+      borderWidth="2px"
+      borderColor="gray.400"
+      h={size === "small" ? [200, 240] : [200, 260]}
+      w={size === "small" ? [200, 240] : [200, 260]}
       justifyContent="space-between"
-      backgroundColor="gray.200"
-      borderRadius={4}
+      backgroundColor={theme.colors.superLightBlue}
+      borderRadius={6}
+      // _hover={{ bgColor: theme.colors.lightPurple }}
     >
-      <Box>
+      <Box p={4}>
         <NextLink href="/collection/[id]" as={`/collection/${c.id}`}>
-          <Link>
-            <Heading fontSize="lg" color={theme.colors.darkBlue} noOfLines={8}>
+          <Link
+            _hover={{
+              textDecoration: "none",
+            }}
+          >
+            <Text
+              fontWeight="semibold"
+              color={theme.colors.darkBlue}
+              noOfLines={size === "small" ? 5 : 7}
+              _hover={{
+                textColor: theme.colors.orange,
+              }}
+            >
               {c.titleSnippet}
-            </Heading>
+            </Text>
             {/* <Heading fontSize="md" color={theme.colors.darkBlue}>
               {c.id}
             </Heading> */}
@@ -38,5 +55,6 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
       </Box>
       <CardBottom collection={c} />
     </Flex>
+    // </motion.a>
   );
 };

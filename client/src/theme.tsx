@@ -3,6 +3,23 @@ import { createBreakpoints } from "@chakra-ui/theme-tools";
 
 const fonts = { mono: `'Menlo', monospace` };
 
+const colors = {
+  black: "#16161D",
+  purple: "#5f4d7d",
+  lightBlue: "#82c5df",
+  darkBlue: "#293d49",
+  green: "#419D78",
+  darkGreen: "#347E60",
+  gold: "#EAA855",
+  darkGold: "#DB9D4F",
+  lightOrange: "#FFDBB5",
+  orange: "#E7B581",
+  lightPurple: "#9FA4C4",
+  superLightBlue: "#dff0f7",
+  tan: "#DCCCA3",
+  rose: "#f45b69",
+};
+
 const breakpoints = createBreakpoints({
   sm: "40em",
   md: "52em",
@@ -11,29 +28,50 @@ const breakpoints = createBreakpoints({
 });
 
 const theme = extendTheme({
+  components: {
+    Text: {
+      baseStyle: {
+        fontSize: "md",
+        letterSpacing: "tight",
+      },
+    },
+    Heading: {
+      baseStyle: {
+        fontFamily: "monospace",
+      },
+    },
+    Table: {
+      parts: ["th", "td"],
+      baseStyle: {
+        th: {
+          bg: colors.lightPurple,
+        },
+        td: {
+          color: colors.lightBlue,
+        },
+      },
+      defaultProps: {
+        size: "lg",
+        variant: "simple",
+      },
+    },
+    IconButton: {
+      baseStyle: {
+        bg: "red",
+      },
+    },
+  },
   styles: {
     global: (props: any) => ({
       "html, body": {
-        // fontSize: "sm",
+        fontSize: "md",
+        fontFamily: "monospace",
         // color: "white",
         background: "#5f4d7d",
       },
     }),
   },
-  colors: {
-    black: "#16161D",
-    purple: "#5f4d7d",
-    lightBlue: "#82c5df",
-    darkBlue: "#293d49",
-    green: "#419D78",
-    darkGreen: "#347E60",
-    gold: "#EAA855",
-    darkGold: "#DB9D4F",
-    lightOrange: "#FFDBB5",
-    orange: "#E7B581",
-    lightPurple: "#9FA4C4",
-    superLightBlue: "#dff0f7",
-  },
+  colors: colors,
   fonts,
   breakpoints,
   icons: {

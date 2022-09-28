@@ -5,6 +5,7 @@ import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader
 import { createCollectionLoader } from "./utils/createCollectionLoader";
 import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 import { createLikeLoader } from "./utils/createLikeLoader";
+import { createSavedCollectionLoader } from "./utils/createSavedCollectionLoader";
 import { createUserLoader } from "./utils/createUserLoader";
 
 export type MyContext = {
@@ -16,4 +17,5 @@ export type MyContext = {
   collectionEntryLoader: ReturnType<typeof createCollectionEntryLoader>;
   correctGuessLoader: ReturnType<typeof createCorrectGuessLoader>;
   collectionLoader: ReturnType<typeof createCollectionLoader>;
+  savedCollectionLoader: ReturnType<typeof createSavedCollectionLoader>;
 };

@@ -13,6 +13,7 @@
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "@react-spring/web": "^9.4.5",
+    "@urql/devtools": "^2.0.3",
     "@urql/exchange-graphcache": "^4.3.6",
     "formik": "^2.2.9",
     "framer-motion": "^4.0.3",

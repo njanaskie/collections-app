@@ -3,17 +3,12 @@ import {
   BaseEntity,
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "./User";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
-import { Appeal } from "./Appeal";
 
 @ObjectType()
 @Entity()

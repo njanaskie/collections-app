@@ -207,15 +207,15 @@ export const AppealItem: React.FC<AppealItemProps> = ({ appeal, mode }) => {
               >
                 <Link _hover={{ color: theme.colors.orange }}>
                   <Text as="i">
-                    From:{" "}
-                    {appeal.collection.titleSnippet.substr(0, 15) + "\u2026"}
+                    {/* From:{" "} */}
+                    {appeal.collection.titleSnippet.substr(0, 20) + "\u2026"}
                   </Text>
                 </Link>
               </NextLink>
             </Heading>
           )}
         </Flex>
-        <Flex flexDirection="column" justify="center">
+        <Flex flexDirection="column" justify="center" ml={2}>
           <IconButton
             mb={2}
             aria-label="Approve appeal"

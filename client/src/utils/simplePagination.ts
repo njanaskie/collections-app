@@ -33,6 +33,12 @@ export const simplePagination = (
         cache.invalidate("Query", type, fi.arguments);
       }
 
+      // TODO: Decide if this is the best way to do this
+      const appealState = fi.arguments!.state ? fi.arguments!.state : undefined;
+      if (appealState && appealState !== fieldArgs.state) {
+        cache.invalidate("Query", selectFieldName, fi.arguments);
+      }
+
       const userId = fi.arguments!.userId ? fi.arguments!.userId : undefined;
       if (userId && userId !== fieldArgs.userId) {
         cache.invalidate("Query", selectFieldName, fi.arguments);
@@ -51,7 +57,7 @@ export const simplePagination = (
     return {
       __typename: `Paginated${type.charAt(0).toUpperCase() + type.slice(1)}`,
       hasMore,
-      type: results,
+      [type]: results,
     };
   };
 };

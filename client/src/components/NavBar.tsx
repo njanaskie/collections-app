@@ -76,10 +76,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
               as={Button}
               rightIcon={<ChevronDownIcon />}
               variant="ghost"
+              _hover={{ bgColor: "gray.900" }}
+              _active={{ bg: "gray.900" }}
             >
               {data.me.username}
             </MenuButton>
-            <MenuList zIndex="dropdown">
+            <MenuList zIndex="dropdown" color="gray.700">
               <NextLink
                 href={{
                   pathname: "/user/[username]",
@@ -116,7 +118,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       <Flex flex={1} m="auto" align="center" maxW={850}>
         <NextLink href="/">
           <Link _hover={{ textDecoration: "none" }}>
-            <Heading color={theme.colors.superLightBlue}>Collections</Heading>
+            <Heading color={theme.colors.superLightBlue}>collections</Heading>
           </Link>
         </NextLink>
         <Box ml={"auto"} color="gray.200">

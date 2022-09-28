@@ -4,8 +4,10 @@ query Collection($id: Int!) {
     createdAt
     updatedAt
     title
+    description
     points
     voteStatus
+    saveStatus
     creatorId
     creator {
       ...UserSnippet

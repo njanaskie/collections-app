@@ -12,6 +12,7 @@ import { Appeal } from "./Appeal";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
 import { Like } from "./Like";
+import { SavedCollection } from "./SavedCollection";
 
 @ObjectType()
 @Entity()
@@ -44,6 +45,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
+
+  @OneToMany(() => SavedCollection, (savedCollection) => savedCollection.user)
+  savedCollections: SavedCollection[];
 
   @Field({ nullable: true })
   @Column({ nullable: true })

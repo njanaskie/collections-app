@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Spinner,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -21,6 +22,7 @@ import {
   useUpdateCollectionMutation,
   useUpdateUserMutation,
 } from "../../../generated/graphql";
+import theme from "../../../theme";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { EntryProps } from "../../../utils/EntryProps";
 import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
@@ -52,7 +54,7 @@ export const EditUser = ({}) => {
   if (fetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Spinner />
       </Layout>
     );
   }
@@ -103,11 +105,14 @@ export const EditUser = ({}) => {
           <Form>
             <Flex align="center" justify="space-between">
               <IconButton
+                bgColor="gray.200"
                 aria-label="Go back"
                 icon={<ChevronLeftIcon />}
                 onClick={() => router.back()}
               />
-              <Heading size="lg">Update Profile</Heading>
+              <Heading size="lg" color={theme.colors.orange}>
+                Update Profile
+              </Heading>
             </Flex>
             <Divider mt={2} />
             <Box mt={2}>
@@ -125,7 +130,7 @@ export const EditUser = ({}) => {
                 label="Email"
               />
             </Box>
-            <Heading mt={4} size="md">
+            <Heading mt={4} size="md" color={theme.colors.orange}>
               Socials
             </Heading>
             <Divider mt={2} />
@@ -157,7 +162,9 @@ export const EditUser = ({}) => {
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              bgColor={theme.colors.green}
+              color="gray.100"
+              // colorScheme="teal"
               variant="solid"
             >
               Update User

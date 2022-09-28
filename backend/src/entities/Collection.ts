@@ -13,6 +13,7 @@ import { Appeal } from "./Appeal";
 import { CollectionEntry } from "./CollectionEntry";
 import { CorrectGuess } from "./CorrectGuess";
 import { Like } from "./Like";
+import { SavedCollection } from "./SavedCollection";
 import { User } from "./User";
 
 @ObjectType()
@@ -27,6 +28,10 @@ export class Collection extends BaseEntity {
   @Field()
   @Column()
   title!: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 255 })
+  description?: string;
 
   // @Field(() => [Number])
   // @Column("int", { array: true })
@@ -61,6 +66,15 @@ export class Collection extends BaseEntity {
 
   @Field(() => Number, { defaultValue: 0 })
   guesserCompleteness: number;
+
+  @Field(() => Int, { defaultValue: 0 })
+  saveStatus: number;
+
+  @OneToMany(
+    () => SavedCollection,
+    (savedCollection) => savedCollection.collection
+  )
+  savedCollections: SavedCollection[];
 
   @Field()
   @Column()

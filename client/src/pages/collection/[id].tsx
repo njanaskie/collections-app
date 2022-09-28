@@ -26,6 +26,7 @@ import {
   ModalOverlay,
   useDisclosure,
   FormErrorMessage,
+  Spinner,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
@@ -180,7 +181,7 @@ export const Collection = ({}) => {
   if (collectionFetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Spinner />
       </Layout>
     );
   }
@@ -206,7 +207,7 @@ export const Collection = ({}) => {
       <Flex>
         <Box w="100%">
           {data.collection.creator ? (
-            <Heading size="xs" mb={2} color={theme.colors.lightOrange}>
+            <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
               Created by{" "}
               <NextLink
                 href={{
@@ -223,6 +224,11 @@ export const Collection = ({}) => {
               </NextLink>
             </Heading>
           ) : null}
+          <Flex mb={2}>
+            <Text as="i" fontSize="sm" color={"gray.200"}>
+              {data.collection.description}
+            </Text>
+          </Flex>
           <Divider />
           <Heading size="md" mb={4} color={theme.colors.superLightBlue}>
             {data.collection.title}
@@ -253,6 +259,7 @@ export const Collection = ({}) => {
               onClose={onClose}
               isCentered
               motionPreset="scale"
+              size="xl"
             >
               <ModalOverlay />
               <ModalContent
@@ -295,21 +302,21 @@ export const Collection = ({}) => {
                           <FormErrorMessage>{errors.appeal}</FormErrorMessage>
                         ) : null}
                         <Text color="gray.200">
-                          If you think a film is missing from the collection,
-                          submit an appeal for the creator to review. If they
-                          approve your appeal, the film will be added and you
-                          will be rewarded a correct guess.
+                          If you think a film belongs in this collection, submit
+                          an appeal for the creator to review. If they approve,
+                          the film will be added to the collection and you will
+                          be awarded a correct guess.
                         </Text>
                         <Flex
                           position="absolute"
-                          w={350}
+                          w={400}
                           zIndex="dropdown"
                           mt={4}
                         >
                           <SelectAutoComplete
                             name="appeals"
                             label="Appeal"
-                            placeholder="Type movie or tv title"
+                            placeholder="Enter film title"
                             handleChange={(r: EntryProps) =>
                               setValues({
                                 appeal: {
@@ -326,11 +333,11 @@ export const Collection = ({}) => {
                               <Text
                                 mt={20}
                                 color={theme.colors.lightOrange}
-                                w={"50%"}
+                                // w={"50%"}
                                 mr={4}
-                                textAlign="end"
+                                // textAlign="end"
                               >
-                                This film should be in the collection:
+                                Film you want to appeal:
                               </Text>
                               <Box mt={20}>
                                 <Heading
@@ -391,7 +398,7 @@ export const Collection = ({}) => {
                 <SelectAutoComplete
                   name="guesses"
                   label="Make Your Guess"
-                  placeholder="Type movie or tv title"
+                  placeholder="Enter film title"
                   // isGuessing={true}
                   // collection={data.collection} // exclamation used to ignore TS "object is possibly null or undefined"
                   handleChange={handleChange}

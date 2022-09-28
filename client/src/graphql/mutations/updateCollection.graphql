@@ -1,9 +1,9 @@
 mutation UpdateCollection(
-  $title: String!
+  $input: CollectionInput!
   $entries: [CollectionEntryInput!]!
   $id: Int!
 ) {
-  updateCollection(title: $title, entries: $entries, id: $id) {
+  updateCollection(input: $input, entries: $entries, id: $id) {
     collection {
       id
       title

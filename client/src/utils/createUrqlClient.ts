@@ -4,6 +4,7 @@ import {
   fetchExchange,
   stringifyVariables,
 } from "urql";
+import { devtoolsExchange } from "@urql/devtools";
 import {
   LogoutMutation,
   MeQuery,
@@ -26,6 +27,8 @@ import {
   CreateCorrectGuessDocument,
   UpdateCollectionMutation,
   CollectionDocument,
+  RejectAppealMutationVariables,
+  SaveCollectionMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import {
@@ -113,11 +116,11 @@ const invalidateAllCollections = (cache: Cache) => {
   });
 };
 
-const invalidateAllAppeals = (cache: Cache) => {
+const invalidateAllAppeals = (cache: Cache, fieldName: string) => {
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === "appeals");
+  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
   fieldInfos.forEach((fi) => {
-    cache.invalidate("Query", "appeals", fi.arguments);
+    cache.invalidate("Query", fieldName, fi.arguments);
   });
 };
 
@@ -143,6 +146,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           },
     },
     exchanges: [
+      devtoolsExchange,
       dedupExchange,
       cacheExchange({
         keys: {
@@ -154,6 +158,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           RegularUserResponse: () => null,
           Appeal: () => null,
           PaginatedAppeals: () => null,
+          TopUser: () => null,
           // PaginatedAppealsReviewable: () => null,
         },
         resolvers: {
@@ -191,8 +196,42 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            saveCollection: (_result, args, cache, info) => {
+              const { collectionId } = args as SaveCollectionMutationVariables;
+              const data = cache.readFragment(
+                gql`
+                  fragment _ on Collection {
+                    id
+                    saveStatus
+                  }
+                `,
+                { id: collectionId } as any
+              );
+              if (data) {
+                // if (data.saveStatus === 1) {
+                //   return;
+                // }
+                cache.writeFragment(
+                  gql`
+                    fragment __ on Collection {
+                      saveStatus
+                    }
+                  `,
+                  {
+                    id: collectionId,
+                    saveStatus: data.saveStatus === 1 ? 0 : 1,
+                  }
+                );
+              }
+            },
+            rejectAppeal: (_result, args, cache, info) => {
+              invalidateAllAppeals(cache, "appealsReviewable");
+            },
+            approveAppeal: (_result, args, cache, info) => {
+              invalidateAllAppeals(cache, "appealsReviewable");
+            },
             createAppeal: (_result, args, cache, info) => {
-              invalidateAllAppeals(cache);
+              invalidateAllAppeals(cache, "appealsSubmitted");
             },
             // createCorrectGuess: (_result, args, cache, info) => {
             createCorrectGuess: (

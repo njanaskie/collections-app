@@ -51,7 +51,7 @@ export const ItemStack: React.FC<ItemStackProps> = ({
       {!data && fetching ? (
         <Spinner />
       ) : (
-        <Flex wrap="wrap">
+        <Flex justify="space-between" wrap="wrap">
           {data.length > 0 ? (
             data.map((i: any) =>
               !i ? (

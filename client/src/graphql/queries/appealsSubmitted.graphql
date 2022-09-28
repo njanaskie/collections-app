@@ -11,6 +11,7 @@ query AppealsSubmitted($state: String, $limit: Int!, $page: Int!) {
       externalReleaseDate
       appealById
       collection {
+        id
         titleSnippet
       }
     }

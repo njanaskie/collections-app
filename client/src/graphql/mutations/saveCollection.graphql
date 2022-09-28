@@ -1,0 +1,3 @@
+mutation SaveCollection($collectionId: Int!) {
+  saveCollection(collectionId: $collectionId)
+}

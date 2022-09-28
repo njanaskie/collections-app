@@ -1,0 +1,7 @@
+query MostVotesUsers {
+  mostVotesUsers {
+    userId
+    stat
+    username
+  }
+}

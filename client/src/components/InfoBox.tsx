@@ -23,6 +23,7 @@ import theme from "../theme";
 import { EditDeleteCollectionButtons } from "./EditDeleteCollectionButtons";
 import { Points } from "./Points";
 import { CorrectGuessItem } from "../utils/CorrectGuessItemProps";
+import { Save } from "./Save";
 
 interface InfoBoxProps {
   collection: RegularCollectionFragment;
@@ -69,7 +70,10 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
           </Text>
         ) : null}
       </Flex>
-      <Points collection={collection} />
+      <Flex>
+        <Points collection={collection} />
+      </Flex>
+      {/* <Save collection={collection} /> */}
     </Flex>
   );
 };

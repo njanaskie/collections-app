@@ -21,17 +21,20 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
         items.map((i) =>
           !i ? null : (
             <Flex
+              // bgColor={theme.colors.superLightBlue}
               key={i.externalId}
-              p={4}
+              // p={4}
               borderWidth={0.5}
+              boxShadow="lg"
               justify="space-between"
+              my={2}
             >
               <Image
                 // TMDB recommends to cache configuration data
                 // TODO: server side cache config
-                src={`https://image.tmdb.org/t/p/w45${i.externalImagePath}`}
+                src={`https://image.tmdb.org/t/p/w92${i.externalImagePath}`}
               />
-              <Box flex={1}>
+              <Box flex={1} p={2}>
                 <Heading size="md" ml={2} noOfLines={2} color="white">
                   {i.externalTitle}
                 </Heading>
@@ -39,8 +42,9 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
                   ({i.externalReleaseDate.slice(0, 4)})
                 </Text>
               </Box>
-              <Box ml="auto">
+              <Box ml="auto" p={2}>
                 <IconButton
+                  bgColor={theme.colors.rose}
                   color="white"
                   aria-label="Remove selected entry"
                   icon={<CloseIcon />}

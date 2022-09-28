@@ -5,6 +5,7 @@ import {
   CollectionSnippetFragment,
   useVoteMutation,
 } from "../generated/graphql";
+import theme from "../theme";
 
 interface PointsProps {
   collection: CollectionSnippetFragment;
@@ -13,20 +14,30 @@ interface PointsProps {
 export const Points: React.FC<PointsProps> = ({ collection }) => {
   const [{ fetching }, vote] = useVoteMutation();
   return (
-    <Flex alignItems="center">
+    <Flex>
       <Button
+        justifyContent="center"
         onClick={async () => {
           await vote({ collectionId: collection.id });
         }}
-        size="sm"
+        size="md"
         variant="ghost"
         aria-label="like collection"
         isLoading={fetching}
         color="gray.600"
+        _hover={{ textDecoration: "none" }}
+        _active={{ textDecoration: "none" }}
+        leftIcon={
+          collection.voteStatus === 1 ? (
+            <IoMdHeart color={theme.colors.rose} />
+          ) : (
+            <IoMdHeartEmpty />
+          )
+        }
+        w={"80%"}
       >
-        {collection.voteStatus === 1 ? <IoMdHeart /> : <IoMdHeartEmpty />}
+        {collection.points}
       </Button>
-      <Text color="gray.600">{collection.points}</Text>
     </Flex>
   );
 };

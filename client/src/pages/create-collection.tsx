@@ -32,6 +32,7 @@ const CreateCollection: React.FC<{}> = ({}) => {
       <Formik
         initialValues={{
           title: "",
+          description: null,
           entries: [] as EntryProps[],
         }}
         onSubmit={async (values, { setErrors }) => {
@@ -42,7 +43,7 @@ const CreateCollection: React.FC<{}> = ({}) => {
           // };
 
           const response = await createCollection({
-            input: { title: values.title },
+            input: { title: values.title, description: values.description },
             entries: values.entries,
           });
 
@@ -74,6 +75,12 @@ const CreateCollection: React.FC<{}> = ({}) => {
               placeholder="The title of your collection"
               label="Title"
               textarea={true}
+            />
+            <InputField
+              name="description"
+              placeholder="Enter additional information about your collection"
+              label="Description"
+              textarea={false}
             />
             <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
               <SelectAutoComplete

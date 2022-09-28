@@ -5,6 +5,7 @@ fragment CollectionSnippet on Collection {
   titleSnippet
   points
   voteStatus
+  saveStatus
   creator {
     id
     username

@@ -1,20 +1,15 @@
-import { Field, Int, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "./User";
 import { Collection } from "./Collection";
-import { CorrectGuess } from "./CorrectGuess";
-import { CollectionEntry } from "./CollectionEntry";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()

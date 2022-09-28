@@ -207,7 +207,11 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
           </Box> */}
           {/* <Box w={650}> */}
           <InputGroup>
-            <InputLeftAddon children={label} color="gray.200" />
+            <InputLeftAddon
+              children={label}
+              color="gray.200"
+              bgColor="gray.500"
+            />
             <Box w="inherit">
               <Input
                 id="searchInputField"

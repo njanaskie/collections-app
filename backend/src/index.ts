@@ -14,11 +14,10 @@ import { createUserLoader } from "./utils/createUserLoader";
 import { createLikeLoader } from "./utils/createLikeLoader";
 import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader";
 import { CorrectGuessResolver } from "./resolvers/correctGuess";
-import { CorrectGuess } from "./entities/CorrectGuess";
 import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 import { AppealResolver } from "./resolvers/appeal";
 import { createCollectionLoader } from "./utils/createCollectionLoader";
-// import { Collection } from "./entities/Collection";
+import { createSavedCollectionLoader } from "./utils/createSavedCollectionLoader";
 
 const main = async () => {
   await AppDataSource.initialize();
@@ -80,6 +79,7 @@ const main = async () => {
       collectionEntryLoader: createCollectionEntryLoader(),
       correctGuessLoader: createCorrectGuessLoader(),
       collectionLoader: createCollectionLoader(),
+      savedCollectionLoader: createSavedCollectionLoader(),
     }),
   });
 
