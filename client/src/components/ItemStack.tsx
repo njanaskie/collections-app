@@ -17,7 +17,7 @@ import {
 import NextLink from "next/link";
 import { CardBottom } from "./CardBottom";
 import theme from "../theme";
-import { Card } from "./Card";
+import { Card } from "./card/Card";
 import { Layout } from "./Layout";
 import { usePrevious } from "../utils/usePrevious";
 
@@ -51,19 +51,11 @@ export const ItemStack: React.FC<ItemStackProps> = ({
       {!data && fetching ? (
         <Spinner />
       ) : (
-        <Flex justify="space-between" wrap="wrap">
+        <Flex justify="flex-start" wrap="wrap">
           {data.length > 0 ? (
-            data.map((i: any) =>
-              !i ? (
-                <div>null i</div>
-              ) : (
-                <Flex key={i.id} m={2}>
-                  {item(i)}
-                </Flex>
-              )
-            )
+            data.map((i: any) => (!i ? <div>null i</div> : item(i)))
           ) : (
-            <div>nothing here</div>
+            <Text color="gray.200">Nothing here...</Text>
           )}
         </Flex>
       )}

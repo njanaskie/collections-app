@@ -1,4 +1,7 @@
 import "reflect-metadata";
+require("dotenv-safe").config({
+  allowEmptyValues: true,
+});
 import { COOKIE_NAME, __prod__ } from "./constants";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -18,6 +21,9 @@ import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 import { AppealResolver } from "./resolvers/appeal";
 import { createCollectionLoader } from "./utils/createCollectionLoader";
 import { createSavedCollectionLoader } from "./utils/createSavedCollectionLoader";
+import { LeaderboardResolver } from "./resolvers/leaderboard";
+import "./tasks";
+import { CollectionEntryResolver } from "./resolvers/collectionEntry";
 
 const main = async () => {
   await AppDataSource.initialize();
@@ -65,8 +71,10 @@ const main = async () => {
       resolvers: [
         CollectionResolver,
         UserResolver,
+        CollectionEntryResolver,
         CorrectGuessResolver,
         AppealResolver,
+        LeaderboardResolver,
       ],
       validate: false,
     }),

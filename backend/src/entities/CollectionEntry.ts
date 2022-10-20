@@ -2,10 +2,13 @@ import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
@@ -19,6 +22,7 @@ export class CollectionEntry extends BaseEntity {
 
   @Field()
   @Column()
+  // @Index()
   collectionId: number;
 
   @Field(() => Collection)
@@ -45,6 +49,14 @@ export class CollectionEntry extends BaseEntity {
   @Field()
   @Column()
   externalReleaseDate!: string;
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   // @Field(() => Appeal, { nullable: true })
   // @OneToOne(() => Appeal, (appeal) => appeal.collectionEntry)

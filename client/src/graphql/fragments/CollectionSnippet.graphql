@@ -1,11 +1,11 @@
 fragment CollectionSnippet on Collection {
   id
+  reference
   createdAt
   updatedAt
   titleSnippet
   points
   voteStatus
-  saveStatus
   creator {
     id
     username

@@ -74,7 +74,7 @@ export class AppealResolver {
   ): Promise<PaginatedAppeals> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
-    const offset = page === 1 ? 0 : page * realLimit - realLimit;
+    const offset = page === 1 ? 0 : page * realLimitPlusOne - realLimitPlusOne;
 
     if (!req.session.userId) {
       return {

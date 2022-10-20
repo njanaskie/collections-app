@@ -26,7 +26,7 @@ export const validateUpdateUser = (attributes: UserAttributesInput) => {
   if (attributes.letterboxd_url && !validURL(attributes.letterboxd_url)) {
     return [
       {
-        field: "letterbox_url",
+        field: "letterboxd_url",
         message: "Not a valid URL",
       },
     ];

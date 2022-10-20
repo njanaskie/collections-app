@@ -14,6 +14,10 @@ export const correctGuessMessages = [
   "Alright alright alright",
   "Shiver me timbers, you got one",
   "It's very nice!",
+  "The stuff that dreams are made of",
+  "That'll do, pig. That'll do.",
+  "Show me the money!",
+  "Elementary, my dear Watson",
 ];
 
 export const incorrectGuessMessages = [
@@ -22,6 +26,14 @@ export const incorrectGuessMessages = [
   "U bad",
   "You gotta be kidding me",
   "I gotta bad feeling about this",
+  "You're gonna need a better guess",
+  "You can't handle the truth!",
+  "Just keep guessing",
+  "As if!",
+  "Inconceivable!",
+  "You’re killin’ me, Smalls",
+  "Well, nobody's perfect",
+  "Houston, we have a problem",
 ];
 
-export const itemLimit = 15;
+export const itemLimit = 4;

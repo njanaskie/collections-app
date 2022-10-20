@@ -3,6 +3,7 @@ fragment RegularUser on User {
   username
   email
   createdAt
+  updatedAt
   bio
   letterboxd_url
   twitter_url

@@ -78,11 +78,11 @@ const CreateCollection: React.FC<{}> = ({}) => {
             />
             <InputField
               name="description"
-              placeholder="Enter additional information about your collection"
+              placeholder="Enter description"
               label="Description"
               textarea={false}
             />
-            <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
+            <Flex mt={4}>
               <SelectAutoComplete
                 name="entries"
                 label="Add an entry"

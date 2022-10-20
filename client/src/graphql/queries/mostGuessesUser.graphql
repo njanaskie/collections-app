@@ -2,6 +2,8 @@ query MostGuessesUsers {
   mostGuessesUsers {
     userId
     stat
-    username
+    user {
+      username
+    }
   }
 }

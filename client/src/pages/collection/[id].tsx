@@ -52,10 +52,14 @@ import { useGetIntId } from "../../utils/useGetIntId";
 import { Entry } from "../../components/entry/Entry";
 import { InfoBox } from "../../components/InfoBox";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
+import { useGetStringRef } from "../../utils/useGetStringRef";
+import { useIsMobile } from "../../utils/useIsMobile";
 
 export const Collection = ({}) => {
+  const router = useRouter();
   const [{ error: createAppealError }, createAppeal] =
     useCreateAppealMutation();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,7 +73,8 @@ export const Collection = ({}) => {
   const [guessMessageState, setGuessMessageState] =
     useState<"correct" | "incorrect" | "no-guess">("no-guess");
   const [, createCorrectGuess] = useCreateCorrectGuessMutation();
-  const intId = useGetIntId();
+  // const intId = useGetIntId();
+  // const stringRef= useGetStringRef();
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
   const [{ data: meData, fetching: meDataFetching }] = useMeQuery({
     pause: isServer(),
@@ -79,16 +84,26 @@ export const Collection = ({}) => {
   const isMe = meData?.me?.id === data?.collection?.creator.id;
   const [{ data: correctGuesses, fetching: correctGuessesFetching }] =
     useMyCorrectGuessesQuery({
-      variables: { collectionId: intId },
-      pause: isServer(),
+      variables: { collectionId: data?.collection ? data?.collection?.id : -1 },
+      pause: isServer() || !data?.collection?.id || collectionFetching,
     });
   const [correctGuessesFinal, setCorrectGuessesFinal] = useState<
     CorrectGuessItem[] | any
   >([]);
 
+  // useEffect(() => {
+  //   if (data && data?.collection) {
+  //     // Always do navigations after the first render
+  //     router.push(
+  //       `${data.collection.creator.username}/${data.collection?.title}`,
+  //       undefined,
+  //       { shallow: true }
+  //     );
+  //   }
+  // }, []);
+
   function setTheGuesses() {
     if (meData?.me && correctGuesses?.myCorrectGuesses) {
-      console.log("opt1");
       setCorrectGuessesFinal(
         correctGuesses.myCorrectGuesses.map((item) => {
           return {
@@ -98,10 +113,9 @@ export const Collection = ({}) => {
         })
       );
     } else if (!meData?.me && correctGuessesLocal) {
-      console.log("opt2");
       setCorrectGuessesFinal(
         correctGuessesLocal.filter(
-          (item: CorrectGuessItem) => item.collectionId == intId
+          (item: CorrectGuessItem) => item.collectionId == data?.collection?.id
         )
       );
     }
@@ -123,7 +137,6 @@ export const Collection = ({}) => {
   }, []);
 
   const handleChange = async (r: any) => {
-    console.log("guess", r);
     if (
       data?.collection?.collectionEntries &&
       data.collection.collectionEntries
@@ -204,8 +217,8 @@ export const Collection = ({}) => {
 
   return (
     <Layout>
-      <Flex>
-        <Box w="100%">
+      <Flex flexDir={["column", "row"]}>
+        <Box w="100%" mr={2}>
           {data.collection.creator ? (
             <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
               Created by{" "}
@@ -242,17 +255,19 @@ export const Collection = ({}) => {
           />
 
           <>
-            <Button
-              ml={2}
-              size="sm"
-              variant="ghost"
-              onClick={onOpen}
-              color="gray.200"
-              _hover={{ textColor: "gray.400" }}
-              _active={{ bg: "none" }}
-            >
-              Appeal?
-            </Button>
+            {!isMe && (
+              <Button
+                ml={2}
+                size="sm"
+                variant="ghost"
+                onClick={onOpen}
+                color="gray.200"
+                _hover={{ textColor: "gray.400" }}
+                _active={{ bg: "none" }}
+              >
+                Appeal?
+              </Button>
+            )}
 
             <Modal
               isOpen={isOpen}
@@ -268,7 +283,7 @@ export const Collection = ({}) => {
                 borderColor="gray.200"
               >
                 <ModalHeader color="gray.200">Submit an appeal</ModalHeader>
-                <ModalCloseButton />
+                <ModalCloseButton color="gray.200" />
                 <Formik
                   initialValues={{
                     appeal: {
@@ -282,8 +297,6 @@ export const Collection = ({}) => {
                     },
                   }}
                   onSubmit={async (values, { setErrors }) => {
-                    console.log("appeal submit", values);
-
                     const response = await createAppeal({
                       appeal: values.appeal,
                     });
@@ -308,23 +321,27 @@ export const Collection = ({}) => {
                           be awarded a correct guess.
                         </Text>
                         <Flex
-                          position="absolute"
-                          w={400}
-                          zIndex="dropdown"
+                          // position="absolute"
+                          // w={400}
+                          // zIndex="dropdown"
                           mt={4}
                         >
                           <SelectAutoComplete
                             name="appeals"
                             label="Appeal"
                             placeholder="Enter film title"
-                            handleChange={(r: EntryProps) =>
-                              setValues({
-                                appeal: {
-                                  collectionId: intId,
-                                  externalEntry: r,
-                                },
-                              })
-                            }
+                            handleChange={(r: EntryProps) => {
+                              if (data.collection) {
+                                setValues({
+                                  appeal: {
+                                    collectionId: data.collection.id,
+                                    externalEntry: r,
+                                  },
+                                });
+                              } else {
+                                console.log("cant submit appeal");
+                              }
+                            }}
                           />
                         </Flex>
                         <Flex h={20}>
@@ -368,14 +385,20 @@ export const Collection = ({}) => {
 
                       <ModalFooter mt={12}>
                         <Button
+                          mr={3}
+                          onClick={onClose}
+                          bgColor={"gray.500"}
+                          color="white"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
                           color="white"
                           bgColor={theme.colors.green}
-                          mr={3}
                           type="submit"
                         >
                           Submit
                         </Button>
-                        <Button onClick={onClose}>Cancel</Button>
                       </ModalFooter>
                     </Form>
                   )}
@@ -394,7 +417,7 @@ export const Collection = ({}) => {
         >
           {({ isSubmitting }) => (
             <Form>
-              <Flex position="absolute" w={850} zIndex="dropdown">
+              <Flex position="inherit">
                 <SelectAutoComplete
                   name="guesses"
                   label="Make Your Guess"
@@ -409,7 +432,7 @@ export const Collection = ({}) => {
         </Formik>
       ) : null}
       {!isMe ? (
-        <Box h={8} mt={12} ml={158}>
+        <Box h={8} mt={2} ml={160}>
           <GuessMessageAlert guessMessageState={guessMessageState} />
           {createGuessError.correctGuess ? (
             <Alert h="8" status="error">
@@ -431,7 +454,13 @@ export const Collection = ({}) => {
         // position="relative"
         mt={2}
       >
-        <Flex paddingLeft={6} paddingTop={6} wrap="wrap" overflow="scroll">
+        <Flex
+          // paddingLeft={6}
+          paddingTop={6}
+          wrap="wrap"
+          overflow="scroll"
+          justify="center"
+        >
           {data.collection.collectionEntries &&
           data.collection.collectionEntries.length > 0 ? (
             data.collection.collectionEntries.map((entry) =>

@@ -1,29 +1,15 @@
 import {
-  Flex,
-  Button,
-  Text,
-  Box,
-  Heading,
-  Link,
   CircularProgress,
   CircularProgressLabel,
+  Flex,
+  Text,
 } from "@chakra-ui/react";
 import React from "react";
-import {
-  Collection,
-  CollectionResponse,
-  CollectionSnippetFragment,
-  CorrectGuess,
-  MyCorrectGuessesQuery,
-  RegularCollectionFragment,
-} from "../generated/graphql";
-import NextLink from "next/link";
-import { CardBottom } from "./CardBottom";
+import { RegularCollectionFragment } from "../generated/graphql";
 import theme from "../theme";
+import { CorrectGuessItem } from "../utils/CorrectGuessItemProps";
 import { EditDeleteCollectionButtons } from "./EditDeleteCollectionButtons";
 import { Points } from "./Points";
-import { CorrectGuessItem } from "../utils/CorrectGuessItemProps";
-import { Save } from "./Save";
 
 interface InfoBoxProps {
   collection: RegularCollectionFragment;
@@ -39,26 +25,38 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
   return (
     <Flex
       direction="column"
-      ml={4}
+      // ml={4}
       // mb={4}
       p={2}
       backgroundColor={theme.colors.lightPurple}
       borderRadius={6}
       borderWidth={1}
-      minW={60}
-      h={40}
+      minW={[40, 60]}
+      h={["auto", 40]}
       borderColor="gray.200"
+      justify="space-between"
     >
-      {isMe ? <EditDeleteCollectionButtons id={collection.id} /> : null}
+      {isMe ? (
+        <EditDeleteCollectionButtons
+          id={collection.id}
+          reference={collection.reference}
+        />
+      ) : null}
       <Flex>
-        {collection.guesserCompleteness ? (
+        {correctGuesses && collection.collectionEntriesLength ? (
           <CircularProgress
-            value={collection.guesserCompleteness * 100}
+            value={Math.round(
+              (correctGuesses.length / collection.collectionEntriesLength) * 100
+            )}
             color={theme.colors.green}
             size={50}
           >
             <CircularProgressLabel>
-              {collection.guesserCompleteness * 100}%
+              {Math.round(
+                (correctGuesses.length / collection.collectionEntriesLength) *
+                  100
+              )}
+              %
             </CircularProgressLabel>
           </CircularProgress>
         ) : null}
@@ -68,10 +66,20 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
             <b>{correctGuesses?.length}</b> out of{" "}
             <b>{collection.collectionEntries.length}</b> films guessed correctly
           </Text>
-        ) : null}
+        ) : (
+          <Text ml={2} alignSelf="center" color="gray.600">
+            <b>{collection.collectionEntries.length}</b>{" "}
+            {collection.collectionEntries.length === 1 ? "film" : "films"} in
+            this collection
+          </Text>
+        )}
       </Flex>
       <Flex>
-        <Points collection={collection} />
+        <Points
+          id={collection.id}
+          voteStatus={collection.voteStatus}
+          points={collection.points}
+        />
       </Flex>
       {/* <Save collection={collection} /> */}
     </Flex>

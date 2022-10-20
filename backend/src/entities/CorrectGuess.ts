@@ -1,10 +1,12 @@
 import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
 import { Collection } from "./Collection";
@@ -40,4 +42,12 @@ export class CorrectGuess extends BaseEntity {
   )
   @JoinColumn()
   collectionEntry: CollectionEntry;
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

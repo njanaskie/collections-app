@@ -55,6 +55,7 @@ export type Collection = {
   guesserCompleteness?: Maybe<Scalars['Float']>;
   id: Scalars['Float'];
   points: Scalars['Float'];
+  reference: Scalars['String'];
   saveStatus?: Maybe<Scalars['Int']>;
   title: Scalars['String'];
   titleSnippet?: Maybe<Scalars['String']>;
@@ -66,11 +67,13 @@ export type CollectionEntry = {
   __typename?: 'CollectionEntry';
   collection: Collection;
   collectionId: Scalars['Float'];
+  createdAt: Scalars['String'];
   externalId: Scalars['Float'];
   externalImagePath: Scalars['String'];
   externalReleaseDate: Scalars['String'];
   externalTitle: Scalars['String'];
   id: Scalars['Float'];
+  updatedAt: Scalars['String'];
 };
 
 export type CollectionEntryInput = {
@@ -97,8 +100,10 @@ export type CorrectGuess = {
   collectionEntry: CollectionEntry;
   collectionEntryId: Scalars['Float'];
   collectionId: Scalars['Float'];
+  createdAt: Scalars['String'];
   guesser: User;
   guesserId: Scalars['Float'];
+  updatedAt: Scalars['String'];
 };
 
 export type CorrectGuessInput = {
@@ -127,12 +132,15 @@ export type Mutation = {
   createCorrectGuess: CorrectGuessResponse;
   deleteCollection: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
+  insertMostGuessesUsers: Scalars['Boolean'];
+  insertMostVotesUsers: Scalars['Boolean'];
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
   rejectAppeal: Scalars['Boolean'];
   saveCollection: Scalars['Boolean'];
   updateCollection?: Maybe<CollectionResponse>;
+  updateMissingEntryAttributes: UpdateResponse;
   updateUser?: Maybe<UserResponse>;
   vote: Scalars['Boolean'];
 };
@@ -259,12 +267,12 @@ export type QueryAppealsSubmittedArgs = {
 
 
 export type QueryCollectionArgs = {
-  id: Scalars['Int'];
+  id?: InputMaybe<Scalars['Int']>;
+  reference?: InputMaybe<Scalars['String']>;
 };
 
 
 export type QueryCollectionsArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
   limit: Scalars['Int'];
   modulus?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<Scalars['String']>;
@@ -305,8 +313,15 @@ export type QueryUserStartedCollectionsArgs = {
 export type TopUser = {
   __typename?: 'TopUser';
   stat: Scalars['Float'];
+  user: User;
   userId: Scalars['Float'];
-  username: Scalars['String'];
+};
+
+export type UpdateResponse = {
+  __typename?: 'UpdateResponse';
+  not_updated: Scalars['Float'];
+  total: Scalars['Float'];
+  updated: Scalars['Float'];
 };
 
 export type User = {
@@ -346,19 +361,19 @@ export type UsernamePasswordInput = {
 
 export type CollectionEntrySnippetFragment = { __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string };
 
-export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, saveStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } };
+export type CollectionSnippetFragment = { __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } };
 
-export type RegularCollectionFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, guesserCompleteness?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> };
+export type RegularCollectionFragment = { __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, title: string, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null };
+export type RegularUserFragment = { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null };
 
-export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
+export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
 
-export type UserCollectionSnippetFragment = { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } };
+export type UserCollectionSnippetFragment = { __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } };
 
-export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> };
+export type UserPaginatedCollectionsFragment = { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> };
 
 export type UserSnippetFragment = { __typename?: 'User', id: number, username: string };
 
@@ -376,7 +391,7 @@ export type ChangePasswordMutationVariables = Exact<{
 }>;
 
 
-export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type CreateAppealMutationVariables = Exact<{
   appeal: AppealInput;
@@ -420,7 +435,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -432,7 +447,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } };
 
 export type RejectAppealMutationVariables = Exact<{
   externalId: Scalars['Int'];
@@ -456,7 +471,7 @@ export type UpdateCollectionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet?: string | null, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null } | null };
+export type UpdateCollectionMutation = { __typename?: 'Mutation', updateCollection?: { __typename?: 'CollectionResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, collection?: { __typename?: 'Collection', id: number, title: string, titleSnippet?: string | null } | null } | null };
 
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -464,7 +479,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
 
 export type VoteMutationVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -479,7 +494,7 @@ export type AppealsReviewableQueryVariables = Exact<{
 }>;
 
 
-export type AppealsReviewableQuery = { __typename?: 'Query', appealsReviewable: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealCount?: number | null, collection: { __typename?: 'Collection', id: number, titleSnippet?: string | null } }> } };
+export type AppealsReviewableQuery = { __typename?: 'Query', appealsReviewable: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealCount?: number | null, collection: { __typename?: 'Collection', id: number, reference: string, titleSnippet?: string | null } }> } };
 
 export type AppealsSubmittedQueryVariables = Exact<{
   state?: InputMaybe<Scalars['String']>;
@@ -488,40 +503,40 @@ export type AppealsSubmittedQueryVariables = Exact<{
 }>;
 
 
-export type AppealsSubmittedQuery = { __typename?: 'Query', appealsSubmitted: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', id: number, state: string, collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealById: number, collection: { __typename?: 'Collection', id: number, titleSnippet?: string | null } }> } };
+export type AppealsSubmittedQuery = { __typename?: 'Query', appealsSubmitted: { __typename?: 'PaginatedAppeals', hasMore: boolean, appeals: Array<{ __typename?: 'Appeal', id: number, state: string, collectionId: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string, appealById: number, collection: { __typename?: 'Collection', id: number, reference: string, titleSnippet?: string | null } }> } };
 
 export type CollectionQueryVariables = Exact<{
-  id: Scalars['Int'];
+  id?: InputMaybe<Scalars['Int']>;
+  reference?: InputMaybe<Scalars['String']>;
 }>;
 
 
-export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, title: string, description?: string | null, points: number, voteStatus?: number | null, saveStatus?: number | null, creatorId: number, guesserCompleteness?: number | null, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null };
+export type CollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, title: string, description?: string | null, points: number, voteStatus?: number | null, creatorId: number, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string }, collectionEntries: Array<{ __typename?: 'CollectionEntry', id: number, externalId: number, externalTitle: string, externalImagePath: string, externalReleaseDate: string }> } | null };
 
 export type CollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
-  cursor?: InputMaybe<Scalars['String']>;
   orderBy?: InputMaybe<Scalars['String']>;
   modulus?: InputMaybe<Scalars['Int']>;
   page: Scalars['Int'];
 }>;
 
 
-export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, saveStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null };
 
 export type MostGuessesUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MostGuessesUsersQuery = { __typename?: 'Query', mostGuessesUsers: Array<{ __typename?: 'TopUser', userId: number, stat: number, username: string }> };
+export type MostGuessesUsersQuery = { __typename?: 'Query', mostGuessesUsers: Array<{ __typename?: 'TopUser', userId: number, stat: number, user: { __typename?: 'User', username: string } }> };
 
 export type MostVotesUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MostVotesUsersQuery = { __typename?: 'Query', mostVotesUsers: Array<{ __typename?: 'TopUser', userId: number, stat: number, username: string }> };
+export type MostVotesUsersQuery = { __typename?: 'Query', mostVotesUsers: Array<{ __typename?: 'TopUser', userId: number, stat: number, user: { __typename?: 'User', username: string } }> };
 
 export type MyCorrectGuessesQueryVariables = Exact<{
   collectionId: Scalars['Int'];
@@ -535,7 +550,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string, createdAt: string, updatedAt: string, bio?: string | null, letterboxd_url?: string | null, twitter_url?: string | null, website_url?: string | null } | null } | null };
 
 export type UserCompletedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -544,7 +559,7 @@ export type UserCompletedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserCompletedCollectionsQuery = { __typename?: 'Query', userCompletedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserCompletedCollectionsQuery = { __typename?: 'Query', userCompletedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type UserCreatedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -553,7 +568,7 @@ export type UserCreatedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserCreatedCollectionsQuery = { __typename?: 'Query', userCreatedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserCreatedCollectionsQuery = { __typename?: 'Query', userCreatedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export type UserStartedCollectionsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -562,17 +577,17 @@ export type UserStartedCollectionsQueryVariables = Exact<{
 }>;
 
 
-export type UserStartedCollectionsQuery = { __typename?: 'Query', userStartedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+export type UserStartedCollectionsQuery = { __typename?: 'Query', userStartedCollections: { __typename?: 'PaginatedCollections', hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, creator: { __typename?: 'User', id: number, username: string } }> } };
 
 export const CollectionSnippetFragmentDoc = gql`
     fragment CollectionSnippet on Collection {
   id
+  reference
   createdAt
   updatedAt
   titleSnippet
   points
   voteStatus
-  saveStatus
   creator {
     id
     username
@@ -592,6 +607,7 @@ export const CollectionEntrySnippetFragmentDoc = gql`
 export const RegularCollectionFragmentDoc = gql`
     fragment RegularCollection on Collection {
   id
+  reference
   createdAt
   updatedAt
   title
@@ -601,7 +617,7 @@ export const RegularCollectionFragmentDoc = gql`
     id
     username
   }
-  guesserCompleteness
+  collectionEntriesLength
   collectionEntries {
     ...CollectionEntrySnippet
   }
@@ -619,6 +635,7 @@ export const RegularUserFragmentDoc = gql`
   username
   email
   createdAt
+  updatedAt
   bio
   letterboxd_url
   twitter_url
@@ -639,6 +656,7 @@ ${RegularUserFragmentDoc}`;
 export const UserCollectionSnippetFragmentDoc = gql`
     fragment UserCollectionSnippet on Collection {
   id
+  reference
   createdAt
   updatedAt
   titleSnippet
@@ -811,21 +829,17 @@ export function useSaveCollectionMutation() {
 export const UpdateCollectionDocument = gql`
     mutation UpdateCollection($input: CollectionInput!, $entries: [CollectionEntryInput!]!, $id: Int!) {
   updateCollection(input: $input, entries: $entries, id: $id) {
+    errors {
+      ...RegularError
+    }
     collection {
       id
       title
       titleSnippet
-      collectionEntries {
-        id
-        externalId
-        externalTitle
-        externalImagePath
-        externalReleaseDate
-      }
     }
   }
 }
-    `;
+    ${RegularErrorFragmentDoc}`;
 
 export function useUpdateCollectionMutation() {
   return Urql.useMutation<UpdateCollectionMutation, UpdateCollectionMutationVariables>(UpdateCollectionDocument);
@@ -833,16 +847,10 @@ export function useUpdateCollectionMutation() {
 export const UpdateUserDocument = gql`
     mutation UpdateUser($id: Int!, $attributes: UserAttributesInput!) {
   updateUser(id: $id, attributes: $attributes) {
-    errors {
-      ...RegularError
-    }
-    user {
-      ...RegularUser
-    }
+    ...RegularUserResponse
   }
 }
-    ${RegularErrorFragmentDoc}
-${RegularUserFragmentDoc}`;
+    ${RegularUserResponseFragmentDoc}`;
 
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
@@ -869,6 +877,7 @@ export const AppealsReviewableDocument = gql`
       appealCount
       collection {
         id
+        reference
         titleSnippet
       }
     }
@@ -894,6 +903,7 @@ export const AppealsSubmittedDocument = gql`
       appealById
       collection {
         id
+        reference
         titleSnippet
       }
     }
@@ -905,16 +915,16 @@ export function useAppealsSubmittedQuery(options: Omit<Urql.UseQueryArgs<Appeals
   return Urql.useQuery<AppealsSubmittedQuery>({ query: AppealsSubmittedDocument, ...options });
 };
 export const CollectionDocument = gql`
-    query Collection($id: Int!) {
-  collection(id: $id) {
+    query Collection($id: Int, $reference: String) {
+  collection(id: $id, reference: $reference) {
     id
+    reference
     createdAt
     updatedAt
     title
     description
     points
     voteStatus
-    saveStatus
     creatorId
     creator {
       ...UserSnippet
@@ -922,24 +932,18 @@ export const CollectionDocument = gql`
     collectionEntries {
       ...CollectionEntrySnippet
     }
-    guesserCompleteness
+    collectionEntriesLength
   }
 }
     ${UserSnippetFragmentDoc}
 ${CollectionEntrySnippetFragmentDoc}`;
 
-export function useCollectionQuery(options: Omit<Urql.UseQueryArgs<CollectionQueryVariables>, 'query'>) {
+export function useCollectionQuery(options?: Omit<Urql.UseQueryArgs<CollectionQueryVariables>, 'query'>) {
   return Urql.useQuery<CollectionQuery>({ query: CollectionDocument, ...options });
 };
 export const CollectionsDocument = gql`
-    query Collections($limit: Int!, $cursor: String, $orderBy: String, $modulus: Int, $page: Int!) {
-  collections(
-    limit: $limit
-    cursor: $cursor
-    orderBy: $orderBy
-    modulus: $modulus
-    page: $page
-  ) {
+    query Collections($limit: Int!, $orderBy: String, $modulus: Int, $page: Int!) {
+  collections(limit: $limit, orderBy: $orderBy, modulus: $modulus, page: $page) {
     modulus
     hasMore
     collections {
@@ -968,7 +972,9 @@ export const MostGuessesUsersDocument = gql`
   mostGuessesUsers {
     userId
     stat
-    username
+    user {
+      username
+    }
   }
 }
     `;
@@ -981,7 +987,9 @@ export const MostVotesUsersDocument = gql`
   mostVotesUsers {
     userId
     stat
-    username
+    user {
+      username
+    }
   }
 }
     `;

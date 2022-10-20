@@ -12,6 +12,7 @@ query AppealsSubmitted($state: String, $limit: Int!, $page: Int!) {
       appealById
       collection {
         id
+        reference
         titleSnippet
       }
     }

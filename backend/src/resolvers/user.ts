@@ -45,6 +45,7 @@ export class UserResolver {
   ): Promise<UserResponse | null> {
     const errors = validateUpdateUser(attributes);
     if (errors) {
+      console.log("updateuser", { errors });
       return { errors };
     }
 

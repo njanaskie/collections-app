@@ -2,6 +2,8 @@ query MostVotesUsers {
   mostVotesUsers {
     userId
     stat
-    username
+    user {
+      username
+    }
   }
 }

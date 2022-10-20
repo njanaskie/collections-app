@@ -12,6 +12,7 @@ import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import router, { useRouter } from "next/router";
 import React from "react";
+import { BackButton } from "../../../components/BackButton";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import { SelectAutoComplete } from "../../../components/SelectAutoComplete";
@@ -25,6 +26,7 @@ import {
 import theme from "../../../theme";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { EntryProps } from "../../../utils/EntryProps";
+import { toErrorMap } from "../../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
 import { useGetIntId } from "../../../utils/useGetIntId";
 import { useGetUserFromUrl } from "../../../utils/useGetUserFromUrl";
@@ -47,7 +49,6 @@ function nonEmptyObject(obj: any) {
 export const EditUser = ({}) => {
   const router = useRouter();
   useIsAuth();
-  const intId = useGetIntId();
   const [{ data, error, fetching }] = useGetUserFromUrl();
   const [, updateUser] = useUpdateUserMutation();
 
@@ -95,7 +96,9 @@ export const EditUser = ({}) => {
               attributes: { ...submitValues, email: values.email },
             });
 
-            if (!response.error) {
+            if (response.data?.updateUser?.errors) {
+              setErrors(toErrorMap(response.data.updateUser.errors));
+            } else if (response.data?.updateUser?.user && !response.error) {
               router.back();
             }
           }
@@ -104,12 +107,7 @@ export const EditUser = ({}) => {
         {({ isSubmitting, values, setValues }) => (
           <Form>
             <Flex align="center" justify="space-between">
-              <IconButton
-                bgColor="gray.200"
-                aria-label="Go back"
-                icon={<ChevronLeftIcon />}
-                onClick={() => router.back()}
-              />
+              <BackButton />
               <Heading size="lg" color={theme.colors.orange}>
                 Update Profile
               </Heading>
@@ -162,9 +160,9 @@ export const EditUser = ({}) => {
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              bgColor={theme.colors.green}
+              // bgColor={theme.colors.green}
               color="gray.100"
-              // colorScheme="teal"
+              colorScheme="teal"
               variant="solid"
             >
               Update User

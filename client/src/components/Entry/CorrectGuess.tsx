@@ -3,6 +3,13 @@ import React from "react";
 import { CollectionEntry, CollectionEntryInput } from "../../generated/graphql";
 import { ImageNotFound } from "./ImageNotFound";
 import theme from "../../theme";
+import {
+  API_BASE_URL,
+  API_IMAGE_URL,
+  API_KEY,
+  API_LOGO_SIZE_MD,
+} from "../../config/movies-api";
+import { fetchWithCache } from "../../utils/moviesApi";
 
 type CorrectGuessProps = {
   entry: CollectionEntryInput;
@@ -25,7 +32,7 @@ export const CorrectGuess: React.FC<CorrectGuessProps> = ({
         {entry.externalImagePath ? (
           <Image
             borderRadius="md"
-            src={`https://image.tmdb.org/t/p/w92${entry.externalImagePath}`}
+            src={`${API_IMAGE_URL}${API_LOGO_SIZE_MD}${entry.externalImagePath}`}
             ref={measuredRef}
           />
         ) : (

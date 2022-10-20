@@ -5,13 +5,9 @@ import { Flex } from "@chakra-ui/react";
 export const ImageNotFound = () => {
   return (
     <Flex
-      width="92px" // TODO: make these dynamic using the measured dimensions
+      width="92px"
       height="138px"
       borderRadius="lg"
-      // flex={1}
-      // alignContent="center"
-      // borderWidth="4px"
-      // borderColor="gray.400"
       align="center"
       justify="center"
     >

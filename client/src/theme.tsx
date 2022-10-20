@@ -16,19 +16,28 @@ const colors = {
   orange: "#E7B581",
   lightPurple: "#9FA4C4",
   superLightBlue: "#dff0f7",
-  tan: "#DCCCA3",
   rose: "#f45b69",
 };
 
 const breakpoints = createBreakpoints({
-  sm: "40em",
-  md: "52em",
+  sm: "32em",
+  md: "48em",
   lg: "64em",
   xl: "80em",
 });
 
 const theme = extendTheme({
   components: {
+    MenuItem: {
+      baseStyle: {
+        color: "red",
+      },
+    },
+    Spinner: {
+      baseStyle: {
+        color: "gray.200",
+      },
+    },
     Text: {
       baseStyle: {
         fontSize: "md",
@@ -47,7 +56,7 @@ const theme = extendTheme({
           bg: colors.lightPurple,
         },
         td: {
-          color: colors.lightBlue,
+          color: colors.superLightBlue,
         },
       },
       defaultProps: {
@@ -55,9 +64,14 @@ const theme = extendTheme({
         variant: "simple",
       },
     },
-    IconButton: {
+    Button: {
+      defaultProps: {
+        // size: "lg",
+        // variant: "unstyled",
+        _hover: { bg: "red" },
+      },
       baseStyle: {
-        bg: "red",
+        // bgColor: "red",
       },
     },
   },
@@ -68,6 +82,7 @@ const theme = extendTheme({
         fontFamily: "monospace",
         // color: "white",
         background: "#5f4d7d",
+        textColor: "gray.200",
       },
     }),
   },

@@ -29,6 +29,10 @@ import {
   CollectionDocument,
   RejectAppealMutationVariables,
   SaveCollectionMutationVariables,
+  UpdateUserMutation,
+  UserQuery,
+  UserDocument,
+  UpdateUserMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import {
@@ -57,68 +61,14 @@ export const errorExchange: Exchange =
     );
   };
 
-// const simplePagination = (): Resolver => {
-//   return (_parent, fieldArgs, cache, info) => {
-//     const { parentKey: entityKey, fieldName } = info;
-
-//     const allFields = cache.inspectFields(entityKey);
-//     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
-//     const size = fieldInfos.length;
-//     if (size === 0) {
-//       return undefined;
-//     }
-
-//     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-//     const isInCache = cache.resolve(
-//       cache.resolve(entityKey, fieldKey) as string,
-//       "collections"
-//     );
-//     info.partial = !isInCache;
-//     let hasMore = true;
-//     const results: string[] = [];
-//     fieldInfos.forEach((fi) => {
-//       const key = cache.resolve(entityKey, fi.fieldKey) as string;
-//       const data = cache.resolve(key, "collections") as string[];
-//       const _hasMore = cache.resolve(key, "hasMore");
-//       const orderBy = fi.arguments!.orderBy;
-//       // TODO: Decide if this is the best way to do this
-//       if (orderBy && orderBy !== fieldArgs.orderBy) {
-//         cache.invalidate("Query", "collections", fi.arguments);
-//       }
-
-//       // if (orderBy && orderBy !== fieldArgs.orderBy) {
-//       //   cache.invalidate("Query", "collections", fi.arguments);
-//       // }
-
-//       if (!_hasMore) {
-//         hasMore = _hasMore as boolean;
-//       }
-//       results.push(...data);
-//     });
-
-//     console.log("pagination cache", fieldInfos, fieldArgs);
-
-//     return {
-//       __typename: "PaginatedCollections",
-//       hasMore,
-//       collections: results,
-//     };
-//   };
-// };
-
-const invalidateAllCollections = (cache: Cache) => {
+const invalidateAll = (cache: Cache, fieldName: string, args?: any) => {
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter(
-    (info) => info.fieldName === "collections"
-  );
-  fieldInfos.forEach((fi) => {
-    cache.invalidate("Query", "collections", fi.arguments);
-  });
-};
-
-const invalidateAllAppeals = (cache: Cache, fieldName: string) => {
-  const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+  let fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+  if (args) {
+    fieldInfos = fieldInfos.filter((info) => {
+      return JSON.stringify(info.arguments) == JSON.stringify(args);
+    });
+  }
   fieldInfos.forEach((fi) => {
     cache.invalidate("Query", fieldName, fi.arguments);
   });
@@ -159,6 +109,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           Appeal: () => null,
           PaginatedAppeals: () => null,
           TopUser: () => null,
+          User: () => null,
           // PaginatedAppealsReviewable: () => null,
         },
         resolvers: {
@@ -196,6 +147,62 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            updateUser: (_result, args, cache, info) => {
+              invalidateAll(cache, "user", {
+                id: (args as UpdateUserMutationVariables).id,
+              });
+            },
+            // updateUser: (_result, args, cache, info) => {
+            // const { attributes, id } = args as UpdateUserMutationVariables;
+            // const fragment = gql`
+            //   fragment __ on User {
+            //     # user {
+            //     id
+            //     email
+            //     bio
+            //     letterboxd_url
+            //     twitter_url
+            //     website_url
+            //     # }
+            //   }
+            // `;
+            // console.log("fragment", fragment);
+
+            // const res = cache.writeFragment(fragment, {
+            //   id: id,
+            //   email: attributes.email,
+            //   bio: attributes.bio,
+            //   letterboxd_url: attributes.letterboxd_url,
+            //   twitter_url: attributes.twitter_url,
+            //   website_url: attributes.website_url,
+            // });
+
+            // console.log("ressss", res);
+            // betterUpdateQuery<UpdateUserMutation, UserQuery>(
+            //   cache,
+            //   { query: UserDocument },
+            //   _result,
+            //   (result, query) => {
+            //     if (result.updateUser?.errors) {
+            //       console.log(
+            //         "updaing user error",
+            //         result.updateUser?.errors
+            //       );
+            //       return query;
+            //     } else {
+            //       console.log("updaing user", result.updateUser?.user);
+            //       return {
+            //         // __typename: "UserResponse",
+            //         user: {
+            //           __typename: "UserResponse",
+            //           user: result.updateUser?.user,
+            //           errors: null,
+            //         },
+            //       };
+            //     }
+            //   }
+            // );
+            // },
             saveCollection: (_result, args, cache, info) => {
               const { collectionId } = args as SaveCollectionMutationVariables;
               const data = cache.readFragment(
@@ -213,7 +220,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 // }
                 cache.writeFragment(
                   gql`
-                    fragment __ on Collection {
+                    fragment ____ on Collection {
                       saveStatus
                     }
                   `,
@@ -225,13 +232,13 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             rejectAppeal: (_result, args, cache, info) => {
-              invalidateAllAppeals(cache, "appealsReviewable");
+              invalidateAll(cache, "appealsReviewable");
             },
             approveAppeal: (_result, args, cache, info) => {
-              invalidateAllAppeals(cache, "appealsReviewable");
+              invalidateAll(cache, "appealsReviewable");
             },
             createAppeal: (_result, args, cache, info) => {
-              invalidateAllAppeals(cache, "appealsSubmitted");
+              invalidateAll(cache, "appealsSubmitted");
             },
             // createCorrectGuess: (_result, args, cache, info) => {
             createCorrectGuess: (
@@ -251,6 +258,11 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 (data) => {
                   if (!result.createCorrectGuess.errors) {
                     const correctGuesses = data!.myCorrectGuesses as any;
+                    // if first correct guess, invalidate usersStartedCollections
+                    if (correctGuesses.length === 0) {
+                      invalidateAll(cache, "userStartedCollections");
+                    }
+
                     correctGuesses.push({
                       ...result.createCorrectGuess.correctGuess,
                       collectionEntry: {
@@ -308,7 +320,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
 
               cache.writeFragment(
                 gql`
-                  fragment __ on Collection {
+                  fragment ___ on Collection {
                     id
                     collectionEntries {
                       externalId
@@ -363,6 +375,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 __typename: "Collecton",
                 id: (args as DeleteCollectionMutationVariables).id,
               });
+              invalidateAll(cache, "userCreatedCollections");
             },
             vote: (_result, args, cache, info) => {
               const { collectionId } = args as VoteMutationVariables;
@@ -398,7 +411,8 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             createCollection: (_result, args, cache, info) => {
-              invalidateAllCollections(cache);
+              invalidateAll(cache, "collections");
+              invalidateAll(cache, "userCreatedCollections");
             },
             logout: (_result, args, cache, info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
@@ -423,7 +437,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
-              invalidateAllCollections(cache);
+              invalidateAll(cache, "collections");
             },
             register: (_result, args, cache, info) => {
               betterUpdateQuery<RegisterMutation, MeQuery>(

@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,10 +21,12 @@ export class Appeal extends BaseEntity {
 
   @Field()
   @Column()
+  @Index()
   state: string;
 
   @Field()
   @Column()
+  // @Index()
   collectionId: number;
 
   @Field(() => Collection)
@@ -58,6 +61,7 @@ export class Appeal extends BaseEntity {
 
   @Field()
   @Column()
+  // @Index()
   appealById: number;
 
   @Field(() => User)

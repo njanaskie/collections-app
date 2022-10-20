@@ -1,5 +1,6 @@
 fragment RegularCollection on Collection {
   id
+  reference
   createdAt
   updatedAt
   title
@@ -9,7 +10,7 @@ fragment RegularCollection on Collection {
     id
     username
   }
-  guesserCompleteness
+  collectionEntriesLength
   collectionEntries {
     ...CollectionEntrySnippet
   }

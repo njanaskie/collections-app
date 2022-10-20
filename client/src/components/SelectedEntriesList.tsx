@@ -1,6 +1,7 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Flex, Heading, IconButton, Image, Text } from "@chakra-ui/react";
 import React from "react";
+import { API_IMAGE_URL, API_LOGO_SIZE_MD } from "../config/movies-api";
 import theme from "../theme";
 import { EntryProps } from "../utils/EntryProps";
 
@@ -16,13 +17,14 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
   handleRemoveSelectedEntry,
 }) => {
   return (
-    <Box mt="28" pos="inherit">
+    <Box mt="20" pos="inherit">
       {items.length > 0 ? (
         items.map((i) =>
           !i ? null : (
             <Flex
               // bgColor={theme.colors.superLightBlue}
               key={i.externalId}
+              _hover={{ bgColor: theme.colors.darkBlue }}
               // p={4}
               borderWidth={0.5}
               boxShadow="lg"
@@ -30,9 +32,7 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
               my={2}
             >
               <Image
-                // TMDB recommends to cache configuration data
-                // TODO: server side cache config
-                src={`https://image.tmdb.org/t/p/w92${i.externalImagePath}`}
+                src={`${API_IMAGE_URL}${API_LOGO_SIZE_MD}${i.externalImagePath}`}
               />
               <Box flex={1} p={2}>
                 <Heading size="md" ml={2} noOfLines={2} color="white">

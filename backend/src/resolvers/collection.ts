@@ -65,41 +65,6 @@ export class CollectionResolver {
   //   CollectionEntry.find({ where: { collectionId, userId } });
   //   return await this.userRepository.findOne(recipe.authorId, { cache: 1000 }))!;
   // }
-  @Query(() => [TopUser])
-  async mostGuessesUsers(): Promise<TopUser[]> {
-    const users = await AppDataSource.query(
-      `
-      select pass.*, u."username" from 
-      (select cg."guesserId" as "userId", count(*) as "stat" from correct_guess cg
-      group by cg."guesserId"
-      limit 25) as pass
-      left join "user" u on u.id = pass."userId"
-      order by pass."stat" desc
-      `
-    );
-
-    return users;
-  }
-
-  @Query(() => [TopUser])
-  async mostVotesUsers(): Promise<TopUser[]> {
-    const users = await AppDataSource.query(
-      `
-      select pass2.*, u."username" from 
-      (select pass."creatorId" as "userId", count(*) as "stat" from 
-      (select c."creatorId", c."points" from collection c
-      group by c."creatorId", c."points") as pass
-      group by pass."creatorId"
-      limit 25
-      ) as pass2
-      left join "user" u on u.id = pass2."userId"
-      order by pass2."stat" desc
-      `
-    );
-
-    return users;
-  }
-
   @FieldResolver(() => Int, { nullable: true })
   async saveStatus(
     @Root() collection: Collection,
@@ -396,7 +361,7 @@ export class CollectionResolver {
     @Arg("modulus", () => Int, { nullable: true }) modulus: number | null,
     @Arg("orderBy", () => String, { nullable: true }) orderBy: string | null,
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    // @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
     @Arg("page", () => Int) page: number,
     @Ctx()
     { req }: MyContext
@@ -409,8 +374,10 @@ export class CollectionResolver {
     const offset = page === 1 ? 0 : page * realLimit - realLimit;
 
     let orderParam = 'c."createdAt" DESC';
+    let basePoints = "";
     if (orderBy === "new") {
       orderParam;
+      basePoints = process.env.COLLECTIONS_BASE_POINTS;
     } else if (orderBy === "popular") {
       // orderParam = 'c.points DESC, c."createdAt" DESC';
       orderParam = "c.points DESC";
@@ -420,9 +387,9 @@ export class CollectionResolver {
 
     const replacements: any[] = [realLimitPlusOne];
 
-    if (cursor) {
-      replacements.push(new Date(parseInt(cursor)));
-    }
+    // if (cursor) {
+    //   replacements.push(new Date(parseInt(cursor)));
+    // }
 
     // const collections = await AppDataSource.query(
     //   `
@@ -440,7 +407,19 @@ export class CollectionResolver {
       select c.*
       from collection c
       ${
-        req.session.userId ? `where c."creatorId" != ${req.session.userId}` : ""
+        req.session.userId
+          ? `
+          left join collection_entry ce on ce."collectionId" = c.id
+          left join correct_guess cg on cg."collectionId" = c.id and cg."collectionEntryId" = ce.id and cg."guesserId" = ${
+            req.session.userId
+          }
+          where c."creatorId" != ${req.session.userId}
+          ${basePoints ? `and c."points" >= ${basePoints}` : ""}
+          group by c.id
+          having count(ce.*) != count(cg.*)
+        `
+          : `
+          ${basePoints ? `where c."points" >= ${basePoints}` : ""}`
       }
       order by ${orderParam}
       limit $1
@@ -474,12 +453,21 @@ export class CollectionResolver {
   // expecting promise to return null, not undefined?
   @Query(() => Collection, { nullable: true })
   async collection(
-    @Arg("id", () => Int) id: number
+    @Arg("id", () => Int, { nullable: true }) id: number,
+    @Arg("reference", () => String, { nullable: true }) reference: string
   ): Promise<Collection | null> {
-    const collection = await Collection.findOne({
-      where: { id },
-      relations: ["collectionEntries"],
-    });
+    let collection = null;
+    if (id) {
+      collection = await Collection.findOne({
+        where: { id },
+        relations: ["collectionEntries"],
+      });
+    } else if (reference) {
+      collection = await Collection.findOne({
+        where: { reference },
+        relations: ["collectionEntries"],
+      });
+    }
 
     return collection;
   }
@@ -562,6 +550,11 @@ export class CollectionResolver {
     @Ctx()
     { req }: MyContext
   ): Promise<CollectionResponse> {
+    const errors = validateCreateCollection(input, entries);
+    if (errors) {
+      return { errors };
+    }
+
     // TODO: decide if want to keep primary ID column, if not then do not need existing entries check
     const existingEntries = await CollectionEntry.find({
       where: {
@@ -591,7 +584,6 @@ export class CollectionResolver {
             collectionId: id,
           };
         });
-        console.log("entriesWithCollectionId", entriesWithCollectionId);
         // await tm.save(CollectionEntry, entriesWithCollectionId);
 
         entriesWithCollectionId.forEach(async (entry) => {

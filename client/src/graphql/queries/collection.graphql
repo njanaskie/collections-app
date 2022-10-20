@@ -1,13 +1,13 @@
-query Collection($id: Int!) {
-  collection(id: $id) {
+query Collection($id: Int, $reference: String) {
+  collection(id: $id, reference: $reference) {
     id
+    reference
     createdAt
     updatedAt
     title
     description
     points
     voteStatus
-    saveStatus
     creatorId
     creator {
       ...UserSnippet
@@ -15,6 +15,6 @@ query Collection($id: Int!) {
     collectionEntries {
       ...CollectionEntrySnippet
     }
-    guesserCompleteness
+    collectionEntriesLength
   }
 }

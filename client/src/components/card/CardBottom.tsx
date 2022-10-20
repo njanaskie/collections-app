@@ -1,21 +1,20 @@
-import { Flex, Button, Text, Divider, Tooltip } from "@chakra-ui/react";
+import { Flex, Button, Text, Divider, Tooltip, Icon } from "@chakra-ui/react";
 import React from "react";
 import {
   CollectionSnippetFragment,
   useVoteMutation,
-} from "../generated/graphql";
+} from "../../generated/graphql";
 import NextLink from "next/link";
-import { Points } from "./Points";
-import theme from "../theme";
-import { GrMultiple } from "react-icons/gr";
+import { Points } from "../Points";
+import theme from "../../theme";
 import { IoAlbumsOutline } from "react-icons/io5";
 
 interface CardBottomProps {
   collection: CollectionSnippetFragment;
+  size?: string;
 }
 
-export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
-  const [{ fetching }, vote] = useVoteMutation();
+export const CardBottom: React.FC<CardBottomProps> = ({ collection, size }) => {
   return (
     <Flex
       key={collection.id}
@@ -26,15 +25,20 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
       py={2}
       borderBottomRadius={6}
     >
-      <Points collection={collection} />
+      <Points
+        id={collection.id}
+        voteStatus={collection.voteStatus}
+        points={collection.points}
+        size={size}
+      />
       <Flex align="center">
         <Flex>
           <Text
             pos="relative"
-            left={"24px"}
+            left={"32px"}
             top={"16px"}
             as="b"
-            color={theme.colors.darkGreen}
+            color={"teal"}
             fontSize="sm"
           >
             {collection.collectionEntriesLength}
@@ -48,11 +52,13 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection }) => {
               }
               fontSize="md"
             >
-              <Flex h={10} w={10}>
-                <IoAlbumsOutline
-                  size="small"
-                  style={{ transform: "rotate(90deg)" }}
-                  color={theme.colors.darkGreen}
+              <Flex>
+                <Icon
+                  as={IoAlbumsOutline}
+                  h={10}
+                  w={10}
+                  style={{ transform: "rotate(270deg)" }}
+                  color={"teal"}
                 />
               </Flex>
             </Tooltip>

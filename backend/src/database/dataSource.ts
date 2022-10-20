@@ -6,6 +6,7 @@ import { CollectionEntry } from "../entities/CollectionEntry";
 import { CorrectGuess } from "../entities/CorrectGuess";
 import { Appeal } from "../entities/Appeal";
 import { SavedCollection } from "../entities/SavedCollection";
+import { Leaderboard } from "../entities/Leaderboard";
 // import path from "path";
 
 const AppDataSource = new DataSource({
@@ -23,6 +24,7 @@ const AppDataSource = new DataSource({
     CorrectGuess,
     Appeal,
     SavedCollection,
+    Leaderboard,
   ],
   // migrations: [path.join(__dirname, "./migrations/*")],
   migrations: ["dist/database/migrations/*.js"],

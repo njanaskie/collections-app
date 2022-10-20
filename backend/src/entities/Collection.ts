@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -24,6 +26,12 @@ export class Collection extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Field()
+  @Column()
+  @Generated("uuid")
+  @Index()
+  reference: string;
 
   @Field()
   @Column()
@@ -67,8 +75,8 @@ export class Collection extends BaseEntity {
   @Field(() => Number, { defaultValue: 0 })
   guesserCompleteness: number;
 
-  @Field(() => Int, { defaultValue: 0 })
-  saveStatus: number;
+  // @Field(() => Int, { defaultValue: 0 })
+  // saveStatus: number;
 
   @OneToMany(
     () => SavedCollection,
@@ -78,6 +86,7 @@ export class Collection extends BaseEntity {
 
   @Field()
   @Column()
+  @Index()
   creatorId: number;
 
   @Field()

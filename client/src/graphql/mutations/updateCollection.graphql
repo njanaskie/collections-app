@@ -4,17 +4,20 @@ mutation UpdateCollection(
   $id: Int!
 ) {
   updateCollection(input: $input, entries: $entries, id: $id) {
+    errors {
+      ...RegularError
+    }
     collection {
       id
       title
       titleSnippet
-      collectionEntries {
-        id
-        externalId
-        externalTitle
-        externalImagePath
-        externalReleaseDate
-      }
+      # collectionEntries {
+      #   id
+      #   externalId
+      #   externalTitle
+      #   externalImagePath
+      #   externalReleaseDate
+      # }
     }
   }
 }

@@ -1,9 +1,18 @@
-import { EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
+import { ChevronLeftIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Heading,
+  IconButton,
+  Spinner,
+} from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import router, { useRouter } from "next/router";
 import React from "react";
+import { BackButton } from "../../../components/BackButton";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import { SelectAutoComplete } from "../../../components/SelectAutoComplete";
@@ -15,6 +24,7 @@ import {
 } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { EntryProps } from "../../../utils/EntryProps";
+import { toErrorMap } from "../../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
 import { useGetIntId } from "../../../utils/useGetIntId";
 import { useIsAuth } from "../../../utils/useIsAuth";
@@ -23,7 +33,7 @@ import createCollection from "../../create-collection";
 export const EditCollection = ({}) => {
   const router = useRouter();
   useIsAuth();
-  const intId = useGetIntId();
+  // const intId = useGetIntId();
   const [{ data, error, fetching }] = useGetCollectionFromUrl();
   const [, updateCollection] = useUpdateCollectionMutation();
 
@@ -69,25 +79,33 @@ export const EditCollection = ({}) => {
             : [],
         }}
         onSubmit={async (values, { setErrors }) => {
-          // console.log("edit values: ", { ...values });
+          if (data.collection && data.collection.id) {
+            const response = await updateCollection({
+              id: data.collection.id,
+              entries: values.entries,
+              input: {
+                title: values.title,
+                description: values.description,
+              },
+            });
 
-          // values.entries.forEach((e) => delete e.__typename);
-          const response = await updateCollection({
-            id: intId,
-            entries: values.entries,
-            input: {
-              title: values.title,
-              description: values.description,
-            },
-          });
-          // console.log("response", response);
-          if (!response.error) {
-            router.back();
+            if (response.data?.updateCollection?.errors) {
+              setErrors(toErrorMap(response.data?.updateCollection?.errors));
+            } else if (response.data?.updateCollection?.collection) {
+              router.back();
+            }
           }
         }}
       >
         {({ isSubmitting, values, setValues }) => (
           <Form>
+            <Flex mb={4} mr={4}>
+              <BackButton />
+              <Heading size="lg" color="white">
+                Edit collection
+              </Heading>
+            </Flex>
+            <Divider mb={4} />
             <InputField
               name="title"
               placeholder="The title of your collection"
@@ -96,11 +114,11 @@ export const EditCollection = ({}) => {
             />
             <InputField
               name="description"
-              placeholder="Enter additional information about your collection"
+              placeholder="Enter description"
               label="Description"
               textarea={false}
             />
-            <Flex mt={4} position="absolute" w={850} zIndex="dropdown">
+            <Flex mt={4}>
               <SelectAutoComplete
                 name="entries"
                 label="Films"

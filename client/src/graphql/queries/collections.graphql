@@ -1,13 +1,6 @@
-query Collections(
-  $limit: Int!
-  $cursor: String
-  $orderBy: String
-  $modulus: Int
-  $page: Int!
-) {
+query Collections($limit: Int!, $orderBy: String, $modulus: Int, $page: Int!) {
   collections(
     limit: $limit
-    cursor: $cursor
     orderBy: $orderBy
     modulus: $modulus
     page: $page

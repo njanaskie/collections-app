@@ -35,8 +35,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/grid";
-import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { CardBottom } from "../components/CardBottom";
@@ -44,10 +42,12 @@ import { SelectAutoComplete } from "../components/SelectAutoComplete";
 import theme from "../theme";
 import { ArrowRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { usePrevious } from "../utils/usePrevious";
-import { Card } from "../components/Card";
+import { Card } from "../components/card/Card";
 import { itemLimit } from "../constants";
 import { TopUsersMini } from "../components/TopUsersMini";
-const handleDragStart = (e: any) => e.preventDefault();
+import { useIsMobile } from "../utils/useIsMobile";
+import { API_BASE_URL, API_KEY } from "../config/movies-api";
+import { getConfigurationWithCache } from "../utils/moviesApi";
 
 const Index = () => {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
@@ -57,7 +57,6 @@ const Index = () => {
   const nextRef = useRef(null);
   const [variables, setVariables] = useState({
     limit: itemLimit,
-    cursor: null as null | string,
     orderBy: "new" as string,
     modulus: null as null | number,
     page: 1,
@@ -67,6 +66,7 @@ const Index = () => {
     variables,
     // requestPolicy: "network-only",
   });
+  const mobile = useIsMobile();
 
   useEffect(() => {
     setIsRefreshing(true);
@@ -94,15 +94,20 @@ const Index = () => {
 
   return (
     <Layout>
-      <Text
-        letterSpacing="tight"
-        fontSize="xl"
-        color={theme.colors.superLightBlue}
-        mb={4}
-      >
-        Welcome, start guessing films or make your own collection!
-      </Text>
-      <Divider />
+      {!mobile && (
+        <>
+          <Text
+            letterSpacing="tight"
+            fontSize="xl"
+            color={theme.colors.superLightBlue}
+            mb={4}
+          >
+            Welcome! Put your film knowledge to the test by guessing films or
+            creating your own collection!
+          </Text>
+          <Divider />
+        </>
+      )}
       <Flex justify="flex-start">
         <RadioGroup
           onChange={setOrderBy}
@@ -126,10 +131,32 @@ const Index = () => {
         <>
           <Box>
             <Swiper
+              breakpoints={{
+                // when window width is >= 320px
+                320: {
+                  slidesPerView: 1,
+                  // spaceBetween: 20,
+                },
+                // when window width is >= 480px
+                480: {
+                  slidesPerView: 2,
+                  // spaceBetween: 30,
+                },
+                // when window width is >= 640px
+                640: {
+                  slidesPerView: 3,
+                  // spaceBetween: 40,
+                },
+              }}
               onReset={() => console.log("on reset")}
-              // spaceBetween={20}
-              slidesPerView={3}
-              // grid={{ rows: 2 }}
+              spaceBetween={4}
+              slidesPerView={1}
+              // centeredSlides={
+              //   // windowSize.width && windowSize.width < 640 ? true : false
+              //   true
+              // }
+              // centeredSlidesBounds={true}
+              // centerInsufficientSlides={true}
               onSlideChange={() => {}}
               onSwiper={setSwiper}
               navigation={{
@@ -138,7 +165,6 @@ const Index = () => {
               }}
               modules={[Navigation]}
               onReachEnd={() => {
-                console.log("onReachEnd");
                 if (!data || !data.collections.hasMore) {
                   console.log("no data");
                   return;
@@ -196,15 +222,18 @@ const Index = () => {
       <NextLink href="/leaderboard">
         <Button
           as={Link}
-          bgColor={theme.colors.lightBlue}
+          bgColor={theme.colors.lightPurple}
           color={theme.colors.darkBlue}
           borderRadius={20}
-          mt={20}
+          mt={10}
           _hover={{ bg: theme.colors.lightOrange, textDecoration: "none" }}
           h={55}
+          // variant="ghost"
         >
-          <Flex align="center" justify="space-between" p={4} w={300}>
-            <Heading mr={2}>Top Players</Heading>
+          <Flex align="center">
+            <Heading py={4} mr={2} size={mobile ? "md" : "lg"}>
+              Top Players
+            </Heading>
             <ArrowRightIcon />
           </Flex>
         </Button>
@@ -212,5 +241,16 @@ const Index = () => {
     </Layout>
   );
 };
+
+// // This function runs only on the server side
+// Index.getInitialProps = async (ctx: any) => {
+//   // Instead of fetching your `/api` route you can call the same
+//   // function directly in `getStaticProps`
+//   const config = await getConfigurationWithCache();
+//   console.log("getInitialProps", config);
+
+//   // Props returned will be passed to the page component
+//   return { config };
+// };
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

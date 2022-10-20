@@ -8,6 +8,9 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  useBreakpointValue,
+  IconButton,
+  Tab,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import NextLink from "next/link";
@@ -15,8 +18,11 @@ import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { useRouter } from "next/router";
 import theme from "../theme";
 import { isServer } from "../utils/isServer";
-import { AddIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { AddIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { query } from "@urql/exchange-graphcache";
+import { useIsMobile } from "../utils/useIsMobile";
+import { IoAlbumsOutline } from "react-icons/io5";
+import { Logo } from "./Logo";
 
 interface NavBarProps {}
 
@@ -28,13 +34,42 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     // pause: mount,
     pause: isServer(), //this line of code stops the me query running from NextJs server as the session is not present on server.
   });
+  const mobile = useIsMobile();
+
   let body = null;
 
-  // useEffect(() => {
-  //   // if (mount === undefined) {
-  //   setMount(true);
-  //   // }
-  // }, []);
+  const DropDownItems = () => (
+    <MenuList
+      zIndex="dropdown"
+      bgColor={"gray.200"}
+      color={theme.colors.darkBlue}
+    >
+      <NextLink
+        href={{
+          pathname: "/user/[username]",
+          query: { id: data?.me?.id },
+        }}
+        as={`/user/${data?.me?.username}`}
+      >
+        <MenuItem as={Link} _hover={{ textDecoration: "none" }}>
+          Profile
+        </MenuItem>
+      </NextLink>
+      <MenuItem>Support!</MenuItem>
+      <MenuItem
+        as={Button}
+        onClick={async () => {
+          await logout();
+          router.reload();
+        }}
+        isLoading={logoutFetching}
+        variant="link"
+        _hover={{ textDecoration: "none" }}
+      >
+        Logout
+      </MenuItem>
+    </MenuList>
+  );
 
   // data is loading
   if (fetching && isServer()) {
@@ -48,7 +83,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           </Link>
         </NextLink>
         <NextLink href="/register">
-          <Link color="white"> Register</Link>
+          <Link color="white">Register</Link>
         </NextLink>
       </>
     );
@@ -57,58 +92,48 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   } else {
     body = (
       <Flex align="center">
-        <NextLink href="/create-collection">
-          <Button
-            as={Link}
-            mr={4}
-            bgColor={theme.colors.green}
-            _hover={{ bg: theme.colors.darkGreen, textDecoration: "none" }}
-            variant="solid"
-            leftIcon={<AddIcon />}
-            textDecor="none"
-          >
-            Add Collection
-          </Button>
-        </NextLink>
-        <Flex>
+        {mobile ? (
           <Menu>
             <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              variant="ghost"
-              _hover={{ bgColor: "gray.900" }}
-              _active={{ bg: "gray.900" }}
-            >
-              {data.me.username}
-            </MenuButton>
-            <MenuList zIndex="dropdown" color="gray.700">
-              <NextLink
-                href={{
-                  pathname: "/user/[username]",
-                  query: { id: data.me.id },
-                }}
-                as={`/user/${data.me.username}`}
-              >
-                <MenuItem as={Link} _hover={{ textDecoration: "none" }}>
-                  Profile
-                </MenuItem>
-              </NextLink>
-              <MenuItem>Support!</MenuItem>
-              <MenuItem
-                as={Button}
-                onClick={async () => {
-                  await logout();
-                  router.reload();
-                }}
-                isLoading={logoutFetching}
-                variant="link"
-                _hover={{ textDecoration: "none" }}
-              >
-                Logout
-              </MenuItem>
-            </MenuList>
+              as={IconButton}
+              aria-label="Options"
+              bgColor={theme.colors.lightPurple}
+              color={"gray.200"}
+              icon={<HamburgerIcon />}
+              variant="unstyled"
+            />
+            <DropDownItems />
           </Menu>
-        </Flex>
+        ) : (
+          <>
+            <NextLink href="/create-collection">
+              <Button
+                as={Link}
+                bgColor={"teal"}
+                _hover={{ bg: "#319795", textDecoration: "none" }}
+                variant="ghost"
+                leftIcon={<AddIcon />}
+                textDecor="none"
+              >
+                {mobile ? null : "Add Collection"}
+              </Button>
+            </NextLink>
+            <Flex>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  variant="ghost"
+                  _hover={{ bgColor: "gray.900" }}
+                  _active={{ bg: "gray.900" }}
+                >
+                  {data.me.username}
+                </MenuButton>
+                <DropDownItems />
+              </Menu>
+            </Flex>
+          </>
+        )}
       </Flex>
     );
   }
@@ -116,11 +141,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   return (
     <Flex zIndex={1} bg="blackAlpha.700" p={4} align="center">
       <Flex flex={1} m="auto" align="center" maxW={850}>
-        <NextLink href="/">
-          <Link _hover={{ textDecoration: "none" }}>
-            <Heading color={theme.colors.superLightBlue}>collections</Heading>
-          </Link>
-        </NextLink>
+        <Logo />
         <Box ml={"auto"} color="gray.200">
           {body}
         </Box>

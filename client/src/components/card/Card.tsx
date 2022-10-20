@@ -1,9 +1,9 @@
 import { Flex, Button, Text, Box, Heading, Link } from "@chakra-ui/react";
 import React from "react";
-import { CollectionSnippetFragment } from "../generated/graphql";
+import { CollectionSnippetFragment } from "../../generated/graphql";
 import NextLink from "next/link";
 import { CardBottom } from "./CardBottom";
-import theme from "../theme";
+import theme from "../../theme";
 import { motion } from "framer-motion";
 
 interface CardProps {
@@ -23,15 +23,15 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
       rounded="md"
       borderWidth="2px"
       borderColor="gray.400"
-      h={size === "small" ? [200, 240] : [200, 260]}
-      w={size === "small" ? [200, 240] : [200, 260]}
+      h={size === "small" ? ["auto", 240] : [260, 260]}
+      w={size === "small" ? ["auto", 240, 240, 240] : undefined}
       justifyContent="space-between"
       backgroundColor={theme.colors.superLightBlue}
       borderRadius={6}
-      // _hover={{ bgColor: theme.colors.lightPurple }}
+      key={c.id}
     >
       <Box p={4}>
-        <NextLink href="/collection/[id]" as={`/collection/${c.id}`}>
+        <NextLink href="/collection/[id]" as={`/collection/${c.reference}`}>
           <Link
             _hover={{
               textDecoration: "none",
@@ -40,12 +40,15 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
             <Text
               fontWeight="semibold"
               color={theme.colors.darkBlue}
-              noOfLines={size === "small" ? 5 : 7}
+              noOfLines={size === "small" ? [3, 6] : [3, 8]}
               _hover={{
-                textColor: theme.colors.orange,
+                textColor: theme.colors.lightBlue,
               }}
+              // overflow='clip'
             >
-              {c.titleSnippet}
+              {c.titleSnippet?.length === 150
+                ? c.titleSnippet + "..."
+                : c.titleSnippet}
             </Text>
             {/* <Heading fontSize="md" color={theme.colors.darkBlue}>
               {c.id}
@@ -53,7 +56,7 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
           </Link>
         </NextLink>
       </Box>
-      <CardBottom collection={c} />
+      <CardBottom collection={c} size={size} />
     </Flex>
     // </motion.a>
   );

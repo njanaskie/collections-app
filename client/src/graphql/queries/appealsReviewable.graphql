@@ -10,6 +10,7 @@ query AppealsReviewable($limit: Int!, $page: Int!) {
       appealCount
       collection {
         id
+        reference
         titleSnippet
       }
     }

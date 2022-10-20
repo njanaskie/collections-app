@@ -194,7 +194,7 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
   return (
     <>
       <FormControl isInvalid={!!error}>
-        <Box w="inherit" ref={wrapperRef}>
+        <Flex ref={wrapperRef}>
           {/* <Flex align="center"> */}
           {/* <Box w={150} bgColor={theme.colors.darkBlue} h={10}>
             <FormLabel
@@ -206,12 +206,14 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
             </FormLabel>
           </Box> */}
           {/* <Box w={650}> */}
+          <InputLeftAddon
+            children={label}
+            color="gray.200"
+            bgColor="gray.500"
+            px={2}
+            borderWidth={1}
+          />
           <InputGroup>
-            <InputLeftAddon
-              children={label}
-              color="gray.200"
-              bgColor="gray.500"
-            />
             <Box w="inherit">
               <Input
                 id="searchInputField"
@@ -230,17 +232,19 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                 // w="100%"
               />
 
-              {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
               {dropdownOpen && (
                 <Box
                   bgColor={theme.colors.lightPurple}
                   borderRadius={4}
-                  // w={675}
+                  w="inherit"
                   // left={225}
                   h={searchState.searchResults.length >= 3 ? 120 : "auto"}
                   overflowY="scroll"
                   onScroll={handleScroll}
                   id="dropdownBox"
+                  position="absolute"
+                  mt={1}
+                  zIndex="dropdown"
                 >
                   {searchState.searchResults.map((r) =>
                     !r ? null : (
@@ -248,7 +252,7 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                         <Button
                           variant="ghost"
                           color={theme.colors.darkBlue}
-                          size="md"
+                          // size="md"
                           onClick={() => {
                             setDropdownOpen(false);
                             handleChange(r);
@@ -265,62 +269,9 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
               )}
             </Box>
           </InputGroup>
-        </Box>
+        </Flex>
+        {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
       </FormControl>
-      {/* </Flex> */}
-      {/* </Box> */}
-      {/* {!isGuessing && (
-        // <SelectedEntriesList
-        //   items={selectedEntries}
-        //   handleRemoveSelectedEntry={handleRemoveSelectedEntry}
-        // />
-        // <Box mt={8} borderColor="whiteAlpha.200" borderWidth={4}>
-        //   {selectedEntries.length > 0 ? (
-        //     selectedEntries.map((i) =>
-        //       !i ? null : (
-        //         <Flex
-        //           key={i.externalId}
-        //           p={4}
-        //           borderWidth={1}
-        //           mb={2}
-        //           justify="space-between"
-        //         >
-        //           <Image
-        //             // TMDB recommends to cache configuration data
-        //             // TODO: server side cache config
-        //             src={`https://image.tmdb.org/t/p/w92${i.externalImagePath}`}
-        //           />
-        //           <Box flex={1}>
-        //             <Heading size="md" ml={2} noOfLines={2}>
-        //               {i.externalTitle}
-        //             </Heading>
-        //             <Text ml={2} noOfLines={2}>
-        //               ({i.externalReleaseDate.slice(0, 4)})
-        //             </Text>
-        //           </Box>
-        //           <Box ml="auto">
-        //             <IconButton
-        //               aria-label="Remove selected entry"
-        //               icon={<CloseIcon />}
-        //               onClick={() => {
-        //                 setSelectedEntries(
-        //                   selectedEntries.filter(
-        //                     ({ externalId }) => externalId !== i.externalId
-        //                   )
-        //                 );
-        //               }}
-        //             />
-        //           </Box>
-        //         </Flex>
-        //       )
-        //     )
-        //   ) : (
-        //     <Text color="white" textAlign="center" p={2}>
-        //       No entries
-        //     </Text>
-        //   )}
-        // </Box>
-      )} */}
     </>
   );
 };

@@ -27,7 +27,7 @@ export const StatTable: React.FC<TableProps> = ({
   data,
 }) => {
   return (
-    <TableContainer mr={10}>
+    <TableContainer mb={10}>
       <Table>
         <TableCaption color="gray.200" fontFamily="monospace">
           {caption}
@@ -49,10 +49,12 @@ export const StatTable: React.FC<TableProps> = ({
                   pathname: "/user/[username]",
                   query: { id: u.userId },
                 }}
-                as={`/user/${u.username}`}
+                as={`/user/${u.user.username}`}
               >
                 <Td>
-                  <Link _hover={{ textDecoration: "none" }}>{u.username}</Link>
+                  <Link _hover={{ textColor: theme.colors.lightOrange }}>
+                    {u.user.username}
+                  </Link>
                 </Td>
               </NextLink>
               <Td>{u.stat}</Td>

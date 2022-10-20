@@ -21,6 +21,7 @@ import {
 import { withUrqlClient } from "next-urql";
 import router from "next/router";
 import React from "react";
+import { BackButton } from "../components/BackButton";
 import { Layout } from "../components/Layout";
 import { MostGuessesUsers } from "../components/tables/MostGuessesUsers";
 import { MostVotesUsers } from "../components/tables/MostVotesUsers";
@@ -31,17 +32,17 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 const Leaderboard = () => {
   return (
     <Layout>
-      <IconButton
-        bgColor="gray.200"
-        aria-label="Go back"
-        icon={<ChevronLeftIcon />}
-        onClick={() => router.back()}
-      />
-      <Heading size="lg" color={theme.colors.orange} mt={4} mb={4}>
-        Top Players
-      </Heading>
+      <Flex align="center" mb={4}>
+        <BackButton />
+        <Heading size="lg" color={theme.colors.orange} ml={6}>
+          Top Players
+        </Heading>
+      </Flex>
+      <Text color={"gray.200"} mb={2}>
+        Why not celebrate our most dedicated players?
+      </Text>
       <Divider mb={6} />
-      <Flex>
+      <Flex justify="space-evenly" wrap="wrap" overflow="scroll">
         <MostVotesUsers />
         <MostGuessesUsers />
       </Flex>

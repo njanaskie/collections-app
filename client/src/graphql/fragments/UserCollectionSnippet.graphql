@@ -1,5 +1,6 @@
 fragment UserCollectionSnippet on Collection {
   id
+  reference
   createdAt
   updatedAt
   titleSnippet
