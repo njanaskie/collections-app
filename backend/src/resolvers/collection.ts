@@ -24,20 +24,9 @@ import { Like } from "../entities/Like";
 import { User } from "../entities/User";
 import { CollectionEntry } from "../entities/CollectionEntry";
 import { CollectionEntryInput } from "./CollectionEntryInput";
-import { CorrectGuess } from "../entities/CorrectGuess";
 import { PRIME_NUMBERS } from "../constants";
 import { FieldError } from "./FieldError";
 import { SavedCollection } from "../entities/SavedCollection";
-
-@ObjectType()
-class TopUser {
-  @Field()
-  userId: number;
-  @Field()
-  stat: number;
-  @Field()
-  username: string;
-}
 
 @ObjectType()
 class CollectionResponse {
@@ -121,7 +110,7 @@ export class CollectionResolver {
   @FieldResolver(() => Number)
   async collectionEntriesLength(
     @Root() collection: Collection,
-    @Ctx() { collectionEntryLoader, req }: MyContext
+    @Ctx() { collectionEntryLoader }: MyContext
   ) {
     const loadedCollectionEntries =
       (await collectionEntryLoader.load({
@@ -134,9 +123,7 @@ export class CollectionResolver {
   async userCompletedCollections(
     @Arg("userId", () => Int) userId: number,
     @Arg("limit", () => Int) limit: number,
-    @Arg("page", () => Int) page: number,
-    @Ctx()
-    { req }: MyContext
+    @Arg("page", () => Int) page: number
   ): Promise<PaginatedCollections> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
@@ -172,9 +159,7 @@ export class CollectionResolver {
   async userStartedCollections(
     @Arg("userId", () => Int) userId: number,
     @Arg("limit", () => Int) limit: number,
-    @Arg("page", () => Int) page: number,
-    @Ctx()
-    { req }: MyContext
+    @Arg("page", () => Int) page: number
   ): Promise<PaginatedCollections> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
@@ -210,24 +195,11 @@ export class CollectionResolver {
   async userCreatedCollections(
     @Arg("userId", () => Int) userId: number,
     @Arg("limit", () => Int) limit: number,
-    @Arg("page", () => Int) page: number,
-    @Ctx()
-    { req }: MyContext
+    @Arg("page", () => Int) page: number
   ): Promise<PaginatedCollections> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
     const offset = page === 1 ? 0 : page * realLimit - realLimit;
-
-    // const collections = await AppDataSource.query(
-    //   `
-    //   select c.*
-    //   from collection c
-    //   where c."creatorId" = ${userId}
-    //   order by c."createdAt" DESC
-    //   limit ${realLimitPlusOne}
-    //   offset ${offset}
-    //   `
-    // );
 
     const collections = await AppDataSource.getRepository(Collection)
       .createQueryBuilder("c")

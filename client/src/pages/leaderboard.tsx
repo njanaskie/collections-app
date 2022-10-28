@@ -1,31 +1,10 @@
-import { ChevronLeftIcon } from "@chakra-ui/icons";
-import {
-  Avatar,
-  Box,
-  Flex,
-  Tag,
-  TagLabel,
-  Tbody,
-  Thead,
-  TableContainer,
-  Table,
-  TableCaption,
-  Tr,
-  Th,
-  Td,
-  Text,
-  Heading,
-  Divider,
-  IconButton,
-} from "@chakra-ui/react";
+import { Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import router from "next/router";
 import React from "react";
 import { BackButton } from "../components/BackButton";
 import { Layout } from "../components/Layout";
 import { MostGuessesUsers } from "../components/tables/MostGuessesUsers";
 import { MostVotesUsers } from "../components/tables/MostVotesUsers";
-import { useMostVotesUsersQuery } from "../generated/graphql";
 import theme from "../theme";
 import { createUrqlClient } from "../utils/createUrqlClient";
 

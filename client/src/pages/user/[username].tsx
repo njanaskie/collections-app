@@ -1,4 +1,4 @@
-import { Spinner, Box } from "@chakra-ui/react";
+import { Box, Spinner } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import { Layout } from "../../components/Layout";
@@ -7,10 +7,6 @@ import { TabContent } from "../../components/user/TabContent";
 import { useMeQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { isServer } from "../../utils/isServer";
-import {
-  getConfiguration,
-  getConfigurationWithCache,
-} from "../../utils/moviesApi";
 import { useGetIntId } from "../../utils/useGetIntId";
 import { useGetUserFromUrl } from "../../utils/useGetUserFromUrl";
 

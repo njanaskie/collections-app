@@ -1,5 +1,4 @@
 import { useUserQuery } from "../generated/graphql";
-import { isServer } from "./isServer";
 import { useGetIntId } from "./useGetIntId";
 
 export const useGetUserFromUrl = () => {

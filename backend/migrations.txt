@@ -1,0 +1,9 @@
+in dataSource.ts:
+  entities: ["dist/entities/*.js"],
+  migrations: ["dist/database/migrations/*.js"]
+
+to clear schema:
+    yarn typeorm query "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT USAGE ON SCHEMA public to PUBLIC; GRANT CREATE ON SCHEMA public to PUBLIC; COMMENT ON SCHEMA public IS 'standard public schema';" -d ./dist/database/dataSource.js
+
+to generate migrations:
+    npx typeorm migration:generate ./src/database/migrations/Initial -d ./dist/database/dataSource.js

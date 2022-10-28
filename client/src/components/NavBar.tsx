@@ -1,27 +1,22 @@
+import { AddIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Link,
   Flex,
-  Heading,
+  IconButton,
+  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useBreakpointValue,
-  IconButton,
-  Tab,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
 import NextLink from "next/link";
-import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import theme from "../theme";
 import { isServer } from "../utils/isServer";
-import { AddIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { query } from "@urql/exchange-graphcache";
 import { useIsMobile } from "../utils/useIsMobile";
-import { IoAlbumsOutline } from "react-icons/io5";
 import { Logo } from "./Logo";
 
 interface NavBarProps {}
@@ -55,7 +50,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           Profile
         </MenuItem>
       </NextLink>
-      <MenuItem>Support!</MenuItem>
+      {/* <MenuItem>Support!</MenuItem> */}
       <MenuItem
         as={Button}
         onClick={async () => {

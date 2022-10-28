@@ -24,6 +24,7 @@ import { FieldError } from "./FieldError";
 import { isAuth } from "../middleware/isAuth";
 import { UserAttributesInput } from "./UserAttributesInput";
 import { validateUpdateUser } from "../utils/validateUpdateUser";
+import { validateLogin } from "../utils/validateLogin";
 
 @ObjectType()
 class UserResponse {
@@ -45,15 +46,26 @@ export class UserResolver {
   ): Promise<UserResponse | null> {
     const errors = validateUpdateUser(attributes);
     if (errors) {
-      console.log("updateuser", { errors });
       return { errors };
+    }
+
+    // this is the current user
+    if (req.session.userId !== id) {
+      return {
+        errors: [
+          {
+            field: "email",
+            message: "There is a user ID mismatch",
+          },
+        ],
+      };
     }
 
     let user;
     try {
       const result = await AppDataSource.createQueryBuilder()
         .update(User)
-        .set({ ...attributes })
+        .set(attributes)
         .where("id = :id", {
           id: req.session.userId,
         })
@@ -184,7 +196,7 @@ export class UserResolver {
 
     sendEmail(
       email,
-      `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
+      `<a href="${process.env.CORS_ORIGIN}/change-password/${token}">Reset Password</a>`
     );
     return true;
   }
@@ -256,6 +268,11 @@ export class UserResolver {
     @Arg("password") password: string,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
+    const errors = validateLogin(usernameOrEmail, password);
+    if (errors) {
+      return { errors };
+    }
+
     const user = await User.findOne(
       usernameOrEmail.includes("@")
         ? { where: { email: usernameOrEmail } }

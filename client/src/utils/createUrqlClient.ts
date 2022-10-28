@@ -1,50 +1,26 @@
-import {
-  dedupExchange,
-  Exchange,
-  fetchExchange,
-  stringifyVariables,
-} from "urql";
 import { devtoolsExchange } from "@urql/devtools";
+import { Cache, cacheExchange } from "@urql/exchange-graphcache";
+import gql from "graphql-tag";
+import Router from "next/router";
+import { dedupExchange, Exchange, fetchExchange } from "urql";
+import { pipe, tap } from "wonka";
 import {
-  LogoutMutation,
-  MeQuery,
-  MeDocument,
-  LoginMutation,
-  RegisterMutation,
-  VoteMutationVariables,
-  DeleteCollectionMutationVariables,
-  UpdateCollectionMutationVariables,
-  CollectionQuery,
-  UpdateCollectionDocument,
-  CollectionInput,
   CollectionEntryInput,
   CreateCorrectGuessMutation,
-  MyCorrectGuessesQuery,
-  MyCorrectGuessesDocument,
   CreateCorrectGuessMutationVariables,
-  CorrectGuessInput,
-  CorrectGuess,
-  CreateCorrectGuessDocument,
-  UpdateCollectionMutation,
-  CollectionDocument,
-  RejectAppealMutationVariables,
+  DeleteCollectionMutationVariables,
+  LoginMutation,
+  LogoutMutation,
+  MeDocument,
+  MeQuery,
+  MyCorrectGuessesDocument,
+  RegisterMutation,
   SaveCollectionMutationVariables,
-  UpdateUserMutation,
-  UserQuery,
-  UserDocument,
+  UpdateCollectionMutationVariables,
   UpdateUserMutationVariables,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import {
-  Cache,
-  cacheExchange,
-  NullArray,
-  Resolver,
-  Variables,
-} from "@urql/exchange-graphcache";
-import { pipe, tap } from "wonka";
-import Router from "next/router";
-import gql from "graphql-tag";
 import { isServer } from "./isServer";
 import { simplePagination } from "./simplePagination";
 
@@ -81,8 +57,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   }
 
   return {
-    // url: 'https://studio.apollographql.com'
-    url: "http://localhost:4000/graphql",
+    url: process.env.NEXT_PUBLIC_API_URL as string,
     fetchOptions: {
       credentials: "include" as const,
       headers: cookie
@@ -115,7 +90,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         resolvers: {
           Query: {
             collections: simplePagination("collections", "collections"),
-            user: (data, args) => {
+            user: (args) => {
               return { __typename: "UserResponse", id: args.id };
               // return data;
             },
@@ -147,7 +122,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
-            updateUser: (_result, args, cache, info) => {
+            updateUser: (_result, args, cache) => {
               invalidateAll(cache, "user", {
                 id: (args as UpdateUserMutationVariables).id,
               });
@@ -203,7 +178,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             //   }
             // );
             // },
-            saveCollection: (_result, args, cache, info) => {
+            saveCollection: (_result, args, cache) => {
               const { collectionId } = args as SaveCollectionMutationVariables;
               const data = cache.readFragment(
                 gql`
@@ -231,13 +206,13 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 );
               }
             },
-            rejectAppeal: (_result, args, cache, info) => {
+            rejectAppeal: (_result, _args, cache, _info) => {
               invalidateAll(cache, "appealsReviewable");
             },
-            approveAppeal: (_result, args, cache, info) => {
+            approveAppeal: (_result, _args, cache, _info) => {
               invalidateAll(cache, "appealsReviewable");
             },
-            createAppeal: (_result, args, cache, info) => {
+            createAppeal: (_result, _args, cache, _info) => {
               invalidateAll(cache, "appealsSubmitted");
             },
             // createCorrectGuess: (_result, args, cache, info) => {
@@ -311,7 +286,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               //   }
               // );
             },
-            updateCollection: (_result, args, cache, info) => {
+            updateCollection: (_result, args, cache, _info) => {
               const { entries, id } = args as UpdateCollectionMutationVariables;
               const entriesArray = <CollectionEntryInput[]>entries;
               const entriesWithTypename = entriesArray.map((e) => {
@@ -370,14 +345,14 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               //   })
               // );
             },
-            deleteCollection: (_result, args, cache, info) => {
+            deleteCollection: (_result, args, cache, _info) => {
               cache.invalidate({
                 __typename: "Collecton",
                 id: (args as DeleteCollectionMutationVariables).id,
               });
               invalidateAll(cache, "userCreatedCollections");
             },
-            vote: (_result, args, cache, info) => {
+            vote: (_result, args, cache, _info) => {
               const { collectionId } = args as VoteMutationVariables;
               const data = cache.readFragment(
                 gql`
@@ -410,11 +385,11 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 );
               }
             },
-            createCollection: (_result, args, cache, info) => {
+            createCollection: (_result, _args, cache, _info) => {
               invalidateAll(cache, "collections");
               invalidateAll(cache, "userCreatedCollections");
             },
-            logout: (_result, args, cache, info) => {
+            logout: (_result, _args, cache, _info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
                 cache,
                 { query: MeDocument },
@@ -422,7 +397,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 () => ({ me: null })
               );
             },
-            login: (_result, args, cache, info) => {
+            login: (_result, _args, cache, _info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(
                 cache,
                 { query: MeDocument },
@@ -439,7 +414,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               );
               invalidateAll(cache, "collections");
             },
-            register: (_result, args, cache, info) => {
+            register: (_result, _args, cache, _info) => {
               betterUpdateQuery<RegisterMutation, MeQuery>(
                 cache,
                 { query: MeDocument },

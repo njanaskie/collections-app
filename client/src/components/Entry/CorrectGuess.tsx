@@ -1,15 +1,9 @@
 import { Flex, Heading, Image } from "@chakra-ui/react";
 import React from "react";
-import { CollectionEntry, CollectionEntryInput } from "../../generated/graphql";
-import { ImageNotFound } from "./ImageNotFound";
+import { API_IMAGE_URL, API_LOGO_SIZE_MD } from "../../config/movies-api";
+import { CollectionEntryInput } from "../../generated/graphql";
 import theme from "../../theme";
-import {
-  API_BASE_URL,
-  API_IMAGE_URL,
-  API_KEY,
-  API_LOGO_SIZE_MD,
-} from "../../config/movies-api";
-import { fetchWithCache } from "../../utils/moviesApi";
+import { ImageNotFound } from "./ImageNotFound";
 
 type CorrectGuessProps = {
   entry: CollectionEntryInput;

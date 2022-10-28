@@ -1,10 +1,9 @@
-import { Flex, Button, Text, Box, Heading, Link } from "@chakra-ui/react";
+import { Box, Flex, Link, Text } from "@chakra-ui/react";
+import NextLink from "next/link";
 import React from "react";
 import { CollectionSnippetFragment } from "../../generated/graphql";
-import NextLink from "next/link";
-import { CardBottom } from "./CardBottom";
 import theme from "../../theme";
-import { motion } from "framer-motion";
+import { CardBottom } from "./CardBottom";
 
 interface CardProps {
   c: CollectionSnippetFragment;

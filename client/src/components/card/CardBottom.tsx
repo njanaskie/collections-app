@@ -1,13 +1,10 @@
-import { Flex, Button, Text, Divider, Tooltip, Icon } from "@chakra-ui/react";
-import React from "react";
-import {
-  CollectionSnippetFragment,
-  useVoteMutation,
-} from "../../generated/graphql";
+import { Button, Flex, Icon, Text, Tooltip } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { Points } from "../Points";
-import theme from "../../theme";
+import React from "react";
 import { IoAlbumsOutline } from "react-icons/io5";
+import { CollectionSnippetFragment } from "../../generated/graphql";
+import theme from "../../theme";
+import { Points } from "../Points";
 
 interface CardBottomProps {
   collection: CollectionSnippetFragment;

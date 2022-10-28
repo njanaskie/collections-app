@@ -17,7 +17,10 @@ export const SelectedEntriesList: React.FC<SelectedEntriesListProps> = ({
   handleRemoveSelectedEntry,
 }) => {
   return (
-    <Box mt="20" pos="inherit">
+    <Box mt="10" pos="inherit">
+      <Heading size="md" mb={4}>
+        Collection Entries
+      </Heading>
       {items.length > 0 ? (
         items.map((i) =>
           !i ? null : (

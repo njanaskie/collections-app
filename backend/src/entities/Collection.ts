@@ -89,7 +89,7 @@ export class Collection extends BaseEntity {
   @Index()
   creatorId: number;
 
-  @Field()
+  @Field(() => User)
   @ManyToOne(() => User, (user) => user.collections)
   creator: User;
 

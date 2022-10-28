@@ -50,6 +50,15 @@ export const validateUpdateUser = (attributes: UserAttributesInput) => {
     ];
   }
 
+  if (!attributes.email) {
+    return [
+      {
+        field: "email",
+        message: "Need an email",
+      },
+    ];
+  }
+
   if (!attributes.email.includes("@")) {
     return [
       {

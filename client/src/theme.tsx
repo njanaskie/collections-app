@@ -76,7 +76,7 @@ const theme = extendTheme({
     },
   },
   styles: {
-    global: (props: any) => ({
+    global: () => ({
       "html, body": {
         fontSize: "md",
         fontFamily: "monospace",

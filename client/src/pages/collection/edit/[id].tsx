@@ -1,34 +1,19 @@
-import { ChevronLeftIcon, EditIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  IconButton,
-  Spinner,
-} from "@chakra-ui/react";
-import { Formik, Form } from "formik";
+import { Box, Button, Divider, Flex, Heading, Spinner } from "@chakra-ui/react";
+import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
-import router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { BackButton } from "../../../components/BackButton";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import { SelectAutoComplete } from "../../../components/SelectAutoComplete";
 import { SelectedEntriesList } from "../../../components/SelectedEntriesList";
-import {
-  useCollectionQuery,
-  useCollectionsQuery,
-  useUpdateCollectionMutation,
-} from "../../../generated/graphql";
+import { useUpdateCollectionMutation } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { EntryProps } from "../../../utils/EntryProps";
 import { toErrorMap } from "../../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
-import { useGetIntId } from "../../../utils/useGetIntId";
 import { useIsAuth } from "../../../utils/useIsAuth";
-import createCollection from "../../create-collection";
 
 export const EditCollection = ({}) => {
   const router = useRouter();

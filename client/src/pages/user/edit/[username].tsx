@@ -1,37 +1,17 @@
-import { ChevronLeftIcon, EditIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  IconButton,
-  Spinner,
-} from "@chakra-ui/react";
-import { Formik, Form } from "formik";
+import { Box, Button, Divider, Flex, Heading, Spinner } from "@chakra-ui/react";
+import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
-import router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { BackButton } from "../../../components/BackButton";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
-import { SelectAutoComplete } from "../../../components/SelectAutoComplete";
-import { SelectedEntriesList } from "../../../components/SelectedEntriesList";
-import {
-  useCollectionQuery,
-  useCollectionsQuery,
-  useUpdateCollectionMutation,
-  useUpdateUserMutation,
-} from "../../../generated/graphql";
+import { useUpdateUserMutation } from "../../../generated/graphql";
 import theme from "../../../theme";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
-import { EntryProps } from "../../../utils/EntryProps";
 import { toErrorMap } from "../../../utils/toErrorMap";
-import { useGetCollectionFromUrl } from "../../../utils/useGetCollectionFromUrl";
-import { useGetIntId } from "../../../utils/useGetIntId";
 import { useGetUserFromUrl } from "../../../utils/useGetUserFromUrl";
 import { useIsAuth } from "../../../utils/useIsAuth";
-import createCollection from "../../create-collection";
 
 function nonEmptyObject(obj: any) {
   for (const propName in obj) {
@@ -80,20 +60,16 @@ export const EditUser = ({}) => {
       <Formik
         initialValues={{
           email: data.user.user?.email || "",
-          bio: data.user.user?.bio || "",
-          letterboxd_url: data.user.user?.letterboxd_url || "",
-          twitter_url: data.user.user?.twitter_url || "",
-          website_url: data.user.user?.website_url || "",
+          bio: data.user.user?.bio || null,
+          letterboxd_url: data.user.user?.letterboxd_url || null,
+          twitter_url: data.user.user?.twitter_url || null,
+          website_url: data.user.user?.website_url || null,
         }}
         onSubmit={async (values, { setErrors }) => {
-          let submitValues = Object.fromEntries(
-            Object.entries(values).filter(([_, v]) => v != "")
-          );
-
           if (data.user?.user) {
             const response = await updateUser({
               id: data.user?.user.id,
-              attributes: { ...submitValues, email: values.email },
+              attributes: values,
             });
 
             if (response.data?.updateUser?.errors) {
@@ -104,7 +80,7 @@ export const EditUser = ({}) => {
           }
         }}
       >
-        {({ isSubmitting, values, setValues }) => (
+        {({ isSubmitting }) => (
           <Form>
             <Flex align="center" justify="space-between">
               <BackButton />

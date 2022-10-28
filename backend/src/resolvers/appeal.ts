@@ -40,23 +40,6 @@ class PaginatedAppeals {
   hasMore: boolean;
 }
 
-@ObjectType()
-class PaginatedAppealsReviewable {
-  @Field(() => [Appeal])
-  appeals: AppealReviewable[];
-  @Field()
-  hasMore: boolean;
-}
-
-type AppealReviewable = {
-  collectionId: number;
-  externalId: number;
-  externalTitle: string;
-  externalImagePath: string;
-  externalReleaseDate: string;
-  appealCount: number;
-};
-
 @Resolver(Appeal)
 export class AppealResolver {
   @FieldResolver(() => Collection)
@@ -186,8 +169,7 @@ export class AppealResolver {
   @UseMiddleware(isAuth)
   async approveAppeal(
     @Arg("externalEntry") externalEntry: CollectionEntryInput,
-    @Arg("collectionId", () => Int) collectionId: number,
-    @Ctx() { req }: MyContext
+    @Arg("collectionId", () => Int) collectionId: number
   ): Promise<boolean> {
     const appealsToUpdate = await Appeal.findBy({
       externalId: externalEntry.externalId,
@@ -255,8 +237,7 @@ export class AppealResolver {
   @UseMiddleware(isAuth)
   async rejectAppeal(
     @Arg("externalId", () => Int) externalId: number,
-    @Arg("collectionId", () => Int) collectionId: number,
-    @Ctx() { req }: MyContext
+    @Arg("collectionId", () => Int) collectionId: number
   ): Promise<boolean> {
     const appealsToUpdate = await Appeal.find({
       select: {

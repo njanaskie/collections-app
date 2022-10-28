@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { isServer } from "./isServer";
 
 export const useGetIntId = () => {

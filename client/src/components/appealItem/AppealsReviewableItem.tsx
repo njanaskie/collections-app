@@ -1,15 +1,5 @@
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Flex,
-  Heading,
-  IconButton,
-  Image,
-  Link,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import NextLink from "next/link";
+import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
 import React, { useState } from "react";
 import {
   Appeal,

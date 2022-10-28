@@ -1,10 +1,6 @@
-import { Leaderboard } from "../entities/Leaderboard";
-import { User } from "../entities/User";
-import { Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { Field, Mutation, ObjectType, Resolver } from "type-graphql";
 import AppDataSource from "../database/dataSource";
 import { CollectionEntry } from "../entities/CollectionEntry";
-import { IsNull } from "typeorm";
-import { sleep } from "../utils/sleep";
 const axios = require("axios");
 
 @ObjectType()
@@ -32,34 +28,34 @@ export class CollectionEntryResolver {
     let resultsUpdated: any[] = [];
     let notUpdated: number = 0;
     const promises = entries.map(async (entry) => {
-      try {
-        const res = await axios.get(
-          `${process.env.TMDB_BASE_URL}/movie/${entry.externalId}?api_key=${process.env.TMDB_API_KEY}`
-        );
-        const resultSnippet = {
-          externalTitle: res.data.title,
-          externalImagePath: res.data.poster_path,
-          externalReleaseDate: res.data.release_date,
-        };
-        if (
-          (!entry.externalTitle && !!resultSnippet.externalTitle) ||
-          (!entry.externalImagePath && !!resultSnippet.externalImagePath) ||
-          (!entry.externalReleaseDate && !!resultSnippet.externalReleaseDate)
-        ) {
-          await AppDataSource.createQueryBuilder()
-            .update(CollectionEntry)
-            .set(resultSnippet)
-            .where("externalId = :id", { id: entry.externalId })
-            .execute();
+      // try {
+      const res = await axios.get(
+        `${process.env.TMDB_BASE_URL}/movie/${entry.externalId}?api_key=${process.env.TMDB_API_KEY}`
+      );
+      const resultSnippet = {
+        externalTitle: res.data.title,
+        externalImagePath: res.data.poster_path,
+        externalReleaseDate: res.data.release_date,
+      };
+      if (
+        (!entry.externalTitle && !!resultSnippet.externalTitle) ||
+        (!entry.externalImagePath && !!resultSnippet.externalImagePath) ||
+        (!entry.externalReleaseDate && !!resultSnippet.externalReleaseDate)
+      ) {
+        await AppDataSource.createQueryBuilder()
+          .update(CollectionEntry)
+          .set(resultSnippet)
+          .where("externalId = :id", { id: entry.externalId })
+          .execute();
 
-          resultsUpdated.push(resultSnippet);
-        } else {
-          notUpdated++;
-        }
-        return resultsUpdated;
-      } catch (error) {
-        console.log(error);
+        resultsUpdated.push(resultSnippet);
+      } else {
+        notUpdated++;
       }
+      return resultsUpdated;
+      // } catch (error) {
+      //   console.log(error);
+      // }
     });
 
     const promisesToAwait = await Promise.all(promises);

@@ -1,5 +1,4 @@
 import { useCollectionQuery } from "../generated/graphql";
-import { useGetIntId } from "./useGetIntId";
 import { useGetStringRef } from "./useGetStringRef";
 
 export const useGetCollectionFromUrl = () => {

@@ -1,19 +1,14 @@
 import { Flex } from "@chakra-ui/react";
-import { useSpring } from "@react-spring/web";
+import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import {
-  CollectionEntry,
-  CollectionEntryInput,
-  MyCorrectGuessesQuery,
-} from "../../generated/graphql";
+import { CollectionEntrySnippetFragment } from "../../generated/graphql";
+import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
 import { CorrectGuess } from "./CorrectGuess";
 import { NotGuessed } from "./NotGuessed";
-import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
-import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
 // import { useSpring, animated } from "@react-spring/web"; // uninstall?
 
 type EntryProps = {
-  entry: Omit<CollectionEntry, "collection" | "collectionId">;
+  entry: CollectionEntrySnippetFragment;
   isMe: boolean;
   measuredRef: any;
   correctGuesses: CorrectGuessItem[];
@@ -69,7 +64,6 @@ const EntryCard: React.FC<EntryCardProps> = ({
   entry,
   isMe,
   measuredRef,
-  correctGuesses,
 }) => {
   let cardProps = {
     layoutId: cardId,

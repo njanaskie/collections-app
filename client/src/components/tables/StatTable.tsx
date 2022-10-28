@@ -1,6 +1,4 @@
 import {
-  Button,
-  Flex,
   Link,
   Table,
   TableCaption,
@@ -11,9 +9,9 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
 import React from "react";
 import theme from "../../theme";
-import NextLink from "next/link";
 
 interface TableProps {
   caption: string;

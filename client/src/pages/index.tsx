@@ -1,53 +1,36 @@
-import { NavBar } from "../components/NavBar";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
-import {
-  useCollectionsQuery,
-  useMostVotesUsersQuery,
-} from "../generated/graphql";
-import { Layout } from "../components/Layout";
-import React, { useEffect, useRef, useState } from "react";
+import { ArrowRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Heading,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Select,
-  Stack,
-  Text,
   Radio,
   RadioGroup,
-  Slide,
-  SlideFade,
-  Divider,
   Spinner,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
+import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
-import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
-import { Navigation, Pagination } from "swiper";
+import React, { useEffect, useRef, useState } from "react";
+import "react-alice-carousel/lib/alice-carousel.css";
 import type { Swiper as SwiperType } from "swiper";
+import { Navigation } from "swiper";
 import "swiper/css";
+import "swiper/css/grid";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "swiper/css/grid";
-import AliceCarousel from "react-alice-carousel";
-import "react-alice-carousel/lib/alice-carousel.css";
-import { CardBottom } from "../components/CardBottom";
-import { SelectAutoComplete } from "../components/SelectAutoComplete";
-import theme from "../theme";
-import { ArrowRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { usePrevious } from "../utils/usePrevious";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { Card } from "../components/card/Card";
+import { Layout } from "../components/Layout";
 import { itemLimit } from "../constants";
-import { TopUsersMini } from "../components/TopUsersMini";
+import { useCollectionsQuery } from "../generated/graphql";
+import theme from "../theme";
+import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsMobile } from "../utils/useIsMobile";
-import { API_BASE_URL, API_KEY } from "../config/movies-api";
-import { getConfigurationWithCache } from "../utils/moviesApi";
+import { usePrevious } from "../utils/usePrevious";
 
 const Index = () => {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
@@ -92,6 +75,81 @@ const Index = () => {
     );
   }
 
+  let body = null;
+  // data is loading
+  if (!data && fetching) {
+    body = <Spinner />;
+  } else if (!fetching && data?.collections.collections?.length === 0) {
+    body = <Box>Ain't no collections to be found :(</Box>;
+  } else {
+    body = (
+      <>
+        <Box>
+          <Swiper
+            breakpoints={{
+              // when window width is >= 320px
+              320: {
+                slidesPerView: 1,
+                // spaceBetween: 20,
+              },
+              // when window width is >= 480px
+              480: {
+                slidesPerView: 2,
+                // spaceBetween: 30,
+              },
+              // when window width is >= 640px
+              640: {
+                slidesPerView: 3,
+                // spaceBetween: 40,
+              },
+            }}
+            onReset={() => console.log("on reset")}
+            spaceBetween={4}
+            slidesPerView={1}
+            // centeredSlides={
+            //   // windowSize.width && windowSize.width < 640 ? true : false
+            //   true
+            // }
+            // centeredSlidesBounds={true}
+            // centerInsufficientSlides={true}
+            onSlideChange={() => {}}
+            onSwiper={setSwiper}
+            navigation={{
+              prevEl: prevRef.current!, // Assert non-null
+              nextEl: nextRef.current!, // Assert non-null
+            }}
+            modules={[Navigation]}
+            onReachEnd={() => {
+              if (!data || !data.collections.hasMore) {
+                // console.log("no data");
+                return;
+              }
+
+              if (data.collections.modulus) {
+                setVariables({
+                  ...variables,
+                  modulus: data.collections.modulus,
+                  page: prevPage + 1,
+                });
+              } else {
+                setVariables({
+                  ...variables,
+                  page: prevPage + 1,
+                });
+              }
+            }}
+          >
+            {data!.collections.collections.map((c) =>
+              !c ? null : (
+                <SwiperSlide key={c.id}>{() => <Card c={c} />}</SwiperSlide>
+              )
+            )}
+          </Swiper>
+        </Box>
+      </>
+    );
+  }
+
   return (
     <Layout>
       {!mobile && (
@@ -123,102 +181,33 @@ const Index = () => {
           </Stack>
         </RadioGroup>
       </Flex>
-      {!data && fetching ? (
-        <Spinner />
-      ) : !fetching && data?.collections.collections?.length === 0 ? (
-        <Box>Ain't no collections to be found :(</Box>
-      ) : (
-        <>
-          <Box>
-            <Swiper
-              breakpoints={{
-                // when window width is >= 320px
-                320: {
-                  slidesPerView: 1,
-                  // spaceBetween: 20,
-                },
-                // when window width is >= 480px
-                480: {
-                  slidesPerView: 2,
-                  // spaceBetween: 30,
-                },
-                // when window width is >= 640px
-                640: {
-                  slidesPerView: 3,
-                  // spaceBetween: 40,
-                },
-              }}
-              onReset={() => console.log("on reset")}
-              spaceBetween={4}
-              slidesPerView={1}
-              // centeredSlides={
-              //   // windowSize.width && windowSize.width < 640 ? true : false
-              //   true
-              // }
-              // centeredSlidesBounds={true}
-              // centerInsufficientSlides={true}
-              onSlideChange={() => {}}
-              onSwiper={setSwiper}
-              navigation={{
-                prevEl: prevRef.current!, // Assert non-null
-                nextEl: nextRef.current!, // Assert non-null
-              }}
-              modules={[Navigation]}
-              onReachEnd={() => {
-                if (!data || !data.collections.hasMore) {
-                  console.log("no data");
-                  return;
-                }
-
-                if (data.collections.modulus) {
-                  setVariables({
-                    ...variables,
-                    modulus: data.collections.modulus,
-                    page: prevPage + 1,
-                  });
-                } else {
-                  setVariables({
-                    ...variables,
-                    page: prevPage + 1,
-                  });
-                }
-              }}
-            >
-              {data!.collections.collections.map((c) =>
-                !c ? null : (
-                  <SwiperSlide key={c.id}>
-                    {({ isActive }) => <Card c={c} />}
-                  </SwiperSlide>
-                )
-              )}
-            </Swiper>
-            <Flex justify="center" m={4}>
-              <Button
-                ref={prevRef}
-                m={2}
-                size="lg"
-                color={theme.colors.darkBlue}
-                bgColor={theme.colors.gold}
-                _hover={{ bg: theme.colors.darkGold }}
-                _active={{ bg: theme.colors.gold }}
-              >
-                Previous
-              </Button>
-              <Button
-                ref={nextRef}
-                m={2}
-                size="lg"
-                color={theme.colors.darkBlue}
-                bgColor={theme.colors.gold}
-                _hover={{ bg: theme.colors.darkGold }}
-                _active={{ bg: theme.colors.gold }}
-              >
-                Next
-              </Button>
-            </Flex>
-          </Box>
-        </>
-      )}
+      {body}
+      <Flex justify="center" m={4}>
+        <Button
+          ref={prevRef}
+          isDisabled={!fetching && data?.collections.collections?.length === 0}
+          m={2}
+          size="lg"
+          color={theme.colors.darkBlue}
+          bgColor={theme.colors.gold}
+          _hover={{ bg: theme.colors.darkGold }}
+          _active={{ bg: theme.colors.gold }}
+        >
+          Previous
+        </Button>
+        <Button
+          ref={nextRef}
+          isDisabled={!fetching && data?.collections.collections?.length === 0}
+          m={2}
+          size="lg"
+          color={theme.colors.darkBlue}
+          bgColor={theme.colors.gold}
+          _hover={{ bg: theme.colors.darkGold }}
+          _active={{ bg: theme.colors.gold }}
+        >
+          Next
+        </Button>
+      </Flex>
       <NextLink href="/leaderboard">
         <Button
           as={Link}
@@ -241,16 +230,5 @@ const Index = () => {
     </Layout>
   );
 };
-
-// // This function runs only on the server side
-// Index.getInitialProps = async (ctx: any) => {
-//   // Instead of fetching your `/api` route you can call the same
-//   // function directly in `getStaticProps`
-//   const config = await getConfigurationWithCache();
-//   console.log("getInitialProps", config);
-
-//   // Props returned will be passed to the page component
-//   return { config };
-// };
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

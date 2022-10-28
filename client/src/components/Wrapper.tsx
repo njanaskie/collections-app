@@ -1,6 +1,5 @@
 import { Box } from "@chakra-ui/layout";
 import React from "react";
-import theme from "../theme";
 
 export type WrapperVariant = "small" | "regular";
 

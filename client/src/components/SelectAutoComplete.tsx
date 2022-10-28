@@ -1,55 +1,18 @@
-import React, { InputHTMLAttributes, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormErrorMessage,
-  FormHelperText,
-  FormLabel,
   Input,
-  Image,
-  Menu,
-  MenuButton,
-  MenuList,
-  Text,
-  ComponentWithAs,
-  Heading,
-  Icon,
-  IconButton,
-  useToast,
-  Tag,
-  TagLabel,
-  TagLeftIcon,
   InputGroup,
   InputLeftAddon,
-  Stack,
 } from "@chakra-ui/react";
-import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteItem,
-  AutoCompleteList,
-} from "@choc-ui/chakra-autocomplete";
-import { Form, Formik, useField } from "formik";
-import { InputField } from "./InputField";
-import router from "next/router";
-import createCollection from "../pages/create-collection";
-import * as api from "../utils/moviesApi";
-import cacheData from "memory-cache";
-import {
-  AddIcon,
-  CheckIcon,
-  CloseIcon,
-  SmallCloseIcon,
-} from "@chakra-ui/icons";
-import { useCreateCorrectGuessMutation } from "../generated/graphql";
+import { useField } from "formik";
+import React, { InputHTMLAttributes, useEffect, useRef, useState } from "react";
 import theme from "../theme";
-import { randomSelector } from "../utils/randomSelector";
-import { correctGuessMessages, incorrectGuessMessages } from "../constants";
-import { GuessMessageAlert } from "./GuessMessageAlert";
-import { SelectedEntriesList } from "./SelectedEntriesList";
 import { EntryProps } from "../utils/EntryProps";
+import * as api from "../utils/moviesApi";
 import { usePrevious } from "../utils/usePrevious";
 
 type SelectAutoCompleteProps = InputHTMLAttributes<HTMLInputElement> & {
@@ -253,7 +216,8 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                           variant="ghost"
                           color={theme.colors.darkBlue}
                           // size="md"
-                          onClick={() => {
+                          onClick={(e: any) => {
+                            e.target.blur();
                             setDropdownOpen(false);
                             handleChange(r);
                           }}

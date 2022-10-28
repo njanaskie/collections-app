@@ -43,7 +43,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
         />
       ) : null}
       <Flex>
-        {correctGuesses && collection.collectionEntriesLength ? (
+        {correctGuesses && collection.collectionEntriesLength && !isMe ? (
           <CircularProgress
             value={Math.round(
               (correctGuesses.length / collection.collectionEntriesLength) * 100

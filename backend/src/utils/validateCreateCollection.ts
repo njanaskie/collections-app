@@ -1,12 +1,6 @@
 import { CollectionEntryInput } from "../resolvers/CollectionEntryInput";
 import { CollectionInput } from "../resolvers/CollectionInput";
 
-function isArrayOfNums(value: any): boolean {
-  return (
-    Array.isArray(value) && value.every((item) => typeof item === "number")
-  );
-}
-
 export const validateCreateCollection = (
   input: CollectionInput,
   entries: CollectionEntryInput[]

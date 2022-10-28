@@ -1,21 +1,9 @@
+import { Box, Divider, Heading } from "@chakra-ui/layout";
 import {
-  QuestionIcon,
-  QuestionOutlineIcon,
-  WarningTwoIcon,
-} from "@chakra-ui/icons";
-import { Box, Divider, Heading, SimpleGrid } from "@chakra-ui/layout";
-import {
-  Image,
-  Flex,
-  Grid,
-  GridItem,
-  Text,
-  Skeleton,
-  Input,
-  InputGroup,
-  InputLeftAddon,
   Alert,
   Button,
+  Flex,
+  FormErrorMessage,
   Link,
   Modal,
   ModalBody,
@@ -24,39 +12,34 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
-  FormErrorMessage,
   Spinner,
+  Text,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { Formik, Form } from "formik";
+import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { EditDeleteCollectionButtons } from "../../components/EditDeleteCollectionButtons";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useState } from "react";
+import { Entry } from "../../components/entry/Entry";
 import { GuessMessageAlert } from "../../components/GuessMessageAlert";
+import { InfoBox } from "../../components/InfoBox";
 import { Layout } from "../../components/Layout";
 import { SelectAutoComplete } from "../../components/SelectAutoComplete";
 import {
-  MyCorrectGuessesQuery,
   useCreateAppealMutation,
   useCreateCorrectGuessMutation,
   useMeQuery,
   useMyCorrectGuessesQuery,
 } from "../../generated/graphql";
 import theme from "../../theme";
+import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { EntryProps } from "../../utils/EntryProps";
 import { isServer } from "../../utils/isServer";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../utils/useGetCollectionFromUrl";
-import { useGetIntId } from "../../utils/useGetIntId";
-import { Entry } from "../../components/entry/Entry";
-import { InfoBox } from "../../components/InfoBox";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
 import { useLocalStorage } from "../../utils/useLocalStorage";
-import { CorrectGuessItem } from "../../utils/CorrectGuessItemProps";
-import { useGetStringRef } from "../../utils/useGetStringRef";
-import { useIsMobile } from "../../utils/useIsMobile";
 
 export const Collection = ({}) => {
   const router = useRouter();
@@ -217,7 +200,7 @@ export const Collection = ({}) => {
 
   return (
     <Layout>
-      <Flex flexDir={["column", "row"]}>
+      <Flex flexDir={"row"}>
         <Box w="100%" mr={2}>
           {data.collection.creator ? (
             <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
@@ -243,7 +226,7 @@ export const Collection = ({}) => {
             </Text>
           </Flex>
           <Divider />
-          <Heading size="md" mb={4} color={theme.colors.superLightBlue}>
+          <Heading size="md" mb={4} mt={2} color={theme.colors.superLightBlue}>
             {data.collection.title}
           </Heading>
         </Box>
@@ -411,11 +394,11 @@ export const Collection = ({}) => {
       {!isMe ? (
         <Formik
           initialValues={{ guesses: [] }}
-          onSubmit={async (values, { setErrors }) => {
+          onSubmit={async (values) => {
             console.log("guess submit", values);
           }}
         >
-          {({ isSubmitting }) => (
+          {() => (
             <Form>
               <Flex position="inherit">
                 <SelectAutoComplete

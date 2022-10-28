@@ -1,24 +1,6 @@
-import {
-  Flex,
-  Button,
-  Text,
-  Box,
-  Heading,
-  Link,
-  Stack,
-  Spinner,
-} from "@chakra-ui/react";
+import { Button, Flex, Spinner, Text } from "@chakra-ui/react";
 import React from "react";
-import {
-  PaginatedCollections,
-  UserCollectionSnippetFragment,
-  UserPaginatedCollectionsFragment,
-} from "../generated/graphql";
-import NextLink from "next/link";
-import { CardBottom } from "./CardBottom";
 import theme from "../theme";
-import { Card } from "./card/Card";
-import { Layout } from "./Layout";
 import { usePrevious } from "../utils/usePrevious";
 
 interface ItemStackProps {

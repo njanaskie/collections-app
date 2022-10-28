@@ -1,7 +1,5 @@
 import "reflect-metadata";
-require("dotenv-safe").config({
-  allowEmptyValues: true,
-});
+import "dotenv-safe/config";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -35,16 +33,13 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
-  app.set("trust proxy", process.env.NODE_ENV !== "production");
+  app.set("trust proxy", 1);
   app.use(
     cors({
       credentials: true,
-      origin: [
-        "https://studio.apollographql.com", // use when testing in graphql sandbox,
-        "http://localhost:3000",
-      ],
+      origin: process.env.CORS_ORIGIN,
     })
   );
   app.use(
@@ -57,10 +52,11 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
-        sameSite: "none",
-        secure: true, // if true, studio works, postman doesn't; if false its the other way around
+        sameSite: "lax",
+        secure: __prod__, // if true, studio works, postman doesn't; if false its the other way around
+        domain: __prod__ ? ".thecollectionsgame.com" : undefined,
       },
-      secret: "gjfioierq0inverowqklmq[0",
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
     })
@@ -94,8 +90,8 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({ app, cors: false });
 
-  app.listen(4000, () => {
-    console.log("server started on localhost:4000");
+  app.listen(parseInt(process.env.PORT), () => {
+    console.log(`server started on port ${process.env.PORT}`);
   });
 };
 

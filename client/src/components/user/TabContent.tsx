@@ -1,11 +1,6 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
 import { Divider } from "@chakra-ui/layout";
 import {
   Flex,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
   Radio,
   RadioGroup,
   Stack,
@@ -18,8 +13,6 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { AppealItem } from "../../components/AppealItem";
-import { Card } from "../card/Card";
 import { ItemStack } from "../../components/ItemStack";
 import { itemLimit } from "../../constants";
 import {
@@ -32,9 +25,9 @@ import {
 } from "../../generated/graphql";
 import theme from "../../theme";
 import { useGetIntId } from "../../utils/useGetIntId";
-import { useIsMobile } from "../../utils/useIsMobile";
 import { AppealsReviewableItem } from "../appealItem/AppealsReviewableItem";
 import { AppealsSubmittedItem } from "../appealItem/AppealsSubmittedItem";
+import { Card } from "../card/Card";
 import { TabHeadings } from "./TabHeadings";
 
 interface TabContentProps {

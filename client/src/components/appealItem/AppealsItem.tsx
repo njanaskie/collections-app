@@ -1,6 +1,6 @@
-import { Badge, Box, Flex, Heading, Image, Link, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Image, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import { API_IMAGE_URL, API_LOGO_SIZE_SM } from "../../config/movies-api";
 import { Appeal } from "../../generated/graphql";
 import theme from "../../theme";
@@ -14,7 +14,6 @@ export const AppealsItem: React.FC<AppealsItemProps> = ({
   appeal,
   children,
 }) => {
-  console.log("appea", appeal);
   return (
     <Flex
       p={4}

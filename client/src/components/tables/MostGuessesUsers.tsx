@@ -1,16 +1,4 @@
-import {
-  Box,
-  Flex,
-  Spinner,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 import React from "react";
 import { useMostGuessesUsersQuery } from "../../generated/graphql";
 import { StatTable } from "./StatTable";
@@ -32,7 +20,7 @@ export const MostGuessesUsers = () => {
       {!data && fetching ? (
         <Spinner />
       ) : !fetching && data?.mostGuessesUsers.length === 0 ? (
-        <Box>Ain't no collections to be found :(</Box>
+        <Box>Most correct guesses stat can't be found</Box>
       ) : (
         <StatTable
           caption="Users with most correct guesses"

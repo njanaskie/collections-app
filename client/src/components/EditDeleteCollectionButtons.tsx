@@ -1,5 +1,5 @@
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, IconButton, useDisclosure } from "@chakra-ui/react";
+import { Flex, IconButton, useDisclosure } from "@chakra-ui/react";
 import router from "next/router";
 import React from "react";
 import NextLink from "next/link";

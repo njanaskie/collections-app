@@ -1,11 +1,7 @@
-import { Flex, Button, Text, Divider } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import React from "react";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-import {
-  CollectionSnippetFragment,
-  RegularCollectionFragment,
-  useVoteMutation,
-} from "../generated/graphql";
+import { useVoteMutation } from "../generated/graphql";
 import theme from "../theme";
 
 interface PointsProps {
