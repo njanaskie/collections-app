@@ -76,7 +76,7 @@ const CreateCollection: React.FC<{}> = ({}) => {
             <Flex mt={4}>
               <SelectAutoComplete
                 name="entries"
-                label="Add an entry"
+                label="Entries"
                 placeholder="Type a film title"
                 // isGuessing={false}
                 handleChange={(r: EntryProps) => {

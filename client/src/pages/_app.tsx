@@ -1,4 +1,6 @@
 import { ChakraProvider } from "@chakra-ui/react";
+import Head from "next/head";
+import React from "react";
 import theme from "../theme";
 
 function MyApp({ Component, pageProps }: any) {
@@ -9,6 +11,9 @@ function MyApp({ Component, pageProps }: any) {
           useSystemColorMode: false,
         }}
       > */}
+      <Head>
+        <title>Collections</title>
+      </Head>
       <Component {...pageProps} />
       {/* </ColorModeProvider> */}
     </ChakraProvider>

@@ -39,6 +39,7 @@ import { EntryProps } from "../../utils/EntryProps";
 import { isServer } from "../../utils/isServer";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { useGetCollectionFromUrl } from "../../utils/useGetCollectionFromUrl";
+import { useIsMobile } from "../../utils/useIsMobile";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 
 export const Collection = ({}) => {
@@ -73,6 +74,7 @@ export const Collection = ({}) => {
   const [correctGuessesFinal, setCorrectGuessesFinal] = useState<
     CorrectGuessItem[] | any
   >([]);
+  const mobile = useIsMobile();
 
   // useEffect(() => {
   //   if (data && data?.collection) {
@@ -200,7 +202,7 @@ export const Collection = ({}) => {
 
   return (
     <Layout>
-      <Flex flexDir={"row"}>
+      <Flex flexDir={["column", "row"]}>
         <Box w="100%" mr={2}>
           {data.collection.creator ? (
             <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
@@ -221,7 +223,7 @@ export const Collection = ({}) => {
             </Heading>
           ) : null}
           <Flex mb={2}>
-            <Text as="i" fontSize="sm" color={"gray.200"}>
+            <Text as="i" fontSize="sm" color={"gray.200"} overflow="auto">
               {data.collection.description}
             </Text>
           </Flex>
@@ -230,7 +232,7 @@ export const Collection = ({}) => {
             {data.collection.title}
           </Heading>
         </Box>
-        <Box mb={2}>
+        <Box mb={4}>
           <InfoBox
             collection={data.collection}
             isMe={isMe}
@@ -240,7 +242,7 @@ export const Collection = ({}) => {
           <>
             {!isMe && (
               <Button
-                ml={2}
+                // ml={2}
                 size="sm"
                 variant="ghost"
                 onClick={onOpen}
@@ -403,8 +405,8 @@ export const Collection = ({}) => {
               <Flex position="inherit">
                 <SelectAutoComplete
                   name="guesses"
-                  label="Make Your Guess"
-                  placeholder="Enter film title"
+                  label={mobile ? "Guess" : "Make Your Guess"}
+                  placeholder="Enter a film title..."
                   // isGuessing={true}
                   // collection={data.collection} // exclamation used to ignore TS "object is possibly null or undefined"
                   handleChange={handleChange}
@@ -415,7 +417,7 @@ export const Collection = ({}) => {
         </Formik>
       ) : null}
       {!isMe ? (
-        <Box h={8} mt={2} ml={160}>
+        <Box h={8} mt={2}>
           <GuessMessageAlert guessMessageState={guessMessageState} />
           {createGuessError.correctGuess ? (
             <Alert h="8" status="error">
@@ -438,11 +440,12 @@ export const Collection = ({}) => {
         mt={2}
       >
         <Flex
-          // paddingLeft={6}
+          direction="row"
+          paddingX={2}
           paddingTop={6}
           wrap="wrap"
           overflow="scroll"
-          justify="center"
+          justify={["space-evenly", "flex-start"]}
         >
           {data.collection.collectionEntries &&
           data.collection.collectionEntries.length > 0 ? (

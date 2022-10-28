@@ -39,13 +39,13 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
             <Text
               fontWeight="semibold"
               color={theme.colors.darkBlue}
-              noOfLines={size === "small" ? [3, 6] : [3, 8]}
+              noOfLines={size === "small" ? [3, 6] : 7}
               _hover={{
                 textColor: theme.colors.lightBlue,
               }}
               // overflow='clip'
             >
-              {c.titleSnippet?.length === 150
+              {c.titleSnippet?.length === 250
                 ? c.titleSnippet + "..."
                 : c.titleSnippet}
             </Text>

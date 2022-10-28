@@ -39,6 +39,13 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       bgColor={"gray.200"}
       color={theme.colors.darkBlue}
     >
+      {mobile ? (
+        <NextLink href="/create-collection">
+          <MenuItem as={Link} _hover={{ textDecoration: "none" }}>
+            Add Collection
+          </MenuItem>
+        </NextLink>
+      ) : null}
       <NextLink
         href={{
           pathname: "/user/[username]",
@@ -101,18 +108,20 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           </Menu>
         ) : (
           <>
-            <NextLink href="/create-collection">
-              <Button
-                as={Link}
-                bgColor={"teal"}
-                _hover={{ bg: "#319795", textDecoration: "none" }}
-                variant="ghost"
-                leftIcon={<AddIcon />}
-                textDecor="none"
-              >
-                {mobile ? null : "Add Collection"}
-              </Button>
-            </NextLink>
+            {mobile ? null : (
+              <NextLink href="/create-collection">
+                <Button
+                  as={Link}
+                  bgColor={"teal"}
+                  _hover={{ bg: "#319795", textDecoration: "none" }}
+                  variant="ghost"
+                  leftIcon={<AddIcon />}
+                  textDecor="none"
+                >
+                  Add Collection
+                </Button>
+              </NextLink>
+            )}
             <Flex>
               <Menu>
                 <MenuButton

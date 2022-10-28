@@ -248,7 +248,7 @@ export class CollectionResolver {
 
   @FieldResolver(() => String, { nullable: true })
   titleSnippet(@Root() collection: Collection) {
-    return collection.title.slice(0, 150);
+    return collection.title.slice(0, 250);
   }
 
   // field resolvers like this only run if specific fields are included in query

@@ -157,26 +157,19 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
   return (
     <>
       <FormControl isInvalid={!!error}>
+        {/* <FormLabel htmlFor={field.name} color="gray.200">
+          {label}
+        </FormLabel> */}
         <Flex ref={wrapperRef}>
-          {/* <Flex align="center"> */}
-          {/* <Box w={150} bgColor={theme.colors.darkBlue} h={10}>
-            <FormLabel
-              htmlFor={field.name}
-              color="gray.200"
-              justifySelf="center"
-            >
-              {label}
-            </FormLabel>
-          </Box> */}
-          {/* <Box w={650}> */}
           <InputLeftAddon
             children={label}
             color="gray.200"
             bgColor="gray.500"
             px={2}
             borderWidth={1}
+            roundedLeft={4}
           />
-          <InputGroup>
+          <InputGroup shadow="sm">
             <Box w="inherit">
               <Input
                 id="searchInputField"

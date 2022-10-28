@@ -36,4 +36,4 @@ export const incorrectGuessMessages = [
   "Houston, we have a problem",
 ];
 
-export const itemLimit = 4;
+export const itemLimit = 25;

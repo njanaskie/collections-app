@@ -31,7 +31,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
       backgroundColor={theme.colors.lightPurple}
       borderRadius={6}
       borderWidth={1}
-      minW={[40, 60]}
+      minW={"auto"}
       h={["auto", 40]}
       borderColor="gray.200"
       justify="space-between"
@@ -42,7 +42,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
           reference={collection.reference}
         />
       ) : null}
-      <Flex>
+      <Flex align="center">
         {correctGuesses && collection.collectionEntriesLength && !isMe ? (
           <CircularProgress
             value={Math.round(
