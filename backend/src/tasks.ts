@@ -14,9 +14,9 @@ mutation insertMostGuessesUsers {
 `;
 
 cron.schedule("0 0 * * *", () => {
-  return request("http://localhost:4000/graphql", insertMostVotesUsersQuery);
+  return request(process.env.API_URL, insertMostVotesUsersQuery);
 });
 
 cron.schedule("2 0 * * *", () => {
-  return request("http://localhost:4000/graphql", insertMostGuessesUsers);
+  return request(process.env.API_URL, insertMostGuessesUsers);
 });
