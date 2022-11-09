@@ -57,7 +57,11 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           Profile
         </MenuItem>
       </NextLink>
-      {/* <MenuItem>Support!</MenuItem> */}
+      <NextLink href="/support">
+        <MenuItem as={Link} _hover={{ textDecoration: "none" }}>
+          Support
+        </MenuItem>
+      </NextLink>
       <MenuItem
         as={Button}
         onClick={async () => {
