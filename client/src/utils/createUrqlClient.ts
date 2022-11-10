@@ -287,7 +287,8 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               // );
             },
             updateCollection: (_result, args, cache, _info) => {
-              const { entries, id } = args as UpdateCollectionMutationVariables;
+              const { input, entries, id } =
+                args as UpdateCollectionMutationVariables;
               const entriesArray = <CollectionEntryInput[]>entries;
               const entriesWithTypename = entriesArray.map((e) => {
                 return { ...e, __typename: "CollectionEntry" };
@@ -297,6 +298,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 gql`
                   fragment ___ on Collection {
                     id
+                    description
                     collectionEntries {
                       externalId
                       externalTitle
@@ -307,6 +309,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 {
                   id,
+                  description: input.description,
                   collectionEntries: entriesWithTypename,
                 }
               );

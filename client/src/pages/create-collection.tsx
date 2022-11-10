@@ -23,7 +23,7 @@ const CreateCollection: React.FC<{}> = ({}) => {
       <Formik
         initialValues={{
           title: "",
-          description: null,
+          description: "",
           entries: [] as EntryProps[],
         }}
         onSubmit={async (values, { setErrors }) => {
@@ -34,7 +34,10 @@ const CreateCollection: React.FC<{}> = ({}) => {
           // };
 
           const response = await createCollection({
-            input: { title: values.title, description: values.description },
+            input: {
+              title: values.title,
+              description: values.description ? values.description : null,
+            },
             entries: values.entries,
           });
 

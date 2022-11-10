@@ -50,7 +50,7 @@ export const EditCollection = ({}) => {
       <Formik
         initialValues={{
           title: data.collection.title,
-          description: data.collection.description,
+          description: data.collection.description || "",
           entries: data.collection.collectionEntries
             ? data.collection.collectionEntries.map((entry) => {
                 return {
@@ -70,7 +70,7 @@ export const EditCollection = ({}) => {
               entries: values.entries,
               input: {
                 title: values.title,
-                description: values.description,
+                description: values.description ? values.description : null,
               },
             });
 

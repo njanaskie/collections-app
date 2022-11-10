@@ -1,6 +1,6 @@
 import { CheckIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Tag, TagLabel, TagLeftIcon } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { correctGuessMessages, incorrectGuessMessages } from "../constants";
 import { randomSelector } from "../utils/randomSelector";
 
@@ -11,23 +11,37 @@ interface GuessMessageAlertProps {
 export const GuessMessageAlert: React.FC<GuessMessageAlertProps> = ({
   guessMessageState,
 }) => {
+  const [tagLabel, setTagLabel] = useState();
+
+  useEffect(() => {
+    let options: string[] = [];
+    if (guessMessageState === "correct") {
+      options = correctGuessMessages;
+    } else if (guessMessageState === "incorrect") {
+      options = incorrectGuessMessages;
+    }
+
+    setTagLabel(randomSelector(options));
+  }, [guessMessageState]);
+
+  let body = null;
   if (guessMessageState === "correct") {
-    return (
+    body = (
       <Tag colorScheme="whatsapp">
         <TagLeftIcon as={CheckIcon} />
-        <TagLabel>{randomSelector(correctGuessMessages)}</TagLabel>
+        <TagLabel>{tagLabel}</TagLabel>
       </Tag>
     );
   }
 
   if (guessMessageState === "incorrect") {
-    return (
+    body = (
       <Tag colorScheme="red" alignContent="center">
         <TagLeftIcon as={SmallCloseIcon} />
-        <TagLabel>{randomSelector(incorrectGuessMessages)}</TagLabel>
+        <TagLabel>{tagLabel}</TagLabel>
       </Tag>
     );
   }
 
-  return null;
+  return body;
 };

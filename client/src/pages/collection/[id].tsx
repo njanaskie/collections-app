@@ -1,33 +1,17 @@
 import { Box, Divider, Heading } from "@chakra-ui/layout";
-import {
-  Alert,
-  Button,
-  Flex,
-  FormErrorMessage,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Spinner,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Alert, Flex, Link, Spinner, Text } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
+import { AppealButton } from "../../components/AppealButton";
+import { BackButton } from "../../components/BackButton";
 import { Entry } from "../../components/entry/Entry";
 import { GuessMessageAlert } from "../../components/GuessMessageAlert";
 import { InfoBox } from "../../components/InfoBox";
 import { Layout } from "../../components/Layout";
 import { SelectAutoComplete } from "../../components/SelectAutoComplete";
 import {
-  useCreateAppealMutation,
   useCreateCorrectGuessMutation,
   useMeQuery,
   useMyCorrectGuessesQuery,
@@ -43,10 +27,6 @@ import { useIsMobile } from "../../utils/useIsMobile";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 
 export const Collection = ({}) => {
-  const router = useRouter();
-  const [{ error: createAppealError }, createAppeal] =
-    useCreateAppealMutation();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [correctGuessesLocal, setCorrectGuessesLocal] = useLocalStorage(
     "correctGuesses",
     []
@@ -149,21 +129,31 @@ export const Collection = ({}) => {
           setGuessMessageState("correct");
         }
       } else {
-        const response = await createCorrectGuess({
-          guess: {
-            collectionId: data.collection.id,
-            externalId: r.externalId,
-          },
-        });
+        var newEntry = {
+          collectionId: data.collection.id,
+          externalId: r.externalId,
+        };
+        if (
+          correctGuesses?.myCorrectGuesses &&
+          !correctGuesses.myCorrectGuesses.some(
+            (guess: any) =>
+              guess.collectionEntry.externalId === newEntry.externalId &&
+              guess.collectionId === newEntry.collectionId
+          )
+        ) {
+          const response = await createCorrectGuess({
+            guess: newEntry,
+          });
 
-        if (response.data?.createCorrectGuess.errors) {
-          setCreateGuessError(
-            toErrorMap(response.data.createCorrectGuess.errors)
-          );
-        }
+          if (response.data?.createCorrectGuess.errors) {
+            setCreateGuessError(
+              toErrorMap(response.data.createCorrectGuess.errors)
+            );
+          }
 
-        if (!response.data?.createCorrectGuess.errors && !response.error) {
-          setGuessMessageState("correct");
+          if (!response.data?.createCorrectGuess.errors && !response.error) {
+            setGuessMessageState("correct");
+          }
         }
       }
     } else {
@@ -204,28 +194,33 @@ export const Collection = ({}) => {
     <Layout>
       <Flex flexDir={["column", "row"]}>
         <Box w="100%" mr={2}>
-          {data.collection.creator ? (
-            <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
-              Created by{" "}
-              <NextLink
-                href={{
-                  pathname: "/user/[username]",
-                  query: { id: data.collection.creator.id },
-                }}
-                as={`/user/${data.collection.creator.username}`}
-              >
-                <Link _hover={{ color: theme.colors.orange }}>
-                  {/* <Text _hover={{ color: theme.colors.gold }}> */}
-                  {data.collection.creator.username}
-                  {/* </Text> */}
-                </Link>
-              </NextLink>
-            </Heading>
-          ) : null}
-          <Flex mb={2}>
-            <Text as="i" fontSize="sm" color={"gray.200"} overflow="auto">
-              {data.collection.description}
-            </Text>
+          <Flex align="center" mb={2}>
+            <BackButton />
+            <Box>
+              {data.collection.creator ? (
+                <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
+                  Created by{" "}
+                  <NextLink
+                    href={{
+                      pathname: "/user/[username]",
+                      query: { id: data.collection.creator.id },
+                    }}
+                    as={`/user/${data.collection.creator.username}`}
+                  >
+                    <Link _hover={{ color: theme.colors.orange }}>
+                      {/* <Text _hover={{ color: theme.colors.gold }}> */}
+                      {data.collection.creator.username}
+                      {/* </Text> */}
+                    </Link>
+                  </NextLink>
+                </Heading>
+              ) : null}
+              <Flex>
+                <Text as="i" fontSize="sm" color={"gray.200"} overflow="auto">
+                  {data.collection.description}
+                </Text>
+              </Flex>
+            </Box>
           </Flex>
           <Divider />
           <Heading size="md" mb={4} mt={2} color={theme.colors.superLightBlue}>
@@ -239,158 +234,7 @@ export const Collection = ({}) => {
             correctGuesses={correctGuessesFinal}
           />
 
-          <>
-            {!isMe && (
-              <Button
-                // ml={2}
-                size="sm"
-                variant="ghost"
-                onClick={onOpen}
-                color="gray.200"
-                _hover={{ textColor: "gray.400" }}
-                _active={{ bg: "none" }}
-              >
-                Appeal?
-              </Button>
-            )}
-
-            <Modal
-              isOpen={isOpen}
-              onClose={onClose}
-              isCentered
-              motionPreset="scale"
-              size="xl"
-            >
-              <ModalOverlay />
-              <ModalContent
-                bgColor={theme.colors.darkBlue}
-                borderWidth={0.5}
-                borderColor="gray.200"
-              >
-                <ModalHeader color="gray.200">Submit an appeal</ModalHeader>
-                <ModalCloseButton color="gray.200" />
-                <Formik
-                  initialValues={{
-                    appeal: {
-                      collectionId: 0,
-                      externalEntry: {
-                        externalId: 0,
-                        externalTitle: "",
-                        externalReleaseDate: "",
-                        externalImagePath: "",
-                      },
-                    },
-                  }}
-                  onSubmit={async (values, { setErrors }) => {
-                    const response = await createAppeal({
-                      appeal: values.appeal,
-                    });
-
-                    if (response.data?.createAppeal.errors) {
-                      setErrors(toErrorMap(response.data.createAppeal.errors));
-                    } else if (response.data?.createAppeal.appeal) {
-                      onClose();
-                    }
-                  }}
-                >
-                  {({ errors, values, setValues }) => (
-                    <Form>
-                      <ModalBody>
-                        {!!errors.appeal ? (
-                          <FormErrorMessage>{errors.appeal}</FormErrorMessage>
-                        ) : null}
-                        <Text color="gray.200">
-                          If you think a film belongs in this collection, submit
-                          an appeal for the creator to review. If they approve,
-                          the film will be added to the collection and you will
-                          be awarded a correct guess.
-                        </Text>
-                        <Flex
-                          // position="absolute"
-                          // w={400}
-                          // zIndex="dropdown"
-                          mt={4}
-                        >
-                          <SelectAutoComplete
-                            name="appeals"
-                            label="Appeal"
-                            placeholder="Enter film title"
-                            handleChange={(r: EntryProps) => {
-                              if (data.collection) {
-                                setValues({
-                                  appeal: {
-                                    collectionId: data.collection.id,
-                                    externalEntry: r,
-                                  },
-                                });
-                              } else {
-                                console.log("cant submit appeal");
-                              }
-                            }}
-                          />
-                        </Flex>
-                        <Flex h={20}>
-                          {values.appeal.externalEntry.externalTitle ? (
-                            <>
-                              <Text
-                                mt={20}
-                                color={theme.colors.lightOrange}
-                                // w={"50%"}
-                                mr={4}
-                                // textAlign="end"
-                              >
-                                Film you want to appeal:
-                              </Text>
-                              <Box mt={20}>
-                                <Heading
-                                  size="md"
-                                  ml={2}
-                                  noOfLines={2}
-                                  color={theme.colors.lightOrange}
-                                >
-                                  {values.appeal.externalEntry.externalTitle}
-                                </Heading>
-                                <Text
-                                  ml={2}
-                                  noOfLines={2}
-                                  color={theme.colors.lightOrange}
-                                >
-                                  (
-                                  {values.appeal.externalEntry.externalReleaseDate.slice(
-                                    0,
-                                    4
-                                  )}
-                                  )
-                                </Text>
-                              </Box>
-                            </>
-                          ) : null}
-                        </Flex>
-                      </ModalBody>
-
-                      <ModalFooter mt={12}>
-                        <Button
-                          mr={3}
-                          onClick={onClose}
-                          bgColor={"gray.500"}
-                          color="white"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          color="white"
-                          bgColor={theme.colors.green}
-                          type="submit"
-                        >
-                          Submit
-                        </Button>
-                      </ModalFooter>
-                    </Form>
-                  )}
-                </Formik>
-              </ModalContent>
-            </Modal>
-          </>
+          {!isMe && <AppealButton collection={data.collection} />}
         </Box>
       </Flex>
       {!isMe ? (
@@ -418,7 +262,9 @@ export const Collection = ({}) => {
       ) : null}
       {!isMe ? (
         <Box h={8} mt={2}>
-          <GuessMessageAlert guessMessageState={guessMessageState} />
+          {guessMessageState !== "no-guess" ? (
+            <GuessMessageAlert guessMessageState={guessMessageState} />
+          ) : null}
           {createGuessError.correctGuess ? (
             <Alert h="8" status="error">
               {createGuessError.correctGuess}

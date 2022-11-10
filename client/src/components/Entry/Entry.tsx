@@ -72,23 +72,22 @@ const EntryCard: React.FC<EntryCardProps> = ({
     // onClick: clickHandler,
   };
   let animationProps = {
-    // // initial: { rotateY: 180 },
-    // animate: { opacity: 1 },
-    // exit: { rotateY: 180, opacity: 0 },
-    // transition: { duration: 0.5 },
     initial: { y: 5, opacity: 0 },
     animate: { y: 0, opacity: 1 },
     exit: { y: -10, opacity: 0, transition: { duration: 1 } },
     transition: { duration: 0.5 },
   };
+
+  let body = null;
+  if (isMe || revealed) {
+    body = <CorrectGuess entry={entry} isMe={isMe} measuredRef={measuredRef} />;
+  } else {
+    body = <NotGuessed />;
+  }
   return (
     <motion.div {...cardProps} {...animationProps}>
       <Flex w={40} minH={44} marginY={2} justify="center" key={cardId}>
-        {isMe || revealed ? (
-          <CorrectGuess entry={entry} isMe={isMe} measuredRef={measuredRef} />
-        ) : (
-          <NotGuessed />
-        )}
+        {body}
       </Flex>
     </motion.div>
   );
