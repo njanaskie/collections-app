@@ -1,3 +1,4 @@
+import { WarningTwoIcon } from "@chakra-ui/icons";
 import { Box, Flex, Heading, Image, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
@@ -23,9 +24,15 @@ export const AppealsItem: React.FC<AppealsItemProps> = ({
       w={350}
       bgColor="gray.700"
     >
-      <Image
-        src={`${API_IMAGE_URL}${API_LOGO_SIZE_SM}${appeal.externalImagePath}`}
-      />
+      {appeal.externalImagePath ? (
+        <Image
+          src={`${API_IMAGE_URL}${API_LOGO_SIZE_SM}${appeal.externalImagePath}`}
+        />
+      ) : (
+        <Flex borderRadius="lg" align="flex-start" justify="center">
+          <WarningTwoIcon w={10} h={10} color="gray.400" />
+        </Flex>
+      )}
       <Flex flexDir="column" justify="space-between" w={"100%"}>
         <Flex flexDir="row" justify="space-between">
           <Box>

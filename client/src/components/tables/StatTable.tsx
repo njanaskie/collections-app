@@ -25,7 +25,13 @@ export const StatTable: React.FC<TableProps> = ({
   data,
 }) => {
   return (
-    <TableContainer mb={10}>
+    <TableContainer
+      mb={10}
+      w={350}
+      bgColor="whiteAlpha.100"
+      borderWidth={1}
+      borderColor="whiteAlpha.200"
+    >
       <Table>
         <TableCaption color="gray.200" fontFamily="monospace">
           {caption}

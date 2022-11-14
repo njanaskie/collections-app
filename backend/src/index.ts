@@ -22,6 +22,8 @@ import { createSavedCollectionLoader } from "./utils/createSavedCollectionLoader
 import { LeaderboardResolver } from "./resolvers/leaderboard";
 import "./tasks";
 import { CollectionEntryResolver } from "./resolvers/collectionEntry";
+import { createCorrectGuessesByUserLoader } from "./utils/createCorrectGuessesByUserLoader";
+import { createCollectionsByUserLoader } from "./utils/createCollectionsByUserLoader";
 
 const main = async () => {
   await AppDataSource.initialize();
@@ -39,7 +41,10 @@ const main = async () => {
   app.use(
     cors({
       credentials: true,
-      origin: process.env.CORS_ORIGIN,
+      origin: [
+        process.env.CORS_ORIGIN,
+        "https://studio.apollographql.com", // use when testing in graphql sandbox,
+      ],
     })
   );
   app.use(
@@ -84,6 +89,8 @@ const main = async () => {
       correctGuessLoader: createCorrectGuessLoader(),
       collectionLoader: createCollectionLoader(),
       savedCollectionLoader: createSavedCollectionLoader(),
+      correctGuessesByUserLoader: createCorrectGuessesByUserLoader(),
+      collectionsByUserLoader: createCollectionsByUserLoader(),
     }),
   });
 

@@ -1,6 +1,7 @@
 query UserCreatedCollections($limit: Int!, $page: Int!, $userId: Int!) {
   userCreatedCollections(limit: $limit, page: $page, userId: $userId) {
     hasMore
+    totalCount
     collections {
       ...UserCollectionSnippet
     }

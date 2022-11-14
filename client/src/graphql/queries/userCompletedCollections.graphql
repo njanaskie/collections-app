@@ -1,6 +1,7 @@
 query UserCompletedCollections($limit: Int!, $page: Int!, $userId: Int!) {
   userCompletedCollections(limit: $limit, page: $page, userId: $userId) {
     hasMore
+    totalCount
     collections {
       ...UserCollectionSnippet
     }

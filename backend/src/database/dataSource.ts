@@ -20,6 +20,9 @@ const AppDataSource = new DataSource({
   // database: process.env.DB_NAME,
   logging: true,
   synchronize: false,
+  extra: {
+    statement_timeout: 60000, // 60s
+  },
   entities: ["dist/entities/*.js"],
   // entities: [
   //   User,

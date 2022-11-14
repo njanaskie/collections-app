@@ -27,6 +27,7 @@ import { CollectionEntryInput } from "./CollectionEntryInput";
 import { PRIME_NUMBERS } from "../constants";
 import { FieldError } from "./FieldError";
 import { SavedCollection } from "../entities/SavedCollection";
+import { CorrectGuess } from "../entities/CorrectGuess";
 
 @ObjectType()
 class CollectionResponse {
@@ -45,6 +46,8 @@ class PaginatedCollections {
   hasMore: boolean;
   @Field({ nullable: true })
   modulus?: number;
+  @Field()
+  totalCount?: number;
 }
 
 @Resolver(Collection)
@@ -54,6 +57,33 @@ export class CollectionResolver {
   //   CollectionEntry.find({ where: { collectionId, userId } });
   //   return await this.userRepository.findOne(recipe.authorId, { cache: 1000 }))!;
   // }
+
+  @FieldResolver(() => Number)
+  async usersCompletedCount(
+    @Root() collection: Collection,
+    @Ctx() { collectionEntryLoader }: MyContext
+  ) {
+    const loadedCollectionEntries =
+      (await collectionEntryLoader.load({
+        collectionId: collection.id,
+      })) || [];
+    const collectionEntriesLength = loadedCollectionEntries.length;
+
+    const [usersCompleted] = await AppDataSource.query(
+      `
+      Select count(*) from (
+        Select cg."guesserId"
+        from correct_guess cg
+        where cg."collectionId" = ${collection.id}
+        group by cg."guesserId"
+        having count(cg.*) = ${collectionEntriesLength}
+      ) as pass
+      `
+    );
+
+    return usersCompleted.count;
+  }
+
   @FieldResolver(() => Int, { nullable: true })
   async saveStatus(
     @Root() collection: Collection,
@@ -129,29 +159,58 @@ export class CollectionResolver {
     const realLimitPlusOne = realLimit + 1;
     const offset = page === 1 ? 0 : page * realLimit - realLimit;
 
-    const collections = await AppDataSource.query(
-      `
-      Select * From (
-        Select 
-        c.*,
-        (Select count(ce.*) from collection_entry ce
-        where ce."collectionId" = c.id
-        group by c.id) as ce_count,
-        (Select count(cg.*) from correct_guess cg
-        where cg."collectionId" = c.id and cg."guesserId" = ${userId}
-        group by c.id) as cg_count
-        From collection c
-      ) as counts
-      where counts.ce_count = counts.cg_count
-      order by counts."createdAt" DESC
-      limit ${realLimitPlusOne}
-      offset ${offset}
-      `
-    );
+    // const collections = await AppDataSource.query(
+    //   `
+    //   Select
+    //   c.*
+    //   From collection c
+    //   where (
+    //     Select count(ce.*) from collection_entry ce
+    //         where ce."collectionId" = c.id
+    //         group by c.id
+    //   ) = (
+    //     Select count(cg.*)
+    //     from correct_guess cg
+    //         where cg."collectionId" = c.id and cg."guesserId" = ${userId}
+    //         group by c.id
+    //   )
+    //   order by c."createdAt" DESC
+    //   limit ${realLimitPlusOne}
+    //   offset ${offset}
+    //   `
+    // );
+
+    const [collections, count] = await AppDataSource.createQueryBuilder(
+      Collection,
+      "c"
+    )
+      .where((qb) => {
+        const subQuery1 = qb
+          .subQuery()
+          .select("count(ce.*)")
+          .from(CollectionEntry, "ce")
+          .where(`ce."collectionId" = c.id`)
+          .groupBy("c.id")
+          .getQuery();
+        const subQuery2 = qb
+          .subQuery()
+          .select("count(cg.*)")
+          .from(CorrectGuess, "cg")
+          .where(`cg."collectionId" = c.id`)
+          .andWhere(`cg."guesserId" = :userId`, { userId })
+          .groupBy("c.id")
+          .getQuery();
+        return subQuery1 + " = " + subQuery2;
+      })
+      .orderBy(`c."createdAt"`, "DESC")
+      .skip(offset)
+      .take(realLimitPlusOne)
+      .getManyAndCount();
 
     return {
       collections: collections.slice(0, realLimit),
       hasMore: collections.length === realLimitPlusOne,
+      totalCount: count,
     };
   }
 
@@ -165,29 +224,61 @@ export class CollectionResolver {
     const realLimitPlusOne = realLimit + 1;
     const offset = page === 1 ? 0 : page * realLimit - realLimit;
 
-    const collections = await AppDataSource.query(
-      `
-      Select * From (
-        Select 
-        c.*,
-        (Select count(ce.*) from collection_entry ce
-        where ce."collectionId" = c.id
-        group by c.id) as ce_count,
-        (Select count(cg.*) from correct_guess cg
-        where cg."collectionId" = c.id and cg."guesserId" = ${userId}
-        group by c.id) as cg_count
-        From collection c
-      ) as counts
-      where counts.ce_count != counts.cg_count and cg_count > 0
-      order by counts."createdAt" DESC
-      limit ${realLimitPlusOne}
-      offset ${offset}
-      `
-    );
+    // const collections = await AppDataSource.query(
+    //   `
+    //   Select
+    //   c.*
+    //   From collection c
+    //   where (
+    //     Select count(ce.*) from collection_entry ce
+    //     where ce."collectionId" = c.id
+    //     group by c.id)
+    //   !=
+    //     (Select count(cg.*) from correct_guess cg
+    //     where cg."collectionId" = c.id and cg."guesserId" = ${userId}
+    //     group by c.id)
+    //   and
+    //     (Select count(cg.*) from correct_guess cg
+    //     where cg."collectionId" = c.id and cg."guesserId" = ${userId}
+    //     group by c.id)
+    //   > 0
+    //   order by c."createdAt" DESC
+    //   limit ${realLimitPlusOne}
+    //   offset ${offset}
+    //   `
+    // );
+
+    const [collections, count] = await AppDataSource.createQueryBuilder(
+      Collection,
+      "c"
+    )
+      .where((qb) => {
+        const subQuery1 = qb
+          .subQuery()
+          .select("count(ce.*)")
+          .from(CollectionEntry, "ce")
+          .where(`ce."collectionId" = c.id`)
+          .groupBy("c.id")
+          .getQuery();
+        const subQuery2 = qb
+          .subQuery()
+          .select("count(cg.*)")
+          .from(CorrectGuess, "cg")
+          .where(`cg."collectionId" = c.id`)
+          .andWhere(`cg."guesserId" = :userId`, { userId })
+          .groupBy("c.id")
+          .getQuery();
+        return subQuery1 + " != " + subQuery2 + " and " + subQuery2 + " > 0";
+      })
+      .orderBy(`c."createdAt"`, "DESC")
+      .skip(offset)
+      .take(realLimitPlusOne)
+      .getManyAndCount();
 
     return {
       collections: collections.slice(0, realLimit),
       hasMore: collections.length === realLimitPlusOne,
+      totalCount: count,
     };
   }
 
@@ -201,17 +292,18 @@ export class CollectionResolver {
     const realLimitPlusOne = realLimit + 1;
     const offset = page === 1 ? 0 : page * realLimit - realLimit;
 
-    const collections = await AppDataSource.getRepository(Collection)
+    const [collections, count] = await AppDataSource.getRepository(Collection)
       .createQueryBuilder("c")
       .where('c."creatorId" = :userId', { userId })
       .orderBy('c."createdAt"', "DESC")
       .skip(offset)
       .take(realLimitPlusOne)
-      .getMany();
+      .getManyAndCount();
 
     return {
       collections: collections.slice(0, realLimit),
       hasMore: collections.length === realLimitPlusOne,
+      totalCount: count,
     };
   }
 

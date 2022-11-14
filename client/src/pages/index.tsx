@@ -1,4 +1,3 @@
-import { ArrowRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -158,7 +157,7 @@ const Index = () => {
             letterSpacing="tight"
             fontSize="xl"
             color={theme.colors.superLightBlue}
-            mb={4}
+            mb={1}
           >
             Welcome! Put your film knowledge to the test by guessing films or
             creating your own collection!
@@ -208,25 +207,28 @@ const Index = () => {
           Next
         </Button>
       </Flex>
-      <NextLink href="/leaderboard">
-        <Button
-          as={Link}
-          bgColor={theme.colors.lightPurple}
-          color={theme.colors.darkBlue}
-          borderRadius={20}
-          mt={10}
-          _hover={{ bg: theme.colors.lightOrange, textDecoration: "none" }}
-          h={55}
-          // variant="ghost"
-        >
-          <Flex align="center">
-            <Heading py={4} mr={2} size={mobile ? "md" : "lg"}>
+      <Flex justify={mobile ? "center" : "flex-start"}>
+        <NextLink href="/leaderboard">
+          <Button
+            as={Link}
+            bgColor={"whiteAlpha.400"}
+            color={theme.colors.darkBlue}
+            borderRadius={10}
+            // mt={10}
+            _hover={{ bg: theme.colors.lightOrange, textDecoration: "none" }}
+            h={55}
+            pos="fixed"
+            bottom={5}
+            width={mobile ? "90%" : "auto"}
+            // flexGrow={1}
+            // variant="ghost"
+          >
+            <Heading py={4} size={mobile ? "md" : "lg"}>
               Top Players
             </Heading>
-            <ArrowRightIcon />
-          </Flex>
-        </Button>
-      </NextLink>
+          </Button>
+        </NextLink>
+      </Flex>
     </Layout>
   );
 };

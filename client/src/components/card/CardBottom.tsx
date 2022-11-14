@@ -30,18 +30,6 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection, size }) => {
       />
       <Flex align="center">
         <Flex>
-          <Flex w="100%" h="100%">
-            <Text
-              pos="relative"
-              left={"32px"}
-              top={"16px"}
-              as="b"
-              color={"teal"}
-              fontSize="sm"
-            >
-              {collection.collectionEntriesLength}
-            </Text>
-          </Flex>
           {collection.collectionEntriesLength && (
             <Tooltip
               label={
@@ -51,7 +39,17 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection, size }) => {
               }
               fontSize="md"
             >
-              <Flex>
+              <Flex w="100%" h="100%">
+                <Text
+                  pos="relative"
+                  left={"32px"}
+                  top={"16px"}
+                  as="b"
+                  color={"teal"}
+                  fontSize="sm"
+                >
+                  {collection.collectionEntriesLength}
+                </Text>
                 <Icon
                   as={IoAlbumsOutline}
                   h={10}

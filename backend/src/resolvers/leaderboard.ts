@@ -16,6 +16,28 @@ class TopUser {
 @Resolver(Leaderboard)
 export class LeaderboardResolver {
   @Query(() => [TopUser])
+  async mostCreatedCollectionsUsers(): Promise<TopUser[]> {
+    const users = await Leaderboard.find({
+      where: { type: "created-collections" },
+      relations: ["user"],
+      order: { stat: "DESC" },
+    });
+
+    return users;
+  }
+
+  @Query(() => [TopUser])
+  async mostCompletedCollectionsUsers(): Promise<TopUser[]> {
+    const users = await Leaderboard.find({
+      where: { type: "completed-collections" },
+      relations: ["user"],
+      order: { stat: "DESC" },
+    });
+
+    return users;
+  }
+
+  @Query(() => [TopUser])
   async mostGuessesUsers(): Promise<TopUser[]> {
     const users = await Leaderboard.find({
       where: { type: "most-guesses" },
@@ -37,15 +59,101 @@ export class LeaderboardResolver {
   }
 
   @Mutation(() => Boolean)
+  async insertMostCreatedCollectionsUsers(): Promise<Boolean> {
+    const users = await AppDataSource.query(
+      `
+      select pass.* from
+      (select c."creatorId" as "userId", count(c.*) as "stat" from collection c
+      group by c."creatorId") as pass
+      order by pass."stat" desc
+      limit 25
+      `
+    );
+
+    const usersToInsert = users.map((user: User) => {
+      return {
+        ...user,
+        type: "created-collections",
+      };
+    });
+
+    if (users) {
+      await AppDataSource.createQueryBuilder()
+        .delete()
+        .from(Leaderboard)
+        .where("type = :type", { type: "created-collections" })
+        .execute();
+
+      await AppDataSource.createQueryBuilder()
+        .insert()
+        .into(Leaderboard)
+        .values(usersToInsert)
+        .execute();
+    }
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async insertMostCompletedCollectionsUsers(): Promise<Boolean> {
+    const users = await AppDataSource.query(
+      `
+      select pass3.* from 
+      (
+        Select pass2."guesserId" as "userId", count(pass2.*) as "stat" from
+        (
+  
+        select cg."collectionId", cg."guesserId", count(cg.*) as cg_count, pass1."count" as ce_count
+        from correct_guess cg
+        left join (
+          Select ce."collectionId", count(ce.*) 
+          from collection_entry ce 
+          group by ce."collectionId") as pass1 on pass1."collectionId" = cg."collectionId"
+        group by cg."collectionId", cg."guesserId",pass1."count"
+  
+        ) as pass2
+        where pass2.cg_count = ce_count
+        group by pass2."guesserId"
+      ) as pass3
+      order by pass3."stat" desc
+      limit 25
+      `
+    );
+
+    const usersToInsert = users.map((user: User) => {
+      return {
+        ...user,
+        type: "completed-collections",
+      };
+    });
+
+    if (users) {
+      await AppDataSource.createQueryBuilder()
+        .delete()
+        .from(Leaderboard)
+        .where("type = :type", { type: "completed-collections" })
+        .execute();
+
+      await AppDataSource.createQueryBuilder()
+        .insert()
+        .into(Leaderboard)
+        .values(usersToInsert)
+        .execute();
+    }
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
   async insertMostGuessesUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `
-      select pass.*, u."username" from 
+      select pass.* from 
       (select cg."guesserId" as "userId", count(*) as "stat" from correct_guess cg
       group by cg."guesserId"
-      limit 25) as pass
-      left join "user" u on u.id = pass."userId"
+	    ) as pass
       order by pass."stat" desc
+	    limit 25
       `
     );
 
@@ -77,16 +185,12 @@ export class LeaderboardResolver {
   async insertMostVotesUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `
-        select pass2.*, u."username" from
-        (select pass."creatorId" as "userId", count(*) as "stat" from
-        (select c."creatorId", c."points" from collection c
-        group by c."creatorId", c."points") as pass
-        group by pass."creatorId"
-        limit 25
-        ) as pass2
-        left join "user" u on u.id = pass2."userId"
-        order by pass2."stat" desc
-        `
+      select pass.* from
+      (select c."creatorId" as "userId", sum(c."points") as "stat" from collection c
+      group by c."creatorId") as pass
+      order by pass."stat" desc
+      limit 25
+      `
     );
 
     const usersToInsert = users.map((user: User) => {

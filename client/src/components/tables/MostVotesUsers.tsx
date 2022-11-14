@@ -23,7 +23,7 @@ export const MostVotesUsers = () => {
         <Box>Most likes stat can't be found</Box>
       ) : (
         <StatTable
-          caption="Users with most likes received"
+          caption="Most likes received"
           tableHeaders={["User", "Likes"]}
           data={data?.mostVotesUsers}
         />

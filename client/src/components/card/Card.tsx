@@ -39,23 +39,22 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
             <Text
               fontWeight="semibold"
               color={theme.colors.darkBlue}
-              noOfLines={size === "small" ? [3, 6] : 7}
+              noOfLines={size === "small" ? [3, 8] : 7}
               _hover={{
                 textColor: theme.colors.lightBlue,
               }}
-              // overflow='clip'
             >
               {c.titleSnippet?.length === 250
                 ? c.titleSnippet + "..."
                 : c.titleSnippet}
             </Text>
-            {/* <Heading fontSize="md" color={theme.colors.darkBlue}>
-              {c.id}
-            </Heading> */}
           </Link>
         </NextLink>
       </Box>
-      <CardBottom collection={c} size={size} />
+      {/* 
+        disabled cardbottom when small bc going directly to another user page caused hydration issues
+      */}
+      {size === "small" ? null : <CardBottom collection={c} size={size} />}
     </Flex>
     // </motion.a>
   );

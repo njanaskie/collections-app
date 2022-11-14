@@ -37,6 +37,35 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => Int)
+  async totalLikesReceived(
+    @Root() user: User,
+    @Ctx() { collectionsByUserLoader }: MyContext
+  ) {
+    const collections = await collectionsByUserLoader.load({
+      creatorId: user.id,
+    });
+
+    // return sum of all points in all collections
+    const pointsSum = collections?.reduce((acc, curr) => {
+      return acc + curr.points;
+    }, 0);
+
+    return pointsSum || 0;
+  }
+
+  @FieldResolver(() => Int)
+  async totalCorrectGuesses(
+    @Root() user: User,
+    @Ctx() { correctGuessesByUserLoader }: MyContext
+  ) {
+    const cgs = await correctGuessesByUserLoader.load({
+      guesserId: user.id,
+    });
+
+    return cgs?.length || 0;
+  }
+
   @Mutation(() => UserResponse, { nullable: true })
   @UseMiddleware(isAuth)
   async updateUser(

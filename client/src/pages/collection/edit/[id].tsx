@@ -84,7 +84,7 @@ export const EditCollection = ({}) => {
       >
         {({ isSubmitting, values, setValues }) => (
           <Form>
-            <Flex mb={4} mr={4}>
+            <Flex align={"center"} mb={4} mr={4}>
               <BackButton />
               <Heading size="lg" color="white">
                 Edit collection

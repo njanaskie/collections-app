@@ -6,107 +6,129 @@ import React from "react";
 import { IoLogoTwitter } from "react-icons/io";
 import { User } from "../../generated/graphql";
 import theme from "../../theme";
+import { UserStatsBox } from "./UserStatsBox";
+
+export type UserStatsProps = {
+  created?: number;
+  completed?: number;
+  started?: number;
+  guesses?: number;
+  likes?: number;
+};
 
 interface BoxContentProps {
   userData: User;
   meData: User | undefined | null;
   isMe: boolean;
+  userStats: UserStatsProps;
 }
 
 export const BoxContent: React.FC<BoxContentProps> = ({
   userData,
   meData,
   isMe,
+  userStats,
 }) => {
   return (
     <Box>
       <Flex justify="space-between">
-        {userData ? (
-          <Heading size="lg" mb={2} color={theme.colors.lightOrange}>
-            {userData.username}
-          </Heading>
-        ) : null}
+        <Box>
+          <Flex>
+            {userData ? (
+              <Heading size="lg" mb={2} mr={2} color={theme.colors.lightOrange}>
+                {userData.username}
+              </Heading>
+            ) : null}
 
-        {isMe && meData ? (
-          <NextLink
-            href={{
-              pathname: "/user/edit/[username]",
-              query: { id: meData.id },
-            }}
-            as={`/user/edit/${meData.username}`}
-          >
-            <IconButton
-              icon={<EditIcon />}
-              aria-label="Edit User"
-              onClick={() => {}}
-              variant="ghost"
-              color={"gray.200"}
-              _hover={{ textDecor: "none" }}
-            />
-          </NextLink>
-        ) : null}
+            {isMe && meData ? (
+              <NextLink
+                href={{
+                  pathname: "/user/edit/[username]",
+                  query: { id: meData.id },
+                }}
+                as={`/user/edit/${meData.username}`}
+              >
+                <IconButton
+                  icon={<EditIcon />}
+                  aria-label="Edit User"
+                  onClick={() => {}}
+                  variant="ghost"
+                  color={"gray.200"}
+                  _hover={{ textDecor: "none" }}
+                />
+              </NextLink>
+            ) : null}
+          </Flex>
+          <Text as="b" color={"gray.300"} noOfLines={8} overflow="scroll">
+            {userData.bio}
+          </Text>
+        </Box>
+        <Box ml={2} maxW={450}>
+          <UserStatsBox userStats={userStats} username={userData.username} />
+          <HStack mt={1} wrap="wrap" overflow="auto" maxW={[200, 450]}>
+            {userData.letterboxd_url ? (
+              <Link
+                href={userData.letterboxd_url}
+                isExternal
+                _hover={{ textDecoration: "none" }}
+              >
+                <Flex align="center" p={1}>
+                  <Image src="/letterboxd-icon.svg" />
+                  <Text
+                    as="i"
+                    color={"gray.200"}
+                    ml={1}
+                    _hover={{ textColor: "white" }}
+                    fontSize="sm"
+                  >
+                    Letterboxd
+                  </Text>
+                </Flex>
+              </Link>
+            ) : null}
+            {userData.twitter_url ? (
+              <Link
+                href={userData.twitter_url}
+                isExternal
+                _hover={{ textDecor: "none" }}
+              >
+                <Flex align="center" p={1}>
+                  <IoLogoTwitter color="lightBlue" />
+                  <Text
+                    as="i"
+                    color={"gray.200"}
+                    ml={1}
+                    _hover={{ textColor: "white" }}
+                    fontSize="sm"
+                  >
+                    Twitter
+                  </Text>
+                </Flex>
+              </Link>
+            ) : null}
+            {userData.website_url ? (
+              <Link
+                href={userData.website_url}
+                isExternal
+                _hover={{ textDecor: "none" }}
+              >
+                <Flex align="center" p={1}>
+                  <Text
+                    as="i"
+                    color={"gray.200"}
+                    ml={1}
+                    _hover={{ textColor: "white" }}
+                    fontSize="sm"
+                    noOfLines={1}
+                  >
+                    {userData.website_url}
+                  </Text>
+                </Flex>
+              </Link>
+            ) : null}
+          </HStack>
+        </Box>
       </Flex>
-      <Text as="b" color={"gray.300"}>
-        {userData.bio}
-      </Text>
-      <HStack mb={5} wrap="wrap" overflow="auto">
-        {userData.letterboxd_url ? (
-          <Link
-            href={userData.letterboxd_url}
-            isExternal
-            _hover={{ textDecoration: "none" }}
-          >
-            <Flex align="center" p={1}>
-              <Image src="/letterboxd-icon.svg" />
-              <Text
-                as="i"
-                color={"gray.200"}
-                ml={1}
-                _hover={{ textColor: "white" }}
-              >
-                Letterboxd
-              </Text>
-            </Flex>
-          </Link>
-        ) : null}
-        {userData.twitter_url ? (
-          <Link
-            href={userData.twitter_url}
-            isExternal
-            _hover={{ textDecor: "none" }}
-          >
-            <Flex align="center" p={1}>
-              <IoLogoTwitter color="lightBlue" />
-              <Text
-                as="i"
-                color={"gray.200"}
-                ml={1}
-                _hover={{ textColor: "white" }}
-              >
-                Twitter
-              </Text>
-            </Flex>
-          </Link>
-        ) : null}
-        {userData.website_url ? (
-          <Link
-            href={userData.website_url}
-            isExternal
-            _hover={{ textDecor: "none" }}
-          >
-            <Flex align="center" p={1}>
-              <Text
-                as="i"
-                color={"gray.200"}
-                ml={1}
-                _hover={{ textColor: "white" }}
-              >
-                {userData.website_url}
-              </Text>
-            </Flex>
-          </Link>
-        ) : null}
-      </HStack>
     </Box>
   );
 };

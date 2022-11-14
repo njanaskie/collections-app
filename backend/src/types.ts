@@ -3,6 +3,8 @@ import { Session } from "express-session";
 import { Redis } from "ioredis";
 import { createCollectionEntryLoader } from "./utils/createCollectionEntryLoader";
 import { createCollectionLoader } from "./utils/createCollectionLoader";
+import { createCollectionsByUserLoader } from "./utils/createCollectionsByUserLoader";
+import { createCorrectGuessesByUserLoader } from "./utils/createCorrectGuessesByUserLoader";
 import { createCorrectGuessLoader } from "./utils/createCorrectGuessLoader";
 import { createLikeLoader } from "./utils/createLikeLoader";
 import { createSavedCollectionLoader } from "./utils/createSavedCollectionLoader";
@@ -18,4 +20,8 @@ export type MyContext = {
   correctGuessLoader: ReturnType<typeof createCorrectGuessLoader>;
   collectionLoader: ReturnType<typeof createCollectionLoader>;
   savedCollectionLoader: ReturnType<typeof createSavedCollectionLoader>;
+  correctGuessesByUserLoader: ReturnType<
+    typeof createCorrectGuessesByUserLoader
+  >;
+  collectionsByUserLoader: ReturnType<typeof createCollectionsByUserLoader>;
 };

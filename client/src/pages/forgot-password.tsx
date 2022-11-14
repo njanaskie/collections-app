@@ -15,7 +15,7 @@ export const ForgotPassword: React.FC<{}> = ({}) => {
   const [, forgotPassword] = useForgotPasswordMutation();
   return (
     <Wrapper variant="small">
-      <Flex mb={6}>
+      <Flex align={"center"} mb={6}>
         <BackButton />
         <Logo />
       </Flex>

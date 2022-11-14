@@ -8,4 +8,6 @@ fragment RegularUser on User {
   letterboxd_url
   twitter_url
   website_url
+  totalCorrectGuesses
+  totalLikesReceived
 }

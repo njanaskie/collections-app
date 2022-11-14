@@ -8,13 +8,14 @@ interface TabHeadingsProps {
 }
 
 export const TabHeadings: React.FC<TabHeadingsProps> = ({ username, isMe }) => {
-  const tabLabels = ["My Collections", "Completed", "Started", "Appeals"];
+  const tabLabels = ["Created", "Completed", "Ongoing", "Appeals"];
 
   return (
     <TabList
       bgColor={isMe ? theme.colors.lightPurple : null}
       borderRadius={4}
       overflow="scroll"
+      mt={5}
     >
       {isMe ? (
         <>

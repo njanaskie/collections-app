@@ -23,7 +23,7 @@ export const MostGuessesUsers = () => {
         <Box>Most correct guesses stat can't be found</Box>
       ) : (
         <StatTable
-          caption="Users with most correct guesses"
+          caption="Most correct guesses"
           tableHeaders={["User", "Correct Guesses"]}
           data={data?.mostGuessesUsers}
         />

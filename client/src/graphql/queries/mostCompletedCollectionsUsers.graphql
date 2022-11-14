@@ -1,0 +1,9 @@
+query MostCompletedCollectionsUsers {
+  mostCompletedCollectionsUsers {
+    userId
+    stat
+    user {
+      username
+    }
+  }
+}

@@ -34,8 +34,9 @@ export const Collection = ({}) => {
   const [createGuessError, setCreateGuessError] = useState<
     Record<string, string>
   >({});
-  const [guessMessageState, setGuessMessageState] =
-    useState<"correct" | "incorrect" | "no-guess">("no-guess");
+  const [guessMessageState, setGuessMessageState] = useState<
+    "correct" | "incorrect" | "no-guess"
+  >("no-guess");
   const [, createCorrectGuess] = useCreateCorrectGuessMutation();
   // const intId = useGetIntId();
   // const stringRef= useGetStringRef();
@@ -190,15 +191,26 @@ export const Collection = ({}) => {
     );
   }
 
+  const InfoBoxSection = (
+    <Box>
+      <InfoBox
+        collection={data.collection}
+        isMe={isMe}
+        correctGuesses={correctGuessesFinal}
+      />
+
+      {!isMe && <AppealButton collection={data.collection} />}
+    </Box>
+  );
   return (
     <Layout>
-      <Flex flexDir={["column", "row"]}>
+      <Flex flexDir={["column", "column", "row"]}>
         <Box w="100%" mr={2}>
           <Flex align="center" mb={2}>
             <BackButton />
             <Box>
               {data.collection.creator ? (
-                <Heading size="xs" mb={1} color={theme.colors.lightOrange}>
+                <Heading size="xs" color={theme.colors.lightOrange}>
                   Created by{" "}
                   <NextLink
                     href={{
@@ -215,27 +227,18 @@ export const Collection = ({}) => {
                   </NextLink>
                 </Heading>
               ) : null}
-              <Flex>
-                <Text as="i" fontSize="sm" color={"gray.200"} overflow="auto">
-                  {data.collection.description}
-                </Text>
-              </Flex>
             </Box>
           </Flex>
-          <Divider />
-          <Heading size="md" mb={4} mt={2} color={theme.colors.superLightBlue}>
+          {mobile ? <>{InfoBoxSection}</> : null}
+          <Divider my={1} />
+          <Text as="i" fontSize="sm" color={"gray.200"} overflow="auto">
+            {data.collection.description}
+          </Text>
+          <Heading size="md" mb={4} color={theme.colors.superLightBlue}>
             {data.collection.title}
           </Heading>
         </Box>
-        <Box mb={4}>
-          <InfoBox
-            collection={data.collection}
-            isMe={isMe}
-            correctGuesses={correctGuessesFinal}
-          />
-
-          {!isMe && <AppealButton collection={data.collection} />}
-        </Box>
+        {!mobile ? <>{InfoBoxSection}</> : null}
       </Flex>
       {!isMe ? (
         <Formik
@@ -291,7 +294,7 @@ export const Collection = ({}) => {
           paddingTop={6}
           wrap="wrap"
           overflow="scroll"
-          justify={["space-evenly", "flex-start"]}
+          justify={"space-evenly"}
         >
           {data.collection.collectionEntries &&
           data.collection.collectionEntries.length > 0 ? (

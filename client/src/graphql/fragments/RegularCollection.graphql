@@ -4,14 +4,16 @@ fragment RegularCollection on Collection {
   createdAt
   updatedAt
   title
+  description
   points
   voteStatus
+  creatorId
   creator {
-    id
-    username
+    ...UserSnippet
   }
-  collectionEntriesLength
   collectionEntries {
     ...CollectionEntrySnippet
   }
+  collectionEntriesLength
+  usersCompletedCount
 }

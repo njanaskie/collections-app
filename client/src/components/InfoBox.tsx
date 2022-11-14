@@ -1,8 +1,10 @@
+import { CheckCircleIcon } from "@chakra-ui/icons";
 import {
   CircularProgress,
   CircularProgressLabel,
   Flex,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import React from "react";
 import { RegularCollectionFragment } from "../generated/graphql";
@@ -22,6 +24,9 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
   isMe,
   correctGuesses,
 }) => {
+  const completeStat = Math.round(
+    (correctGuesses.length / collection.collectionEntriesLength) * 100
+  );
   return (
     <Flex
       direction="column"
@@ -31,8 +36,8 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
       backgroundColor={theme.colors.lightPurple}
       borderRadius={6}
       borderWidth={1}
-      minW={"auto"}
-      h={["auto", 40]}
+      // w={"auto"}
+      h={["auto", "auto", 40]}
       borderColor="gray.200"
       justify="space-between"
     >
@@ -45,22 +50,15 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
       <Flex align="center">
         {correctGuesses && collection.collectionEntriesLength && !isMe ? (
           <CircularProgress
-            value={Math.round(
-              (correctGuesses.length / collection.collectionEntriesLength) * 100
-            )}
-            color={theme.colors.green}
+            value={completeStat}
+            color={completeStat === 100 ? theme.colors.green : "gray.500"}
             size={50}
           >
-            <CircularProgressLabel>
-              {Math.round(
-                (correctGuesses.length / collection.collectionEntriesLength) *
-                  100
-              )}
-              %
+            <CircularProgressLabel as="b">
+              {completeStat}%
             </CircularProgressLabel>
           </CircularProgress>
         ) : null}
-
         {!isMe ? (
           <Text ml={2} alignSelf="center" color="gray.600">
             <b>{correctGuesses?.length}</b> out of{" "}
@@ -74,12 +72,50 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
           </Text>
         )}
       </Flex>
-      <Flex>
-        <Points
-          id={collection.id}
-          voteStatus={collection.voteStatus}
-          points={collection.points}
-        />
+      <Flex align={"center"}>
+        <Tooltip
+          label={`Liked by ${collection.points} ${
+            collection.points === 1 ? "player" : "players"
+          } `}
+          fontSize="sm"
+          placement="auto"
+        >
+          <Flex>
+            <Points
+              id={collection.id}
+              voteStatus={collection.voteStatus}
+              points={collection.points}
+            />
+          </Flex>
+        </Tooltip>
+        <Tooltip
+          label={`Completed by ${collection.usersCompletedCount} ${
+            collection.usersCompletedCount === 1 ? "player" : "players"
+          } `}
+          fontSize="sm"
+          placement="auto"
+        >
+          <Flex align={"center"}>
+            <Flex
+              bg="gray.200"
+              borderRadius={50}
+              borderWidth={1}
+              borderColor="gray.200"
+            >
+              <CheckCircleIcon
+                color={
+                  collection.usersCompletedCount === 0
+                    ? "gray.500"
+                    : theme.colors.green
+                }
+                opacity="70%"
+              />
+            </Flex>
+            <Text ml={2} color="gray.600">
+              {collection.usersCompletedCount}
+            </Text>
+          </Flex>
+        </Tooltip>
       </Flex>
       {/* <Save collection={collection} /> */}
     </Flex>

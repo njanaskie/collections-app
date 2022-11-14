@@ -13,7 +13,6 @@ export const BackButton = () => {
       icon={<ChevronLeftIcon color={theme.colors.darkBlue} />}
       onClick={() => router.back()}
       mr={4}
-      alignSelf="center"
     />
   );
 };

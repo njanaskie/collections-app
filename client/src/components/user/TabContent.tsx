@@ -14,169 +14,71 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { ItemStack } from "../../components/ItemStack";
-import { itemLimit } from "../../constants";
-import {
-  useAppealsReviewableQuery,
-  useAppealsSubmittedQuery,
-  User,
-  useUserCompletedCollectionsQuery,
-  useUserCreatedCollectionsQuery,
-  useUserStartedCollectionsQuery,
-} from "../../generated/graphql";
+import { User } from "../../generated/graphql";
 import theme from "../../theme";
-import { useGetIntId } from "../../utils/useGetIntId";
 import { AppealsReviewableItem } from "../appealItem/AppealsReviewableItem";
 import { AppealsSubmittedItem } from "../appealItem/AppealsSubmittedItem";
 import { Card } from "../card/Card";
 import { TabHeadings } from "./TabHeadings";
 
+type UserCollectionsProps = {
+  data?: any;
+  error?: any;
+  fetching: boolean;
+};
+
 interface TabContentProps {
   userData: User;
   isMe: boolean;
+  createdCollectionsResults: UserCollectionsProps;
+  completedCollectionsResults: UserCollectionsProps;
+  startedCollectionsResults: UserCollectionsProps;
+  appealsSubmittedResults: UserCollectionsProps;
+  appealsReviewableResults: UserCollectionsProps;
+  handleFetchMore: any;
+  variables: any;
+  handleAppealStateChange: any;
+  appealState: string;
 }
 
-export const TabContent: React.FC<TabContentProps> = ({ userData, isMe }) => {
-  const [appealState, setAppealState] = useState<string>("pending");
-  const intId = useGetIntId();
-  const [variables, setVariables] = useState({
-    limit: itemLimit,
-    createdPage: 1,
-    completedPage: 1,
-    startedPage: 1,
-    appealsSubmittedPage: 1,
-    appealsReviewablePage: 1,
-    userId: intId,
-  });
-  const [
-    {
-      data: createdCollections,
-      error: createdError,
-      fetching: fetchingCreated,
-    },
-  ] = useUserCreatedCollectionsQuery({
-    // pause: !variables.userId || variables.userId === 0 || isServer(),
-    pause: !variables.userId || variables.userId === -1,
-    variables: {
-      limit: variables.limit,
-      page: variables.createdPage,
-      userId: variables.userId,
-    },
-  });
-  const [
-    {
-      data: completedCollections,
-      error: completedError,
-      fetching: fetchingCompleted,
-    },
-  ] = useUserCompletedCollectionsQuery({
-    pause: !variables.userId || variables.userId === -1 || !isMe,
-    variables: {
-      limit: variables.limit,
-      page: variables.completedPage,
-      userId: variables.userId,
-    },
-  });
-  const [
-    {
-      data: startedCollections,
-      error: startedError,
-      fetching: fetchingStarted,
-    },
-  ] = useUserStartedCollectionsQuery({
-    pause: !variables.userId || variables.userId === -1 || !isMe,
-    variables: {
-      limit: variables.limit,
-      page: variables.startedPage,
-      userId: variables.userId,
-    },
-  });
-  const [
-    {
-      data: appealsSubmitted,
-      error: appealsSubmittedError,
-      fetching: fetchingAppealsSubmitted,
-    },
-  ] = useAppealsSubmittedQuery({
-    pause: !variables.userId || variables.userId === -1 || !isMe,
-    variables: {
-      state: appealState,
-      limit: variables.limit,
-      page: variables.appealsSubmittedPage,
-    },
-  });
-  const [
-    {
-      data: appealsReviewable,
-      error: appealsReviewableError,
-      fetching: fetchingAppealsReviewable,
-    },
-  ] = useAppealsReviewableQuery({
-    pause: !variables.userId || variables.userId === -1 || !isMe,
-    variables: {
-      limit: variables.limit,
-      page: variables.appealsReviewablePage,
-    },
-  });
-
-  const handleFetchMore = (queryType: string, nextPage: number) => {
-    switch (queryType) {
-      case "userCreatedCollections":
-        console.log("next page created", queryType, nextPage);
-        return setVariables({
-          ...variables,
-          createdPage: nextPage,
-        });
-      case "userCompletedCollections":
-        console.log("next page completed", queryType, nextPage);
-        return setVariables({
-          ...variables,
-          completedPage: nextPage,
-        });
-      case "userStartedCollections":
-        console.log("next page started", queryType, nextPage);
-        return setVariables({
-          ...variables,
-          startedPage: nextPage,
-        });
-      case "appealsSubmitted":
-        console.log("next page appealsSubmitted", queryType, nextPage);
-        return setVariables({
-          ...variables,
-          appealsSubmittedPage: nextPage,
-        });
-      case "appealsReviewable":
-        console.log("next page appealsReviewable", queryType, nextPage);
-        return setVariables({
-          ...variables,
-          appealsReviewablePage: nextPage,
-        });
-      default:
-        return null;
-    }
-  };
-
-  const handleAppealStateChange = (e: string) => {
-    setAppealState(e);
-    setVariables({
-      ...variables,
-      appealsSubmittedPage: 1,
-    });
-  };
-
-  useEffect(() => {
-    if (intId) {
-      setVariables({
-        ...variables,
-        createdPage: 1,
-        completedPage: 1,
-        startedPage: 1,
-        appealsSubmittedPage: 1,
-        appealsReviewablePage: 1,
-        userId: intId,
-      });
-    }
-  }, [intId]);
-
+export const TabContent: React.FC<TabContentProps> = ({
+  userData,
+  isMe,
+  createdCollectionsResults,
+  completedCollectionsResults,
+  startedCollectionsResults,
+  appealsSubmittedResults,
+  appealsReviewableResults,
+  handleFetchMore,
+  variables,
+  handleAppealStateChange,
+  appealState,
+}) => {
+  const {
+    data: createdCollections,
+    error: createdError,
+    fetching: fetchingCreated,
+  } = createdCollectionsResults;
+  const {
+    data: completedCollections,
+    error: completedError,
+    fetching: fetchingCompleted,
+  } = completedCollectionsResults;
+  const {
+    data: startedCollections,
+    error: startedError,
+    fetching: fetchingStarted,
+  } = startedCollectionsResults;
+  const {
+    data: appealsSubmitted,
+    error: appealsSubmittedError,
+    fetching: fetchingAppealsSubmitted,
+  } = appealsSubmittedResults;
+  const {
+    data: appealsReviewable,
+    error: appealsReviewableError,
+    fetching: fetchingAppealsReviewable,
+  } = appealsReviewableResults;
   return (
     <Tabs variant="soft-rounded" isFitted>
       <TabHeadings username={userData.username} isMe={isMe} />
@@ -248,7 +150,7 @@ export const TabContent: React.FC<TabContentProps> = ({ userData, isMe }) => {
           <Tabs variant="soft-rounded">
             <TabList>
               <Tooltip
-                label="Appeals that others have submitted"
+                label="Appeals that others have submitted on my collections"
                 fontSize="sm"
                 placement="auto"
               >

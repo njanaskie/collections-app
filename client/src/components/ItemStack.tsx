@@ -35,7 +35,7 @@ export const ItemStack: React.FC<ItemStackProps> = ({
       ) : (
         <Flex justify="flex-start" wrap="wrap">
           {data.length > 0 ? (
-            data.map((i: any) => (!i ? <div>null i</div> : item(i)))
+            data.map((i: any) => (!i ? null : item(i)))
           ) : (
             <Text color="gray.200">Nothing here...</Text>
           )}

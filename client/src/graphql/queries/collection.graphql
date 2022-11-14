@@ -1,20 +1,5 @@
 query Collection($id: Int, $reference: String) {
   collection(id: $id, reference: $reference) {
-    id
-    reference
-    createdAt
-    updatedAt
-    title
-    description
-    points
-    voteStatus
-    creatorId
-    creator {
-      ...UserSnippet
-    }
-    collectionEntries {
-      ...CollectionEntrySnippet
-    }
-    collectionEntriesLength
+    ...RegularCollection
   }
 }

@@ -1,4 +1,4 @@
-import { Button, Flex } from "@chakra-ui/react";
+import { Button, Flex, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { useVoteMutation } from "../generated/graphql";
