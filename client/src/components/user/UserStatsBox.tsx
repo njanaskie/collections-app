@@ -20,10 +20,11 @@ export const UserStatsBox: React.FC<UserStatsBoxProps> = ({
       borderRadius={10}
       justify="center"
       shadow="sm"
+      // wrap="wrap"
       // direction={"column"}
       flexGrow={1}
     >
-      <Flex direction={["column", "row"]}>
+      <Flex direction={["column", "column", "row"]}>
         <Tooltip
           label={`${username} has created ${userStats.created} ${
             userStats.created === 1 ? "collection" : "collections"
@@ -63,7 +64,7 @@ export const UserStatsBox: React.FC<UserStatsBoxProps> = ({
         </Tooltip>
       </Flex>
 
-      <Flex direction={["column", "row"]}>
+      <Flex direction={["column", "column", "row"]}>
         <Tooltip
           label={`${username} has made a total of ${
             userStats.guesses

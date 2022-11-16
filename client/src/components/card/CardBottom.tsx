@@ -39,11 +39,11 @@ export const CardBottom: React.FC<CardBottomProps> = ({ collection, size }) => {
               }
               fontSize="md"
             >
-              <Flex w="100%" h="100%">
+              <Flex>
                 <Text
                   pos="relative"
-                  left={"32px"}
-                  top={"16px"}
+                  left={8}
+                  top={4}
                   as="b"
                   color={"teal"}
                   fontSize="sm"

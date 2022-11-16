@@ -12,7 +12,7 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ItemStack } from "../../components/ItemStack";
 import { User } from "../../generated/graphql";
 import theme from "../../theme";
@@ -93,7 +93,7 @@ export const TabContent: React.FC<TabContentProps> = ({
               page={variables.createdPage}
               queryType={"userCreatedCollections"}
               item={(i: any) => (
-                <Flex p={2} key={i.id}>
+                <Flex p={2} key={i.id} w={["100%", "auto"]}>
                   <Card c={i} size="small" />
                 </Flex>
               )}
@@ -114,7 +114,7 @@ export const TabContent: React.FC<TabContentProps> = ({
               page={variables.completedPage}
               queryType={"userCompletedCollections"}
               item={(i: any) => (
-                <Flex p={2} key={i.id}>
+                <Flex p={2} key={i.id} w={["100%", "auto"]}>
                   <Card c={i} size="small" />
                 </Flex>
               )}
@@ -135,7 +135,7 @@ export const TabContent: React.FC<TabContentProps> = ({
               page={variables.startedPage}
               queryType={"userStartedCollections"}
               item={(i: any) => (
-                <Flex p={2} key={i.id}>
+                <Flex p={2} key={i.id} w={["100%", "auto"]}>
                   <Card c={i} size="small" />
                 </Flex>
               )}
@@ -213,9 +213,15 @@ export const TabContent: React.FC<TabContentProps> = ({
                     // colorScheme={"teal"}
                   >
                     <Stack direction="row">
-                      <Radio value="pending">Pending</Radio>
-                      <Radio value="approved">Approved</Radio>
-                      <Radio value="rejected">Rejected</Radio>
+                      <Radio value="pending" size={"md"}>
+                        Pending
+                      </Radio>
+                      <Radio value="approved" size={"md"}>
+                        Approved
+                      </Radio>
+                      <Radio value="rejected" size={"md"}>
+                        Rejected
+                      </Radio>
                     </Stack>
                   </RadioGroup>
                 </Flex>

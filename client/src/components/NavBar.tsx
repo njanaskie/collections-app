@@ -90,7 +90,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     //user is logged in
   } else {
     body = (
-      <Flex align="center">
+      <Flex align="center" justify="center" wrap="wrap">
         <NextLink href="/create-collection">
           <Button
             as={Link}

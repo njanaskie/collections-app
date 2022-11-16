@@ -1,6 +1,6 @@
 import { EditIcon } from "@chakra-ui/icons";
 import { Box, Heading } from "@chakra-ui/layout";
-import { Flex, HStack, IconButton, Image, Link, Text } from "@chakra-ui/react";
+import { Flex, IconButton, Image, Link, Stack, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
 import { IoLogoTwitter } from "react-icons/io";
@@ -32,7 +32,7 @@ export const BoxContent: React.FC<BoxContentProps> = ({
   return (
     <Box>
       <Flex justify="space-between">
-        <Box>
+        <Box w="50%">
           <Flex>
             {userData ? (
               <Heading size="lg" mb={2} mr={2} color={theme.colors.lightOrange}>
@@ -59,20 +59,20 @@ export const BoxContent: React.FC<BoxContentProps> = ({
               </NextLink>
             ) : null}
           </Flex>
-          <Text as="b" color={"gray.300"} noOfLines={8} overflow="scroll">
-            {userData.bio}
-          </Text>
-        </Box>
-        <Box ml={2} maxW={450}>
-          <UserStatsBox userStats={userStats} username={userData.username} />
-          <HStack mt={1} wrap="wrap" overflow="auto" maxW={[200, 450]}>
+          <Stack
+            direction={["column", "row"]}
+            // spacing="-px"
+            mb={1}
+            wrap="wrap"
+            overflow="auto"
+          >
             {userData.letterboxd_url ? (
               <Link
                 href={userData.letterboxd_url}
                 isExternal
                 _hover={{ textDecoration: "none" }}
               >
-                <Flex align="center" p={1}>
+                <Flex align="center" pr={1}>
                   <Image src="/letterboxd-icon.svg" />
                   <Text
                     as="i"
@@ -92,7 +92,7 @@ export const BoxContent: React.FC<BoxContentProps> = ({
                 isExternal
                 _hover={{ textDecor: "none" }}
               >
-                <Flex align="center" p={1}>
+                <Flex align="center" pr={1}>
                   <IoLogoTwitter color="lightBlue" />
                   <Text
                     as="i"
@@ -112,7 +112,7 @@ export const BoxContent: React.FC<BoxContentProps> = ({
                 isExternal
                 _hover={{ textDecor: "none" }}
               >
-                <Flex align="center" p={1}>
+                <Flex align="center" pr={1}>
                   <Text
                     as="i"
                     color={"gray.200"}
@@ -126,7 +126,13 @@ export const BoxContent: React.FC<BoxContentProps> = ({
                 </Flex>
               </Link>
             ) : null}
-          </HStack>
+          </Stack>
+          <Text as="b" color={"gray.300"} noOfLines={8} overflow="scroll">
+            {userData.bio}
+          </Text>
+        </Box>
+        <Box ml={2} maxW={450}>
+          <UserStatsBox userStats={userStats} username={userData.username} />
         </Box>
       </Flex>
     </Box>

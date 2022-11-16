@@ -23,11 +23,12 @@ export const Card: React.FC<CardProps> = ({ c, size }) => {
       borderWidth="2px"
       borderColor="gray.400"
       h={size === "small" ? ["auto", 240] : [260, 260]}
-      w={size === "small" ? ["auto", 240, 240, 240] : undefined}
+      w={size === "small" ? ["100%", 240, 240, 240] : undefined}
       justifyContent="space-between"
       backgroundColor={theme.colors.superLightBlue}
       borderRadius={6}
       key={c.id}
+      // flexGrow={size === "small" ? "inherit" : undefined}
     >
       <Box p={4}>
         <NextLink href="/collection/[id]" as={`/collection/${c.reference}`}>
