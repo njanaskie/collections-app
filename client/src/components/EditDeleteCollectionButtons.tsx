@@ -12,22 +12,24 @@ interface EditDeleteCollectionButtonsProps {
   reference: string;
 }
 
-export const EditDeleteCollectionButtons: React.FC<EditDeleteCollectionButtonsProps> =
-  ({ id, reference }) => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [, deleteCollection] = useDeleteCollectionMutation();
+export const EditDeleteCollectionButtons: React.FC<
+  EditDeleteCollectionButtonsProps
+> = ({ id, reference }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [, deleteCollection] = useDeleteCollectionMutation();
 
-    const handleDelete = async () => {
-      if (!id) {
-        console.log("no collection id");
-        return;
-      }
-      deleteCollection({ id: id });
-      router.push("/");
-    };
+  const handleDelete = async () => {
+    if (!id) {
+      console.log("no collection id");
+      return;
+    }
+    deleteCollection({ id: id });
+    router.push("/");
+  };
 
-    return (
-      <Flex color={theme.colors.darkBlue}>
+  return (
+    <Flex color={theme.colors.darkBlue} w="100%">
+      <Flex flexGrow={1}>
         <NextLink
           href="/collection/edit/[id]"
           as={`/collection/edit/${reference}`}
@@ -40,6 +42,8 @@ export const EditDeleteCollectionButtons: React.FC<EditDeleteCollectionButtonsPr
             flexGrow={1}
           />
         </NextLink>
+      </Flex>
+      <Flex flexGrow={1}>
         <IconButton
           flexGrow={1}
           variant="ghost"
@@ -57,5 +61,6 @@ export const EditDeleteCollectionButtons: React.FC<EditDeleteCollectionButtonsPr
           handleApprove={handleDelete}
         />
       </Flex>
-    );
-  };
+    </Flex>
+  );
+};

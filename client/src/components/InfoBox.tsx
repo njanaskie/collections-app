@@ -29,24 +29,27 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
   );
   return (
     <Flex
-      direction="column"
+      direction={["row", "row", "column"]}
       // ml={4}
       // mb={4}
       p={2}
       backgroundColor={theme.colors.lightPurple}
       borderRadius={6}
       borderWidth={1}
-      // w={"auto"}
+      minW={250}
       h={["auto", "auto", 40]}
       borderColor="gray.200"
       justify="space-between"
     >
       {isMe ? (
-        <EditDeleteCollectionButtons
-          id={collection.id}
-          reference={collection.reference}
-        />
+        <Flex align="center">
+          <EditDeleteCollectionButtons
+            id={collection.id}
+            reference={collection.reference}
+          />
+        </Flex>
       ) : null}
+      {/* <Flex direction={["row-reverse", "column"]}> */}
       <Flex align="center">
         {correctGuesses && collection.collectionEntriesLength && !isMe ? (
           <CircularProgress
@@ -61,8 +64,8 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
         ) : null}
         {!isMe ? (
           <Text ml={2} alignSelf="center" color="gray.600">
-            <b>{correctGuesses?.length}</b> out of{" "}
-            <b>{collection.collectionEntries.length}</b> films guessed correctly
+            <b>{correctGuesses?.length}</b> /{" "}
+            <b>{collection.collectionEntries.length}</b> films guessed
           </Text>
         ) : (
           <Text ml={2} alignSelf="center" color="gray.600">
@@ -95,7 +98,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
           fontSize="sm"
           placement="auto"
         >
-          <Flex align={"center"}>
+          <Flex align={"center"} mr={2}>
             <Flex
               bg="gray.200"
               borderRadius={50}
@@ -117,6 +120,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
           </Flex>
         </Tooltip>
       </Flex>
+      {/* </Flex> */}
       {/* <Save collection={collection} /> */}
     </Flex>
   );

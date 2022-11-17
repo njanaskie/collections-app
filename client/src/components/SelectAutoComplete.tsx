@@ -1,3 +1,4 @@
+import { PhoneIcon, SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -7,6 +8,8 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  InputLeftElement,
+  InputRightElement,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import React, { InputHTMLAttributes, useEffect, useRef, useState } from "react";
@@ -18,7 +21,7 @@ import { usePrevious } from "../utils/usePrevious";
 type SelectAutoCompleteProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
-  // isGuessing: boolean;
+  mobile?: boolean;
   // collection?: any;
   handleChange(r: EntryProps): any;
   // entries: EntryProps[];
@@ -34,7 +37,7 @@ type SearchStateProps = {
 export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
   size: _,
   label,
-  // isGuessing,
+  mobile,
   // collection,
   handleChange,
   ...props
@@ -161,19 +164,28 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
           {label}
         </FormLabel> */}
         <Flex ref={wrapperRef}>
-          <InputLeftAddon
-            children={label}
-            color="gray.200"
-            bgColor="gray.500"
-            px={2}
-            borderWidth={1}
-            roundedLeft={4}
-          />
+          {!mobile ? (
+            <InputLeftAddon
+              children={label}
+              color="gray.200"
+              bgColor="gray.500"
+              px={2}
+              borderWidth={1}
+              roundedLeft={4}
+            />
+          ) : null}
           <InputGroup shadow="sm">
             <Box w="inherit">
+              {mobile ? (
+                <InputRightElement
+                  pointerEvents="none"
+                  children={<SearchIcon color="gray.300" />}
+                />
+              ) : null}
               <Input
                 id="searchInputField"
                 backgroundColor="gray.200"
+                // borderRadius={mobile ? 20 : undefined}
                 color={theme.colors.darkBlue}
                 // name={props.name}
                 // mb={2}
@@ -183,11 +195,10 @@ export const SelectAutoComplete: React.FC<SelectAutoCompleteProps> = ({
                 }
                 onFocus={() => setDropdownOpen(true)}
                 onBlur={() => {}}
-                roundedLeft="0"
+                roundedLeft={mobile ? undefined : "0"}
                 _placeholder={{ color: "gray.400" }}
                 // w="100%"
               />
-
               {dropdownOpen && (
                 <Box
                   bgColor={theme.colors.lightPurple}

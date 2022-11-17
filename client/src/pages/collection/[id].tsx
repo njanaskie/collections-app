@@ -205,7 +205,7 @@ export const Collection = ({}) => {
   return (
     <Layout>
       <Flex flexDir={["column", "column", "row"]}>
-        <Box w="100%" mr={2}>
+        <Box w="100%" mr={4}>
           <Flex align="center" mb={2}>
             <BackButton />
             <Box>
@@ -220,9 +220,7 @@ export const Collection = ({}) => {
                     as={`/user/${data.collection.creator.username}`}
                   >
                     <Link _hover={{ color: theme.colors.orange }}>
-                      {/* <Text _hover={{ color: theme.colors.gold }}> */}
                       {data.collection.creator.username}
-                      {/* </Text> */}
                     </Link>
                   </NextLink>
                 </Heading>
@@ -241,39 +239,41 @@ export const Collection = ({}) => {
         {!mobile ? <>{InfoBoxSection}</> : null}
       </Flex>
       {!isMe ? (
-        <Formik
-          initialValues={{ guesses: [] }}
-          onSubmit={async (values) => {
-            console.log("guess submit", values);
-          }}
-        >
-          {() => (
-            <Form>
-              <Flex position="inherit">
-                <SelectAutoComplete
-                  name="guesses"
-                  label={mobile ? "Guess" : "Make Your Guess"}
-                  placeholder="Enter a film title..."
-                  // isGuessing={true}
-                  // collection={data.collection} // exclamation used to ignore TS "object is possibly null or undefined"
-                  handleChange={handleChange}
-                />
-              </Flex>
-            </Form>
-          )}
-        </Formik>
-      ) : null}
-      {!isMe ? (
-        <Box h={8} mt={2}>
-          {guessMessageState !== "no-guess" ? (
-            <GuessMessageAlert guessMessageState={guessMessageState} />
-          ) : null}
-          {createGuessError.correctGuess ? (
-            <Alert h="8" status="error">
-              {createGuessError.correctGuess}
-            </Alert>
-          ) : null}
-        </Box>
+        <>
+          <Box h={8} mt={2}>
+            {guessMessageState !== "no-guess" ? (
+              <GuessMessageAlert guessMessageState={guessMessageState} />
+            ) : null}
+            {createGuessError.correctGuess ? (
+              <Alert h={8} status="error">
+                {createGuessError.correctGuess}
+              </Alert>
+            ) : null}
+          </Box>
+          <Formik
+            initialValues={{ guesses: [] }}
+            onSubmit={async (values) => {
+              console.log("guess submit", values);
+            }}
+          >
+            {() => (
+              <Form>
+                <Flex position="inherit">
+                  <SelectAutoComplete
+                    name="guesses"
+                    label="Make Your Guess"
+                    placeholder={
+                      mobile ? "Guess a film..." : "Enter a film title..."
+                    }
+                    mobile={mobile}
+                    // collection={data.collection} // exclamation used to ignore TS "object is possibly null or undefined"
+                    handleChange={handleChange}
+                  />
+                </Flex>
+              </Form>
+            )}
+          </Formik>
+        </>
       ) : null}
       <Flex
         backgroundColor={theme.colors.darkBlue}
@@ -286,7 +286,7 @@ export const Collection = ({}) => {
         borderColor={theme.colors.lightBlue}
         // zIndex={-1}
         // position="relative"
-        mt={2}
+        mt={4}
       >
         <Flex
           direction="row"

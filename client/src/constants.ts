@@ -34,6 +34,7 @@ export const incorrectGuessMessages = [
   "You’re killin’ me, Smalls",
   "Well, nobody's perfect",
   "Houston, we have a problem",
+  "Let it go",
 ];
 
 export const itemLimit = 25;
