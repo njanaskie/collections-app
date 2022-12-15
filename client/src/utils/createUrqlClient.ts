@@ -8,6 +8,8 @@ import {
   CollectionEntryInput,
   CreateCorrectGuessMutation,
   CreateCorrectGuessMutationVariables,
+  CreateGuessModePlayedMutation,
+  CreateGuessModePlayedMutationVariables,
   DeleteCollectionMutationVariables,
   LoginMutation,
   LogoutMutation,
@@ -85,6 +87,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
           PaginatedAppeals: () => null,
           TopUser: () => null,
           User: () => null,
+          GuessModePlayed: () => null,
           // PaginatedAppealsReviewable: () => null,
         },
         resolvers: {
@@ -122,6 +125,27 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            createGuessModePlayed: (_result, args, cache) => {
+              const { input } = args as CreateGuessModePlayedMutationVariables;
+              cache.writeFragment(
+                gql`
+                  fragment __ on GuessModeCollectionEntry {
+                    guessModePlayed {
+                      optionId
+                      success
+                    }
+                  }
+                `,
+                {
+                  id: input.modeId,
+                  guessModePlayed: {
+                    ...input,
+                    __typename: "GuessModePlayed",
+                  },
+                  __typename: "GuessModeCollectionEntry",
+                }
+              );
+            },
             updateUser: (_result, args, cache) => {
               invalidateAll(cache, "user", {
                 id: (args as UpdateUserMutationVariables).id,
@@ -232,7 +256,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 },
                 (data) => {
                   if (!result.createCorrectGuess.errors) {
-                    const correctGuesses = data!.myCorrectGuesses as any;
+                    const correctGuesses = data
+                      ? data!.myCorrectGuesses
+                      : ([] as any);
                     // if first correct guess, invalidate usersStartedCollections
                     if (correctGuesses.length === 0) {
                       invalidateAll(cache, "userStartedCollections");

@@ -14,6 +14,7 @@ import {
 import { Appeal } from "./Appeal";
 import { CollectionEntry } from "./CollectionEntry";
 import { CorrectGuess } from "./CorrectGuess";
+import { GuessModeCollectionEntry } from "./GuessModeCollectionEntry";
 import { Like } from "./Like";
 import { SavedCollection } from "./SavedCollection";
 import { User } from "./User";
@@ -83,6 +84,33 @@ export class Collection extends BaseEntity {
     (savedCollection) => savedCollection.collection
   )
   savedCollections: SavedCollection[];
+
+  @OneToMany(
+    () => GuessModeCollectionEntry,
+    (guessModeCollectionEntry) => guessModeCollectionEntry.correctCollection
+  )
+  correctCollections: GuessModeCollectionEntry;
+
+  @OneToMany(
+    () => GuessModeCollectionEntry,
+    (guessModeCollectionEntry) =>
+      guessModeCollectionEntry.firstIncorrectCollectionId
+  )
+  firstIncorrectCollections: GuessModeCollectionEntry;
+
+  @OneToMany(
+    () => GuessModeCollectionEntry,
+    (guessModeCollectionEntry) =>
+      guessModeCollectionEntry.secondIncorrectCollectionId
+  )
+  secondIncorrectCollections: GuessModeCollectionEntry;
+
+  @OneToMany(
+    () => GuessModeCollectionEntry,
+    (guessModeCollectionEntry) =>
+      guessModeCollectionEntry.thirdIncorrectCollectionId
+  )
+  thirdIncorrectCollections: GuessModeCollectionEntry;
 
   @Field()
   @Column()

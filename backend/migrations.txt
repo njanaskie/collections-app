@@ -5,5 +5,11 @@ in dataSource.ts:
 to clear schema:
     yarn typeorm query "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT USAGE ON SCHEMA public to PUBLIC; GRANT CREATE ON SCHEMA public to PUBLIC; COMMENT ON SCHEMA public IS 'standard public schema';" -d ./dist/database/dataSource.js
 
+add entity:
+    npx typeorm entity:create ./src/entities/TestEntity
+    
 to generate migrations:
     npx typeorm migration:generate ./src/database/migrations/Initial -d ./dist/database/dataSource.js
+
+to run migrations:
+    npx typeorm migration:run -d ./dist/database/dataSource.js

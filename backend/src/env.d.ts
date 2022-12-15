@@ -13,7 +13,6 @@ declare global {
       EMAIL_SENDER: string;
       TMDB_BASE_URL: string;
       TMDB_API_KEY: string;
-      COLLECTIONS_BASE_POINTS: string;
     }
   }
 }

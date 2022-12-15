@@ -24,7 +24,7 @@ import { Like } from "../entities/Like";
 import { User } from "../entities/User";
 import { CollectionEntry } from "../entities/CollectionEntry";
 import { CollectionEntryInput } from "./CollectionEntryInput";
-import { PRIME_NUMBERS } from "../constants";
+import { COLLECTIONS_BASE_POINTS, PRIME_NUMBERS } from "../constants";
 import { FieldError } from "./FieldError";
 import { SavedCollection } from "../entities/SavedCollection";
 import { CorrectGuess } from "../entities/CorrectGuess";
@@ -441,7 +441,7 @@ export class CollectionResolver {
     let basePoints = "";
     if (orderBy === "new") {
       orderParam;
-      basePoints = process.env.COLLECTIONS_BASE_POINTS;
+      basePoints = COLLECTIONS_BASE_POINTS.toString();
     } else if (orderBy === "popular") {
       // orderParam = 'c.points DESC, c."createdAt" DESC';
       orderParam = "c.points DESC";

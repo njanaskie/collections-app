@@ -1,0 +1,39 @@
+query GuessModeCollectionEntries {
+  guessModeCollectionEntries {
+    id
+    collectionEntry {
+      id
+      externalId
+      externalImagePath
+      externalReleaseDate
+      externalTitle
+    }
+    correctCollection {
+      id
+      title
+      reference
+    }
+    firstIncorrectCollection {
+      id
+      title
+      reference
+    }
+    secondIncorrectCollection {
+      id
+      title
+      reference
+    }
+    thirdIncorrectCollection {
+      id
+      title
+      reference
+    }
+    guessModePlayed {
+      optionId
+      success
+    }
+    optionsOrder
+    createdAt
+    updatedAt
+  }
+}

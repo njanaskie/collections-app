@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { Collection } from "./Collection";
 import { CorrectGuess } from "./CorrectGuess";
+import { GuessModeCollectionEntry } from "./GuessModeCollectionEntry";
 
 @ObjectType()
 @Entity()
@@ -21,7 +22,6 @@ export class CollectionEntry extends BaseEntity {
 
   @Field()
   @Column()
-  // @Index()
   collectionId: number;
 
   @Field(() => Collection)
@@ -32,6 +32,12 @@ export class CollectionEntry extends BaseEntity {
 
   @OneToMany(() => CorrectGuess, (correctGuess) => correctGuess.collectionEntry)
   correctGuess: CorrectGuess;
+
+  @OneToMany(
+    () => GuessModeCollectionEntry,
+    (guessModeCollectionEntry) => guessModeCollectionEntry.collectionEntry
+  )
+  guessModeCollectionEntries: GuessModeCollectionEntry;
 
   @Field()
   @Column()

@@ -84,6 +84,18 @@ const theme = extendTheme({
         background: "#5f4d7d",
         textColor: "gray.200",
       },
+      "span.swiper-pagination-bullet": {
+        height: 3,
+        width: 3,
+      },
+      "span.swiper-pagination-bullet.swiper-pagination-bullet-active": {
+        bgColor: colors.lightBlue,
+        opacity: 1,
+      },
+      ".swiper-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet, .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet":
+        {
+          marginX: 1.5,
+        },
     }),
   },
   colors: colors,

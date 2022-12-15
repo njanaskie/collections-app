@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
+import { isServer } from "./isServer";
 
 function getStorageValue(key: string, defaultValue: any) {
+  if (isServer()) return defaultValue;
+
   // getting stored value
   if (typeof window !== "undefined") {
     const saved = localStorage.getItem(key);

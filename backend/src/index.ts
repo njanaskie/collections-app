@@ -24,6 +24,8 @@ import "./tasks";
 import { CollectionEntryResolver } from "./resolvers/collectionEntry";
 import { createCorrectGuessesByUserLoader } from "./utils/createCorrectGuessesByUserLoader";
 import { createCollectionsByUserLoader } from "./utils/createCollectionsByUserLoader";
+import { GuessModeCollectionEntryResolver } from "./resolvers/guessModeCollectionEntry";
+import { GuessModePlayedResolver } from "./resolvers/guessModePlayed";
 
 const main = async () => {
   await AppDataSource.initialize();
@@ -38,6 +40,7 @@ const main = async () => {
   const redis = new Redis(process.env.REDIS_URL);
 
   app.set("trust proxy", 1);
+  // app.set("trust proxy", !__prod__); TODO
   app.use(
     cors({
       credentials: true,
@@ -57,6 +60,8 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
+        // sameSite: "none", // for studio
+        // secure: true, // for studio
         sameSite: "lax",
         secure: __prod__, // if true, studio works, postman doesn't; if false its the other way around
         domain: __prod__ ? ".thecollectionsgame.com" : undefined,
@@ -76,6 +81,8 @@ const main = async () => {
         CorrectGuessResolver,
         AppealResolver,
         LeaderboardResolver,
+        GuessModeCollectionEntryResolver,
+        GuessModePlayedResolver,
       ],
       validate: false,
     }),

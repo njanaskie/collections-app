@@ -23,6 +23,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Card } from "../components/card/Card";
+import { CollectionEntryGuessMode } from "../components/CollectionEntryGuessMode";
 import { Layout } from "../components/Layout";
 import { itemLimit } from "../constants";
 import { useCollectionsQuery } from "../generated/graphql";
@@ -207,24 +208,29 @@ const Index = () => {
           Next
         </Button>
       </Flex>
-      <Flex justify={mobile ? "center" : "flex-start"}>
+      {process.env.NEXT_PUBLIC_COLLECTION_ENTRY_MODE_ACTIVE === "true" && (
+        <>
+          <Flex bgColor={"blackAlpha.400"} h={2} borderRadius={10} my={8} />
+          <CollectionEntryGuessMode />
+        </>
+      )}
+      <Flex bgColor={"blackAlpha.400"} h={2} borderRadius={10} my={8} />
+      <Flex justify={"center"} align="center" direction={"column"}>
+        <Heading mr={2} size="sm" mb={4}>
+          Check out some of our top players
+        </Heading>
         <NextLink href="/leaderboard">
           <Button
             as={Link}
-            bgColor={"whiteAlpha.400"}
+            bgColor={"whiteAlpha.500"}
             color={theme.colors.darkBlue}
             borderRadius={10}
-            // mt={10}
             _hover={{ bg: theme.colors.lightOrange, textDecoration: "none" }}
             h={55}
-            pos="fixed"
-            bottom={5}
-            width={mobile ? "90%" : "auto"}
-            // flexGrow={1}
-            // variant="ghost"
+            width={mobile ? "100%" : "auto"}
           >
-            <Heading py={4} size={mobile ? "md" : "lg"}>
-              Top Players
+            <Heading p={4} size={mobile ? "md" : "lg"}>
+              Leaderboard
             </Heading>
           </Button>
         </NextLink>

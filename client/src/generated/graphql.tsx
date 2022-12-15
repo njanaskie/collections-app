@@ -124,6 +124,40 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type GuessModeCollectionEntry = {
+  __typename?: 'GuessModeCollectionEntry';
+  collectionEntry: CollectionEntry;
+  collectionEntryId: Scalars['Float'];
+  correctCollection: Collection;
+  correctCollectionId: Scalars['Float'];
+  createdAt: Scalars['String'];
+  firstIncorrectCollection: Collection;
+  firstIncorrectCollectionId: Scalars['Float'];
+  guessModePlayed?: Maybe<GuessModePlayed>;
+  guessModesPlayed?: Maybe<GuessModePlayed>;
+  id: Scalars['Float'];
+  optionsOrder: Array<Scalars['Float']>;
+  secondIncorrectCollection: Collection;
+  secondIncorrectCollectionId: Scalars['Float'];
+  thirdIncorrectCollection: Collection;
+  thirdIncorrectCollectionId: Scalars['Float'];
+  updatedAt: Scalars['String'];
+};
+
+export type GuessModePlayed = {
+  __typename?: 'GuessModePlayed';
+  createdAt: Scalars['String'];
+  id: Scalars['Float'];
+  mode: GuessModeCollectionEntry;
+  modeId: Scalars['Float'];
+  optionId: Scalars['Float'];
+  success: Scalars['Boolean'];
+  type: Scalars['String'];
+  updatedAt: Scalars['String'];
+  user: User;
+  userId?: Maybe<Scalars['Float']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   approveAppeal: Scalars['Boolean'];
@@ -131,8 +165,10 @@ export type Mutation = {
   createAppeal: AppealResponse;
   createCollection: CollectionResponse;
   createCorrectGuess: CorrectGuessResponse;
+  createGuessModePlayed: Scalars['Boolean'];
   deleteCollection: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
+  insertGuessModeCollectionEntry: Scalars['Boolean'];
   insertMostCompletedCollectionsUsers: Scalars['Boolean'];
   insertMostCreatedCollectionsUsers: Scalars['Boolean'];
   insertMostGuessesUsers: Scalars['Boolean'];
@@ -174,6 +210,11 @@ export type MutationCreateCollectionArgs = {
 
 export type MutationCreateCorrectGuessArgs = {
   guess: CorrectGuessInput;
+};
+
+
+export type MutationCreateGuessModePlayedArgs = {
+  input: PlayedInput;
 };
 
 
@@ -240,12 +281,20 @@ export type PaginatedCollections = {
   totalCount: Scalars['Float'];
 };
 
+export type PlayedInput = {
+  modeId: Scalars['Float'];
+  optionId: Scalars['Float'];
+  success: Scalars['Boolean'];
+  type: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   appealsReviewable: PaginatedAppeals;
   appealsSubmitted: PaginatedAppeals;
   collection?: Maybe<Collection>;
   collections: PaginatedCollections;
+  guessModeCollectionEntries: Array<GuessModeCollectionEntry>;
   me?: Maybe<User>;
   mostCompletedCollectionsUsers: Array<TopUser>;
   mostCreatedCollectionsUsers: Array<TopUser>;
@@ -423,6 +472,13 @@ export type CreateCorrectGuessMutationVariables = Exact<{
 
 export type CreateCorrectGuessMutation = { __typename?: 'Mutation', createCorrectGuess: { __typename?: 'CorrectGuessResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, correctGuess?: { __typename?: 'CorrectGuess', collectionEntryId: number, collectionId: number, guesserId: number } | null } };
 
+export type CreateGuessModePlayedMutationVariables = Exact<{
+  input: PlayedInput;
+}>;
+
+
+export type CreateGuessModePlayedMutation = { __typename?: 'Mutation', createGuessModePlayed: boolean };
+
 export type DeleteCollectionMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -530,6 +586,11 @@ export type CollectionsQueryVariables = Exact<{
 
 
 export type CollectionsQuery = { __typename?: 'Query', collections: { __typename?: 'PaginatedCollections', modulus?: number | null, hasMore: boolean, collections: Array<{ __typename?: 'Collection', id: number, reference: string, createdAt: string, updatedAt: string, titleSnippet?: string | null, points: number, voteStatus?: number | null, collectionEntriesLength: number, creator: { __typename?: 'User', id: number, username: string } }> } };
+
+export type GuessModeCollectionEntriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GuessModeCollectionEntriesQuery = { __typename?: 'Query', guessModeCollectionEntries: Array<{ __typename?: 'GuessModeCollectionEntry', id: number, optionsOrder: Array<number>, createdAt: string, updatedAt: string, collectionEntry: { __typename?: 'CollectionEntry', id: number, externalId: number, externalImagePath: string, externalReleaseDate: string, externalTitle: string }, correctCollection: { __typename?: 'Collection', id: number, title: string, reference: string }, firstIncorrectCollection: { __typename?: 'Collection', id: number, title: string, reference: string }, secondIncorrectCollection: { __typename?: 'Collection', id: number, title: string, reference: string }, thirdIncorrectCollection: { __typename?: 'Collection', id: number, title: string, reference: string }, guessModePlayed?: { __typename?: 'GuessModePlayed', optionId: number, success: boolean } | null }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -782,6 +843,15 @@ export const CreateCorrectGuessDocument = gql`
 export function useCreateCorrectGuessMutation() {
   return Urql.useMutation<CreateCorrectGuessMutation, CreateCorrectGuessMutationVariables>(CreateCorrectGuessDocument);
 };
+export const CreateGuessModePlayedDocument = gql`
+    mutation CreateGuessModePlayed($input: PlayedInput!) {
+  createGuessModePlayed(input: $input)
+}
+    `;
+
+export function useCreateGuessModePlayedMutation() {
+  return Urql.useMutation<CreateGuessModePlayedMutation, CreateGuessModePlayedMutationVariables>(CreateGuessModePlayedDocument);
+};
 export const DeleteCollectionDocument = gql`
     mutation DeleteCollection($id: Int!) {
   deleteCollection(id: $id)
@@ -962,6 +1032,51 @@ export const CollectionsDocument = gql`
 
 export function useCollectionsQuery(options: Omit<Urql.UseQueryArgs<CollectionsQueryVariables>, 'query'>) {
   return Urql.useQuery<CollectionsQuery>({ query: CollectionsDocument, ...options });
+};
+export const GuessModeCollectionEntriesDocument = gql`
+    query GuessModeCollectionEntries {
+  guessModeCollectionEntries {
+    id
+    collectionEntry {
+      id
+      externalId
+      externalImagePath
+      externalReleaseDate
+      externalTitle
+    }
+    correctCollection {
+      id
+      title
+      reference
+    }
+    firstIncorrectCollection {
+      id
+      title
+      reference
+    }
+    secondIncorrectCollection {
+      id
+      title
+      reference
+    }
+    thirdIncorrectCollection {
+      id
+      title
+      reference
+    }
+    guessModePlayed {
+      optionId
+      success
+    }
+    optionsOrder
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+export function useGuessModeCollectionEntriesQuery(options?: Omit<Urql.UseQueryArgs<GuessModeCollectionEntriesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GuessModeCollectionEntriesQuery>({ query: GuessModeCollectionEntriesDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {
