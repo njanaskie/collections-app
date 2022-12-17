@@ -6,11 +6,13 @@ import {
   Query,
   Resolver,
   Root,
+  UseMiddleware,
 } from "type-graphql";
 import AppDataSource from "../database/dataSource";
 import { GuessModeCollectionEntry } from "../entities/GuessModeCollectionEntry";
 import { GuessModePlayed } from "../entities/GuessModePlayed";
 import { MyContext } from "../types";
+import { verifyAuthHeader } from "../middleware/verifyAuthHeader";
 
 @Resolver(GuessModeCollectionEntry)
 export class GuessModeCollectionEntryResolver {
@@ -53,6 +55,7 @@ export class GuessModeCollectionEntryResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(verifyAuthHeader)
   async insertGuessModeCollectionEntry(): Promise<Boolean> {
     const queryRandomEntry = async () => {
       const [randomSelection] = await AppDataSource.query(

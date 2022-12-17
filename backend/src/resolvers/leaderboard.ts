@@ -1,7 +1,15 @@
 import { Leaderboard } from "../entities/Leaderboard";
 import { User } from "../entities/User";
-import { Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import {
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import AppDataSource from "../database/dataSource";
+import { verifyAuthHeader } from "../middleware/verifyAuthHeader";
 
 @ObjectType()
 class TopUser {
@@ -59,6 +67,7 @@ export class LeaderboardResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(verifyAuthHeader)
   async insertMostCreatedCollectionsUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `
@@ -95,6 +104,7 @@ export class LeaderboardResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(verifyAuthHeader)
   async insertMostCompletedCollectionsUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `
@@ -145,6 +155,7 @@ export class LeaderboardResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(verifyAuthHeader)
   async insertMostGuessesUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `
@@ -182,6 +193,7 @@ export class LeaderboardResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(verifyAuthHeader)
   async insertMostVotesUsers(): Promise<Boolean> {
     const users = await AppDataSource.query(
       `

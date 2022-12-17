@@ -13,6 +13,8 @@ declare global {
       EMAIL_SENDER: string;
       TMDB_BASE_URL: string;
       TMDB_API_KEY: string;
+      API_USERNAME: string;
+      API_PASSWORD: string;
     }
   }
 }
