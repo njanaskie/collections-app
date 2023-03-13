@@ -1,4 +1,4 @@
-import { GUESS_MODE_COLLECTION_ENTRY_COUNT } from "./constants";
+// import { GUESS_MODE_COLLECTION_ENTRY_COUNT } from "./constants";
 
 const cron = require("node-cron");
 const { request } = require("graphql-request");
@@ -68,13 +68,13 @@ cron.schedule("6 0 * * *", () => {
   );
 });
 
-cron.schedule("0 5 * * 0", () => {
-  let counter = 0;
-  const interval = setInterval(() => {
-    request(process.env.API_URL, insertGuessModeCollectionEntry, null, headers);
-    counter++;
-    if (counter === GUESS_MODE_COLLECTION_ENTRY_COUNT) {
-      clearInterval(interval);
-    }
-  }, 1000);
-});
+// cron.schedule("0 5 * * 0", () => {
+//   let counter = 0;
+//   const interval = setInterval(() => {
+//     request(process.env.API_URL, insertGuessModeCollectionEntry, null, headers);
+//     counter++;
+//     if (counter === GUESS_MODE_COLLECTION_ENTRY_COUNT) {
+//       clearInterval(interval);
+//     }
+//   }, 1000);
+// });
